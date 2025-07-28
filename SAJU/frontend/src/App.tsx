@@ -192,9 +192,13 @@ function App() {
     setError('');
     
     try {
+      console.log('요청 데이터:', formData);
       const response = await axios.post('http://localhost:8000/api/v1/saju/analyze', formData);
+      console.log('API 응답:', response.data);
       setResult(response.data);
     } catch (err: any) {
+      console.error('API 오류:', err);
+      console.error('응답 데이터:', err.response?.data);
       setError(err.response?.data?.detail || '분석 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
@@ -294,7 +298,7 @@ function App() {
 
       {result && (
         <ResultContainer>
-          <h2>{result.basic_info.name}님의 사주팔자</h2>
+          <h2>{result.basic_info?.name || '사용자'}님의 사주팔자</h2>
           
           <SajuGrid>
             <SajuPillar>

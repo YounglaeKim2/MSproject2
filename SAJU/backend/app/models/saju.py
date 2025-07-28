@@ -4,12 +4,12 @@ from typing import Optional, List, Dict, Any
 
 class BirthInfoRequest(BaseModel):
     """사주 생성을 위한 출생 정보"""
-    year: int = Field(..., ge=1900, le=2100, description="출생년도")
-    month: int = Field(..., ge=1, le=12, description="출생월")
-    day: int = Field(..., ge=1, le=31, description="출생일")
-    hour: int = Field(..., ge=0, le=23, description="출생시간")
-    gender: str = Field(..., pattern="^(male|female)$", description="성별 (male/female)")
-    name: Optional[str] = Field(None, description="이름")
+    year: int
+    month: int
+    day: int
+    hour: int
+    gender: str
+    name: str
 
 class SajuPaljaResponse(BaseModel):
     """사주팔자 응답"""
@@ -61,3 +61,45 @@ class ErrorResponse(BaseModel):
     """에러 응답"""
     error: str = Field(..., description="에러 메시지")
     detail: Optional[str] = Field(None, description="상세 에러 정보")
+
+# 프론트엔드 호환 모델들
+class BasicInfo(BaseModel):
+    """기본 정보"""
+    name: str
+    birth_date: str
+    gender: str
+
+class PillarInfo(BaseModel):
+    """주차 정보"""
+    stem: str
+    branch: str
+
+class SajuPalja(BaseModel):
+    """사주팔자"""
+    year_pillar: PillarInfo
+    month_pillar: PillarInfo  
+    day_pillar: PillarInfo
+    hour_pillar: PillarInfo
+
+class WuxingAnalysisSimple(BaseModel):
+    """오행 분석 (간단)"""
+    목: int = Field(0, description="목")
+    화: int = Field(0, description="화") 
+    토: int = Field(0, description="토")
+    금: int = Field(0, description="금")
+    수: int = Field(0, description="수")
+
+class InterpretationsSimple(BaseModel):
+    """해석 (간단)"""
+    personality: str
+    career: str
+    health: str
+    relationships: str
+    wealth: str
+
+class SajuAnalysisSimpleResponse(BaseModel):
+    """프론트엔드 호환 사주 분석 응답"""
+    basic_info: BasicInfo
+    saju_palja: SajuPalja
+    wuxing_analysis: WuxingAnalysisSimple
+    interpretations: InterpretationsSimple
