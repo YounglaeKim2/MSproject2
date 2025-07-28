@@ -1,4 +1,5 @@
 from typing import Dict, Any, List, Tuple
+from datetime import datetime, timedelta
 from app.database.connection import manseryuk_db
 from app.models.saju import BirthInfoRequest, SajuPaljaResponse, WuXingAnalysis, TenStarsAnalysis
 
@@ -37,6 +38,14 @@ class SajuAnalyzer:
     GENERATE_CYCLE = {'목': '화', '화': '토', '토': '금', '금': '수', '수': '목'}
     OVERCOME_CYCLE = {'목': '토', '화': '금', '토': '수', '금': '목', '수': '화'}
     
+    # 천간/지지 순서 (대운 계산용)
+    HEAVENLY_STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']
+    EARTHLY_BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']
+    
+    # 음양 구분
+    YANG_STEMS = ['甲', '丙', '戊', '庚', '壬']
+    YIN_STEMS = ['乙', '丁', '己', '辛', '癸']
+    
     def __init__(self):
         self.db = manseryuk_db
     
@@ -60,6 +69,9 @@ class SajuAnalyzer:
         relationship = self.analyze_relationship(palja, wuxing, ten_stars)
         fortune = self.analyze_fortune(palja, wuxing, ten_stars)
         
+        # 6. 대운 분석 추가
+        daeun = self.calculate_daeun(birth_info, palja)
+        
         return {
             "palja": palja,
             "wuxing": wuxing,
@@ -68,7 +80,8 @@ class SajuAnalyzer:
             "career": career,
             "health": health,
             "relationship": relationship,
-            "fortune": fortune
+            "fortune": fortune,
+            "daeun": daeun
         }
     
     def extract_palja(self, birth_info: BirthInfoRequest) -> SajuPaljaResponse:
@@ -672,6 +685,549 @@ class SajuAnalyzer:
         fortune["cautions"].append(f"{wuxing.avoid_god} 관련 분야 투자 신중")
         
         return fortune
+    
+    # ==================== 대운 분석 메서드들 ====================
+    
+    def calculate_daeun(self, birth_info: BirthInfoRequest, palja: SajuPaljaResponse) -> Dict[str, Any]:
+        """대운 계산 및 분석"""
+        # 1. 대운수 계산
+        daeun_start_age = self._calculate_daeun_start_age(birth_info, palja)
+        
+        # 2. 순행/역행 판단
+        is_forward = self._determine_daeun_direction(birth_info.gender, palja.year_gan)
+        
+        # 3. 대운 시퀀스 생성
+        daeun_sequence = self._generate_daeun_sequence(palja.month_gan, palja.month_ji, is_forward)
+        
+        # 4. 각 대운별 분석
+        daeun_analysis = []
+        current_year = datetime.now().year
+        birth_year = birth_info.year
+        current_age = current_year - birth_year + 1
+        
+        for i, (gan, ji) in enumerate(daeun_sequence[:8]):  # 80세까지
+            start_age = daeun_start_age + (i * 10)
+            end_age = start_age + 9
+            
+            # 현재 대운인지 확인
+            is_current = start_age <= current_age <= end_age
+            
+            # 대운 분석
+            daeun_info = self._analyze_single_daeun(
+                gan, ji, start_age, end_age, palja, is_current
+            )
+            
+            daeun_analysis.append(daeun_info)
+        
+        return {
+            "daeun_start_age": daeun_start_age,
+            "is_forward": is_forward,
+            "current_age": current_age,
+            "daeun_list": daeun_analysis
+        }
+    
+    def _calculate_daeun_start_age(self, birth_info: BirthInfoRequest, palja: SajuPaljaResponse) -> int:
+        """대운수 계산 (대운 시작 나이)"""
+        # 생일과 해당 월의 절기 사이의 날짜 차이를 계산
+        # 간단한 계산 방식 사용 (실제로는 더 정밀한 절기 계산 필요)
+        
+        # 월별 절기 대략적 날짜 (실제로는 만세력 DB에서 가져와야 함)
+        month_jieqi = {
+            1: 4,   # 입춘
+            2: 19,  # 경칩  
+            3: 21,  # 청명
+            4: 20,  # 입하
+            5: 21,  # 망종
+            6: 21,  # 소서
+            7: 23,  # 입추
+            8: 23,  # 처서
+            9: 23,  # 한로
+            10: 23, # 입동
+            11: 22, # 대설
+            12: 22  # 소한
+        }
+        
+        jieqi_day = month_jieqi.get(birth_info.month, 15)
+        
+        # 생일과 절기의 차이 계산
+        if birth_info.day < jieqi_day:
+            # 절기 전에 태어남 - 이전 달 기준
+            days_diff = jieqi_day - birth_info.day
+        else:
+            # 절기 후에 태어남 - 다음 절기까지의 날짜
+            next_month = birth_info.month + 1 if birth_info.month < 12 else 1
+            next_jieqi = month_jieqi.get(next_month, 15)
+            days_in_month = 30  # 간단화
+            days_diff = (days_in_month - birth_info.day) + next_jieqi
+        
+        # 3일을 1년으로 계산
+        daeun_start_age = days_diff // 3
+        
+        # 최소 1세, 최대 10세로 제한
+        return max(1, min(10, daeun_start_age))
+    
+    def _determine_daeun_direction(self, gender: str, year_gan: str) -> bool:
+        """대운 순행/역행 판단"""
+        is_yang_year = year_gan in self.YANG_STEMS
+        is_male = gender.lower() == 'male'
+        
+        # 연주가 양이고 남성이면 순행, 연주가 양이고 여성이면 역행
+        # 연주가 음이고 남성이면 역행, 연주가 음이고 여성이면 순행
+        if is_yang_year:
+            return is_male  # 양간 + 남성 = 순행, 양간 + 여성 = 역행
+        else:
+            return not is_male  # 음간 + 남성 = 역행, 음간 + 여성 = 순행
+    
+    def _generate_daeun_sequence(self, month_gan: str, month_ji: str, is_forward: bool) -> List[Tuple[str, str]]:
+        """대운 시퀀스 생성"""
+        sequence = []
+        
+        # 월주를 기준으로 순행/역행
+        gan_index = self.HEAVENLY_STEMS.index(month_gan)
+        ji_index = self.EARTHLY_BRANCHES.index(month_ji)
+        
+        for i in range(1, 9):  # 80세까지 (8개 대운)
+            if is_forward:
+                new_gan_index = (gan_index + i) % 10
+                new_ji_index = (ji_index + i) % 12
+            else:
+                new_gan_index = (gan_index - i) % 10
+                new_ji_index = (ji_index - i) % 12
+            
+            sequence.append((
+                self.HEAVENLY_STEMS[new_gan_index],
+                self.EARTHLY_BRANCHES[new_ji_index]
+            ))
+        
+        return sequence
+    
+    def _analyze_single_daeun(self, gan: str, ji: str, start_age: int, end_age: int, 
+                             palja: SajuPaljaResponse, is_current: bool) -> Dict[str, Any]:
+        """개별 대운 분석"""
+        # 대운의 오행
+        gan_wuxing = self.WUXING_MAP.get(gan, '토')
+        ji_wuxing = self.WUXING_MAP.get(ji, '토')
+        
+        # 일간과의 관계
+        day_gan_wuxing = self.WUXING_MAP[palja.day_gan]
+        
+        # 대운의 길흉 판단
+        fortune_level = self._judge_daeun_fortune(gan_wuxing, ji_wuxing, day_gan_wuxing)
+        
+        # 대운 특성 분석
+        characteristics = self._analyze_daeun_characteristics(gan, ji, day_gan_wuxing)
+        
+        # 주요 이벤트 예측
+        major_events = self._predict_daeun_events(gan_wuxing, ji_wuxing, day_gan_wuxing)
+        
+        return {
+            "period": f"{start_age}세 - {end_age}세",
+            "start_age": start_age,
+            "end_age": end_age,
+            "gan": gan,
+            "ji": ji,
+            "gan_wuxing": gan_wuxing,
+            "ji_wuxing": ji_wuxing,
+            "is_current": is_current,
+            "fortune_level": fortune_level,
+            "characteristics": characteristics,
+            "major_events": major_events,
+            "advice": self._get_daeun_advice(fortune_level, characteristics)
+        }
+    
+    def _judge_daeun_fortune(self, gan_wuxing: str, ji_wuxing: str, day_gan_wuxing: str) -> str:
+        """대운의 길흉 판단"""
+        score = 0
+        
+        # 천간(대운 전반기 5년)의 영향
+        if gan_wuxing == day_gan_wuxing:
+            score += 2  # 동일 오행 - 도움
+        elif self.GENERATE_CYCLE.get(gan_wuxing) == day_gan_wuxing:
+            score += 3  # 상생 관계 - 매우 도움
+        elif self.OVERCOME_CYCLE.get(gan_wuxing) == day_gan_wuxing:
+            score -= 2  # 상극 관계 - 방해
+        
+        # 지지(대운 후반기 5년)의 영향
+        if ji_wuxing == day_gan_wuxing:
+            score += 2
+        elif self.GENERATE_CYCLE.get(ji_wuxing) == day_gan_wuxing:
+            score += 3
+        elif self.OVERCOME_CYCLE.get(ji_wuxing) == day_gan_wuxing:
+            score -= 2
+        
+        # 점수에 따른 길흉 판단
+        if score >= 4:
+            return "대길"
+        elif score >= 2:
+            return "소길"
+        elif score >= -1:
+            return "평운"
+        elif score >= -3:
+            return "소흉"
+        else:
+            return "대흉"
+    
+    def _analyze_daeun_characteristics(self, gan: str, ji: str, day_gan_wuxing: str) -> List[str]:
+        """대운 특성 분석"""
+        characteristics = []
+        
+        gan_wuxing = self.WUXING_MAP.get(gan, '토')
+        ji_wuxing = self.WUXING_MAP.get(ji, '토')
+        
+        # 천간 특성 (전반기 5년)
+        gan_traits = {
+            '목': ['성장과 발전의 시기', '새로운 시작', '학습과 창조력 증진'],
+            '화': ['활발한 활동과 성과', '인기와 명예', '열정적인 도전'],
+            '토': ['안정과 기반 구축', '신뢰 관계 형성', '꾸준한 발전'],
+            '금': ['정리와 완성의 시기', '원칙과 규율', '전문성 강화'],
+            '수': ['깊이 있는 사고', '지혜와 통찰', '내면의 성장']
+        }
+        
+        # 지지 특성 (후반기 5년)  
+        ji_traits = {
+            '목': ['실질적 성장 실현', '구체적 성과', '안정적 발전'],
+            '화': ['사회적 성공', '대외 활동 활발', '리더십 발휘'],
+            '토': ['기반 완성과 수확', '재물 축적', '사회적 인정'],
+            '금': ['완성과 결실', '전문 분야 성취', '권위 확립'],
+            '수': ['지혜로운 판단', '깊은 인맥', '정신적 성숙']
+        }
+        
+        characteristics.extend(gan_traits.get(gan_wuxing, ['변화의 시기']))
+        characteristics.extend(ji_traits.get(ji_wuxing, ['안정의 시기']))
+        
+        return characteristics[:4]  # 상위 4개 특성만
+    
+    def _predict_daeun_events(self, gan_wuxing: str, ji_wuxing: str, day_gan_wuxing: str) -> List[str]:
+        """대운 시기 주요 이벤트 예측"""
+        events = []
+        
+        # 상생/상극 관계에 따른 이벤트 예측
+        if self.GENERATE_CYCLE.get(gan_wuxing) == day_gan_wuxing:
+            events.append("전반기: 도움되는 인물 만남")
+            events.append("전반기: 새로운 기회 발생")
+        
+        if self.GENERATE_CYCLE.get(ji_wuxing) == day_gan_wuxing:
+            events.append("후반기: 실질적 성과 달성")
+            events.append("후반기: 안정적 기반 구축")
+        
+        if self.OVERCOME_CYCLE.get(gan_wuxing) == day_gan_wuxing:
+            events.append("전반기: 어려움 극복 필요")
+        
+        if self.OVERCOME_CYCLE.get(ji_wuxing) == day_gan_wuxing:
+            events.append("후반기: 신중한 판단 요구")
+        
+        # 기본 이벤트가 없으면 일반적인 예측 추가
+        if not events:
+            events = ["점진적 변화", "새로운 경험", "성장 기회"]
+        
+        return events[:3]  # 상위 3개 이벤트만
+    
+    def _get_daeun_advice(self, fortune_level: str, characteristics: List[str]) -> str:
+        """대운별 조언"""
+        advice_map = {
+            "대길": "최고의 운세 시기입니다. 적극적으로 도전하고 큰 계획을 실행하기에 좋습니다.",
+            "소길": "좋은 운세의 시기입니다. 차근차근 계획을 세워 실행하면 좋은 결과를 얻을 수 있습니다.",
+            "평운": "안정된 운세입니다. 기존의 것을 유지하면서 점진적 발전을 도모하세요.",
+            "소흉": "다소 어려운 시기입니다. 신중하게 행동하고 기존 기반을 다지는 데 집중하세요.",
+            "대흉": "주의가 필요한 시기입니다. 큰 변화보다는 현상 유지에 집중하고 인내하세요."
+        }
+        
+        return advice_map.get(fortune_level, "균형 잡힌 시각으로 삶을 바라보세요.")
+    
+    # ==================== 세운 분석 메서드들 ====================
+    
+    def calculate_saeun(self, birth_info: BirthInfoRequest, palja: SajuPaljaResponse, target_year: int = None) -> Dict[str, Any]:
+        """세운 계산 및 분석"""
+        if target_year is None:
+            target_year = datetime.now().year
+        
+        # 1. 연간 세운 계산
+        yearly_saeun = self._calculate_yearly_saeun(target_year)
+        
+        # 2. 월별 세운 계산
+        monthly_saeun = self._calculate_monthly_saeun(target_year)
+        
+        # 3. 개인 사주와 세운의 상호작용 분석
+        saeun_interaction = self._analyze_saeun_interaction(palja, yearly_saeun, monthly_saeun)
+        
+        # 4. 중요 시기 분석
+        critical_periods = self._get_critical_periods(saeun_interaction)
+        
+        # 5. 연간 운세 종합 점수
+        annual_score = self._calculate_annual_fortune_score(saeun_interaction)
+        
+        return {
+            "target_year": target_year,
+            "yearly_saeun": yearly_saeun,
+            "monthly_saeun": monthly_saeun,
+            "annual_score": annual_score,
+            "saeun_interaction": saeun_interaction,
+            "critical_periods": critical_periods,
+            "summary": self._generate_annual_summary(annual_score, critical_periods)
+        }
+    
+    def _calculate_yearly_saeun(self, target_year: int) -> Dict[str, Any]:
+        """연간 세운 계산 (해당 연도의 천간지지)"""
+        # 갑자 60간지 순서
+        ganzhi_cycle = []
+        for gan in self.HEAVENLY_STEMS:
+            for ji in self.EARTHLY_BRANCHES:
+                ganzhi_cycle.append((gan, ji))
+        
+        # 기준년도 (갑자년) - 1984년을 갑자년으로 설정
+        base_year = 1984
+        year_offset = (target_year - base_year) % 60
+        
+        yearly_gan, yearly_ji = ganzhi_cycle[year_offset]
+        yearly_gan_wuxing = self.WUXING_MAP.get(yearly_gan, '토')
+        yearly_ji_wuxing = self.WUXING_MAP.get(yearly_ji, '토')
+        
+        return {
+            "year": target_year,
+            "gan": yearly_gan,
+            "ji": yearly_ji,
+            "gan_wuxing": yearly_gan_wuxing,
+            "ji_wuxing": yearly_ji_wuxing,
+            "ganzhi": yearly_gan + yearly_ji
+        }
+    
+    def _calculate_monthly_saeun(self, target_year: int) -> List[Dict[str, Any]]:
+        """월별 세운 계산"""
+        monthly_saeun = []
+        
+        # 월별 지지 (자축인묘진사오미신유술해)
+        monthly_ji_map = {
+            1: '寅',  # 정월 (입춘)
+            2: '卯',  # 2월 (경칩)
+            3: '辰',  # 3월 (청명)
+            4: '巳',  # 4월 (입하)
+            5: '午',  # 5월 (망종)
+            6: '未',  # 6월 (소서)
+            7: '申',  # 7월 (입추)
+            8: '酉',  # 8월 (처서)
+            9: '戌',  # 9월 (한로)
+            10: '亥', # 10월 (입동)
+            11: '子', # 11월 (대설)
+            12: '丑'  # 12월 (소한)
+        }
+        
+        # 연간 천간을 기준으로 월간 천간 계산
+        yearly_saeun = self._calculate_yearly_saeun(target_year)
+        year_gan_index = self.HEAVENLY_STEMS.index(yearly_saeun['gan'])
+        
+        for month in range(1, 13):
+            # 월간 천간 계산 (오호덕법)
+            # 갑기년 - 정월부터 병인, 을경년 - 정월부터 무인...
+            if yearly_saeun['gan'] in ['甲', '己']:
+                month_gan_start = 2  # 丙
+            elif yearly_saeun['gan'] in ['乙', '庚']:
+                month_gan_start = 4  # 戊
+            elif yearly_saeun['gan'] in ['丙', '辛']:
+                month_gan_start = 6  # 庚
+            elif yearly_saeun['gan'] in ['丁', '壬']:
+                month_gan_start = 8  # 壬
+            else:  # 戊, 癸
+                month_gan_start = 0  # 甲
+            
+            month_gan_index = (month_gan_start + month - 1) % 10
+            month_gan = self.HEAVENLY_STEMS[month_gan_index]
+            month_ji = monthly_ji_map[month]
+            
+            month_gan_wuxing = self.WUXING_MAP.get(month_gan, '토')
+            month_ji_wuxing = self.WUXING_MAP.get(month_ji, '토')
+            
+            monthly_saeun.append({
+                "month": month,
+                "gan": month_gan,
+                "ji": month_ji,
+                "gan_wuxing": month_gan_wuxing,
+                "ji_wuxing": month_ji_wuxing,
+                "ganzhi": month_gan + month_ji
+            })
+        
+        return monthly_saeun
+    
+    def _analyze_saeun_interaction(self, palja: SajuPaljaResponse, yearly_saeun: Dict, monthly_saeun: List[Dict]) -> Dict[str, Any]:
+        """개인 사주와 세운의 상호작용 분석"""
+        day_gan_wuxing = self.WUXING_MAP[palja.day_gan]
+        
+        # 연간 상호작용 분석
+        yearly_interaction = self._analyze_single_period_interaction(
+            day_gan_wuxing, yearly_saeun['gan_wuxing'], yearly_saeun['ji_wuxing']
+        )
+        
+        # 월별 상호작용 분석
+        monthly_interactions = []
+        for month_data in monthly_saeun:
+            interaction = self._analyze_single_period_interaction(
+                day_gan_wuxing, month_data['gan_wuxing'], month_data['ji_wuxing']
+            )
+            interaction.update({
+                "month": month_data['month'],
+                "ganzhi": month_data['ganzhi']
+            })
+            monthly_interactions.append(interaction)
+        
+        return {
+            "yearly": yearly_interaction,
+            "monthly": monthly_interactions
+        }
+    
+    def _analyze_single_period_interaction(self, day_gan_wuxing: str, period_gan_wuxing: str, period_ji_wuxing: str) -> Dict[str, Any]:
+        """단일 기간(연/월)의 상호작용 분석"""
+        score = 0
+        characteristics = []
+        warnings = []
+        opportunities = []
+        
+        # 천간 상호작용 (정신적/심리적 영향)
+        if period_gan_wuxing == day_gan_wuxing:
+            score += 2
+            characteristics.append("자아 강화")
+            opportunities.append("자신감 있는 도전")
+        elif self.GENERATE_CYCLE.get(period_gan_wuxing) == day_gan_wuxing:
+            score += 3
+            characteristics.append("도움되는 기운")
+            opportunities.append("협력자 출현")
+        elif self.OVERCOME_CYCLE.get(period_gan_wuxing) == day_gan_wuxing:
+            score -= 2
+            characteristics.append("압박과 시련")
+            warnings.append("신중한 결정 필요")
+        
+        # 지지 상호작용 (현실적/물질적 영향)
+        if period_ji_wuxing == day_gan_wuxing:
+            score += 2
+            characteristics.append("안정적 기반")
+            opportunities.append("실질적 성과")
+        elif self.GENERATE_CYCLE.get(period_ji_wuxing) == day_gan_wuxing:
+            score += 3
+            characteristics.append("성장 동력")
+            opportunities.append("새로운 기회")
+        elif self.OVERCOME_CYCLE.get(period_ji_wuxing) == day_gan_wuxing:
+            score -= 2
+            characteristics.append("장애물 존재")
+            warnings.append("계획 재검토")
+        
+        # 길흉 판단
+        if score >= 4:
+            fortune_level = "대길"
+        elif score >= 2:
+            fortune_level = "소길"
+        elif score >= -1:
+            fortune_level = "평운"
+        elif score >= -3:
+            fortune_level = "소흉"
+        else:
+            fortune_level = "대흉"
+        
+        return {
+            "score": score,
+            "fortune_level": fortune_level,
+            "characteristics": characteristics[:3],  # 최대 3개
+            "opportunities": opportunities[:2],      # 최대 2개
+            "warnings": warnings[:2],               # 최대 2개
+        }
+    
+    def _get_critical_periods(self, saeun_interaction: Dict) -> Dict[str, Any]:
+        """중요 시기 (주의/기회) 분석"""
+        monthly_data = saeun_interaction['monthly']
+        
+        # 최고 운세 월
+        best_months = []
+        # 주의 필요 월
+        caution_months = []
+        # 기회의 월
+        opportunity_months = []
+        
+        for month_data in monthly_data:
+            month = month_data['month']
+            score = month_data['score']
+            fortune_level = month_data['fortune_level']
+            
+            if fortune_level in ['대길', '소길'] and score >= 3:
+                best_months.append({
+                    "month": month,
+                    "score": score,
+                    "level": fortune_level
+                })
+            
+            if fortune_level in ['대흉', '소흉']:
+                caution_months.append({
+                    "month": month,
+                    "score": score,
+                    "level": fortune_level
+                })
+            
+            if month_data['opportunities']:
+                opportunity_months.append({
+                    "month": month,
+                    "opportunities": month_data['opportunities']
+                })
+        
+        return {
+            "best_months": sorted(best_months, key=lambda x: x['score'], reverse=True)[:3],
+            "caution_months": sorted(caution_months, key=lambda x: x['score'])[:3],
+            "opportunity_months": opportunity_months[:4]
+        }
+    
+    def _calculate_annual_fortune_score(self, saeun_interaction: Dict) -> Dict[str, Any]:
+        """연간 운세 종합 점수 계산"""
+        yearly_score = saeun_interaction['yearly']['score']
+        monthly_scores = [month['score'] for month in saeun_interaction['monthly']]
+        
+        # 가중 평균 (연간 70%, 월간 평균 30%)
+        monthly_avg = sum(monthly_scores) / len(monthly_scores)
+        total_score = (yearly_score * 0.7) + (monthly_avg * 0.3)
+        
+        # 정규화 (0-100점)
+        normalized_score = max(0, min(100, (total_score + 5) * 10))  # -5~5 점수를 0~100으로 변환
+        
+        # 등급 판정
+        if normalized_score >= 80:
+            grade = "최상"
+        elif normalized_score >= 65:
+            grade = "상"
+        elif normalized_score >= 50:
+            grade = "중"
+        elif normalized_score >= 35:
+            grade = "하"
+        else:
+            grade = "최하"
+        
+        return {
+            "total_score": round(total_score, 1),
+            "normalized_score": round(normalized_score, 1),
+            "grade": grade,
+            "yearly_contribution": yearly_score,
+            "monthly_average": round(monthly_avg, 1)
+        }
+    
+    def _generate_annual_summary(self, annual_score: Dict, critical_periods: Dict) -> str:
+        """연간 운세 종합 요약"""
+        grade = annual_score['grade']
+        score = annual_score['normalized_score']
+        
+        base_summary = {
+            "최상": f"올해는 매우 좋은 운세의 해입니다 ({score}점). 적극적인 도전과 새로운 시작에 최적의 시기입니다.",
+            "상": f"올해는 좋은 운세의 해입니다 ({score}점). 계획했던 일들을 차근차근 실행하기에 좋습니다.",
+            "중": f"올해는 안정적인 운세의 해입니다 ({score}점). 기존 기반을 다지며 점진적 발전을 도모하세요.",
+            "하": f"올해는 신중함이 필요한 해입니다 ({score}점). 급한 변화보다는 현상 유지에 집중하세요.",
+            "최하": f"올해는 인내가 필요한 해입니다 ({score}점). 어려움을 극복하며 내실을 다지는 시기로 보세요."
+        }
+        
+        summary = base_summary.get(grade, "균형 잡힌 한 해가 될 것입니다.")
+        
+        # 주의 월이 있으면 추가
+        if critical_periods['caution_months']:
+            caution_months_str = ', '.join([f"{m['month']}월" for m in critical_periods['caution_months']])
+            summary += f" 특히 {caution_months_str}에는 신중한 판단이 필요합니다."
+        
+        # 좋은 월이 있으면 추가
+        if critical_periods['best_months']:
+            best_months_str = ', '.join([f"{m['month']}월" for m in critical_periods['best_months']])
+            summary += f" {best_months_str}은 특히 좋은 시기가 될 것입니다."
+        
+        return summary
 
 # 싱글톤 인스턴스
 saju_analyzer = SajuAnalyzer()

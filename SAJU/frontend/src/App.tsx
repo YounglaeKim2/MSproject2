@@ -261,6 +261,111 @@ interface FormData {
   name: string;
 }
 
+interface DaeunInfo {
+  period: string;
+  start_age: number;
+  end_age: number;
+  gan: string;
+  ji: string;
+  gan_wuxing: string;
+  ji_wuxing: string;
+  is_current: boolean;
+  fortune_level: string;
+  characteristics: string[];
+  major_events: string[];
+  advice: string;
+}
+
+interface DaeunResult {
+  basic_info: any;
+  palja: {
+    year_pillar: { stem: string; branch: string };
+    month_pillar: { stem: string; branch: string };
+    day_pillar: { stem: string; branch: string };
+    hour_pillar: { stem: string; branch: string };
+  };
+  daeun_analysis: {
+    daeun_start_age: number;
+    is_forward: boolean;
+    current_age: number;
+    daeun_list: DaeunInfo[];
+  };
+}
+
+interface SaeunInfo {
+  month: number;
+  month_name: string;
+  gan: string;
+  ji: string;
+  gan_wuxing: string;
+  ji_wuxing: string;
+  fortune_score: number;
+  fortune_grade: string;
+  interaction_analysis: {
+    favorable_aspects: string[];
+    challenging_aspects: string[];
+    recommendations: string[];
+  };
+  summary: string;
+}
+
+interface SaeunResult {
+  basic_info: {
+    name: string;
+    birth_date: string;
+    gender: string;
+    target_year: number;
+  };
+  palja: {
+    year_pillar: { stem: string; branch: string };
+    month_pillar: { stem: string; branch: string };
+    day_pillar: { stem: string; branch: string };
+    hour_pillar: { stem: string; branch: string };
+  };
+  saeun_analysis: {
+    target_year: number;
+    yearly_saeun: {
+      gan: string;
+      ji: string;
+      gan_wuxing: string;
+      ji_wuxing: string;
+      ganzhi: string;
+    };
+    monthly_saeun: SaeunInfo[];
+    annual_score: {
+      total_score: number;
+      normalized_score: number;
+      grade: string;
+      yearly_contribution: number;
+      monthly_average: number;
+    };
+    saeun_interaction: {
+      yearly: {
+        score: number;
+        fortune_level: string;
+        characteristics: string[];
+        opportunities: string[];
+        warnings: string[];
+      };
+      monthly: Array<{
+        score: number;
+        fortune_level: string;
+        characteristics: string[];
+        opportunities: string[];
+        warnings: string[];
+        month: number;
+        ganzhi: string;
+      }>;
+    };
+    critical_periods: {
+      best_months: Array<{ month: number; score: number; level: string }>;
+      caution_months: Array<{ month: number; score: number; level: string }>;
+      opportunity_months: Array<{ month: number; opportunities: string[] }>;
+    };
+    summary: string;
+  };
+}
+
 interface SajuResult {
   basic_info: any;
   saju_palja: {
@@ -331,7 +436,12 @@ function App() {
   });
 
   const [result, setResult] = useState<SajuResult | null>(null);
+  const [daeunResult, setDaeunResult] = useState<DaeunResult | null>(null);
+  const [saeunResult, setSaeunResult] = useState<SaeunResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [daeunLoading, setDaeunLoading] = useState(false);
+  const [saeunLoading, setSaeunLoading] = useState(false);
+  const [targetYear, setTargetYear] = useState<number>(new Date().getFullYear());
   const [error, setError] = useState("");
 
   const handleInputChange = (
@@ -368,6 +478,48 @@ function App() {
       setError(err.response?.data?.detail || "분석 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDaeunAnalysis = async () => {
+    setDaeunLoading(true);
+    setError("");
+
+    try {
+      console.log("대운 분석 요청 데이터:", formData);
+      const response = await axios.post(
+        "http://localhost:8000/api/v1/saju/daeun",
+        formData
+      );
+      console.log("대운 분석 API 응답:", response.data);
+      setDaeunResult(response.data);
+    } catch (err: any) {
+      console.error("대운 분석 API 오류:", err);
+      console.error("응답 데이터:", err.response?.data);
+      setError(err.response?.data?.detail || "대운 분석 중 오류가 발생했습니다.");
+    } finally {
+      setDaeunLoading(false);
+    }
+  };
+
+  const handleSaeunAnalysis = async () => {
+    setSaeunLoading(true);
+    setError("");
+
+    try {
+      console.log("세운 분석 요청 데이터:", formData, "대상연도:", targetYear);
+      const response = await axios.post(
+        `http://localhost:8000/api/v1/saju/saeun?target_year=${targetYear}`,
+        formData
+      );
+      console.log("세운 분석 API 응답:", response.data);
+      setSaeunResult(response.data);
+    } catch (err: any) {
+      console.error("세운 분석 API 오류:", err);
+      console.error("응답 데이터:", err.response?.data);
+      setError(err.response?.data?.detail || "세운 분석 중 오류가 발생했습니다.");
+    } finally {
+      setSaeunLoading(false);
     }
   };
 
@@ -461,6 +613,61 @@ function App() {
 
         <Button type="submit" disabled={loading}>
           {loading ? "분석 중..." : "사주 분석하기"}
+        </Button>
+      </Form>
+
+      {/* 대운 분석 섹션 */}
+      <Form style={{ marginTop: '20px', background: '#f8f9fa', border: '2px solid #e9ecef' }}>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <h3 style={{ color: '#495057', margin: '0 0 10px 0' }}>🌟 대운 분석</h3>
+          <p style={{ color: '#6c757d', margin: 0, fontSize: '14px' }}>
+            인생 전체의 운세 흐름을 10년 주기로 분석합니다
+          </p>
+        </div>
+        <Button 
+          type="button" 
+          disabled={daeunLoading || !formData.name}
+          onClick={handleDaeunAnalysis}
+          style={{ 
+            background: daeunLoading ? '#6c757d' : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            marginTop: '0'
+          }}
+        >
+          {daeunLoading ? "대운 분석 중..." : "대운 분석하기"}
+        </Button>
+      </Form>
+
+      {/* 세운 분석 섹션 */}
+      <Form style={{ marginTop: '20px', background: '#e8f5e8', border: '2px solid #c8e6c9' }}>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <h3 style={{ color: '#2e7d32', margin: '0 0 10px 0' }}>⏰ 세운 분석</h3>
+          <p style={{ color: '#4caf50', margin: 0, fontSize: '14px' }}>
+            특정 연도의 월별 운세를 상세하게 분석합니다
+          </p>
+        </div>
+        
+        <FormGroup style={{ marginBottom: '20px' }}>
+          <Label style={{ color: '#2e7d32' }}>분석 대상 연도</Label>
+          <Input
+            type="number"
+            value={targetYear}
+            onChange={(e) => setTargetYear(parseInt(e.target.value) || new Date().getFullYear())}
+            min="2020"
+            max="2030"
+            style={{ border: '2px solid #c8e6c9' }}
+          />
+        </FormGroup>
+        
+        <Button 
+          type="button" 
+          disabled={saeunLoading || !formData.name}
+          onClick={handleSaeunAnalysis}
+          style={{ 
+            background: saeunLoading ? '#6c757d' : 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
+            marginTop: '0'
+          }}
+        >
+          {saeunLoading ? "세운 분석 중..." : `${targetYear}년 세운 분석하기`}
         </Button>
       </Form>
 
@@ -772,6 +979,322 @@ function App() {
           <AnalysisSection>
             <SectionTitle>💰 재물운</SectionTitle>
             <p>{result.interpretations.wealth}</p>
+          </AnalysisSection>
+        </ResultContainer>
+      )}
+
+      {/* 대운 분석 결과 */}
+      {daeunResult && (
+        <ResultContainer style={{ marginTop: '30px' }}>
+          <SectionTitle style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '30px' }}>
+            🌟 대운 분석 결과
+          </SectionTitle>
+          
+          {/* 기본 정보 */}
+          <AnalysisSection>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+              <div>
+                <strong>현재 나이:</strong> {daeunResult.daeun_analysis.current_age}세
+              </div>
+              <div>
+                <strong>대운 시작:</strong> {daeunResult.daeun_analysis.daeun_start_age}세부터
+              </div>
+              <div>
+                <strong>진행 방향:</strong> {daeunResult.daeun_analysis.is_forward ? '순행' : '역행'}
+              </div>
+            </div>
+          </AnalysisSection>
+
+          {/* 대운 타임라인 */}
+          <AnalysisSection>
+            <SectionTitle>📅 인생 대운 타임라인</SectionTitle>
+            <div style={{ display: 'grid', gap: '20px' }}>
+              {daeunResult.daeun_analysis.daeun_list.map((daeun, index) => (
+                <div
+                  key={index}
+                  style={{
+                    border: daeun.is_current ? '3px solid #f093fb' : '2px solid #e9ecef',
+                    borderRadius: '15px',
+                    padding: '20px',
+                    background: daeun.is_current ? 'linear-gradient(135deg, #f093fb22, #f5576c22)' : 'white',
+                    boxShadow: daeun.is_current ? '0 5px 20px rgba(240, 147, 251, 0.3)' : '0 2px 10px rgba(0,0,0,0.1)',
+                    position: 'relative'
+                  }}
+                >
+                  {daeun.is_current && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '-10px',
+                      right: '20px',
+                      background: '#f093fb',
+                      color: 'white',
+                      padding: '5px 15px',
+                      borderRadius: '20px',
+                      fontSize: '12px',
+                      fontWeight: 'bold'
+                    }}>
+                      현재 대운
+                    </div>
+                  )}
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                    <div>
+                      <h4 style={{ margin: 0, color: '#2c3e50' }}>{daeun.period}</h4>
+                      <p style={{ margin: '5px 0', color: '#6c757d', fontSize: '14px' }}>
+                        {daeun.gan}{daeun.ji} ({daeun.gan_wuxing}·{daeun.ji_wuxing})
+                      </p>
+                    </div>
+                    <div style={{
+                      padding: '8px 16px',
+                      borderRadius: '20px',
+                      fontWeight: 'bold',
+                      fontSize: '14px',
+                      background: 
+                        daeun.fortune_level === '대길' ? '#28a745' :
+                        daeun.fortune_level === '소길' ? '#17a2b8' :
+                        daeun.fortune_level === '평운' ? '#ffc107' :
+                        daeun.fortune_level === '소흉' ? '#fd7e14' : '#dc3545',
+                      color: 'white'
+                    }}>
+                      {daeun.fortune_level}
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '15px' }}>
+                    <strong style={{ color: '#495057', fontSize: '14px' }}>특징:</strong>
+                    <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {daeun.characteristics.map((char, i) => (
+                        <span
+                          key={i}
+                          style={{
+                            background: '#e9ecef',
+                            padding: '4px 12px',
+                            borderRadius: '15px',
+                            fontSize: '13px',
+                            color: '#495057'
+                          }}
+                        >
+                          {char}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '15px' }}>
+                    <strong style={{ color: '#495057', fontSize: '14px' }}>주요 이벤트:</strong>
+                    <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
+                      {daeun.major_events.map((event, i) => (
+                        <li key={i} style={{ fontSize: '13px', color: '#6c757d', marginBottom: '4px' }}>
+                          {event}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div style={{
+                    background: '#f8f9fa',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    borderLeft: '4px solid #17a2b8'
+                  }}>
+                    <strong style={{ color: '#495057', fontSize: '14px' }}>조언:</strong>
+                    <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#6c757d', lineHeight: '1.5' }}>
+                      {daeun.advice}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </AnalysisSection>
+        </ResultContainer>
+      )}
+
+      {/* 세운 분석 결과 */}
+      {saeunResult && (
+        <ResultContainer style={{ marginTop: '30px' }}>
+          <SectionTitle style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '30px' }}>
+            ⏰ {saeunResult.basic_info.target_year}년 세운 분석 결과
+          </SectionTitle>
+          
+          {/* 연간 세운 정보 */}
+          <AnalysisSection>
+            <SectionTitle>📅 {saeunResult.saeun_analysis.target_year}년 연간 세운</SectionTitle>
+            <div style={{ 
+              background: 'linear-gradient(135deg, #4caf50, #2e7d32)', 
+              color: 'white', 
+              padding: '20px', 
+              borderRadius: '15px',
+              textAlign: 'center',
+              marginBottom: '20px'
+            }}>
+              <h3 style={{ margin: '0 0 10px 0' }}>
+                {saeunResult.saeun_analysis.yearly_saeun.gan}{saeunResult.saeun_analysis.yearly_saeun.ji}
+              </h3>
+              <p style={{ margin: '5px 0', fontSize: '14px', opacity: '0.9' }}>
+                ({saeunResult.saeun_analysis.yearly_saeun.gan_wuxing}·{saeunResult.saeun_analysis.yearly_saeun.ji_wuxing})
+              </p>
+              <p style={{ margin: 0, lineHeight: '1.5' }}>
+                {saeunResult.saeun_analysis.yearly_saeun.description}
+              </p>
+            </div>
+          </AnalysisSection>
+
+          {/* 전체 운세 요약 */}
+          <AnalysisSection>
+            <SectionTitle>🎯 종합 운세 점수</SectionTitle>
+            <BalanceScore>
+              <ScoreCircle score={saeunResult.saeun_analysis.annual_score.normalized_score}>
+                {saeunResult.saeun_analysis.annual_score.normalized_score}점
+              </ScoreCircle>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
+                <div>
+                  <h5 style={{ color: '#27ae60', marginBottom: '10px' }}>🍀 최고의 달</h5>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {saeunResult.saeun_analysis.critical_periods.best_months.map((monthData, index) => (
+                      <span key={index} style={{
+                        background: '#27ae60',
+                        color: 'white',
+                        padding: '4px 12px',
+                        borderRadius: '15px',
+                        fontSize: '14px'
+                      }}>
+                        {monthData.month}월 ({monthData.level})
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h5 style={{ color: '#e74c3c', marginBottom: '10px' }}>⚠️ 주의할 달</h5>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {saeunResult.saeun_analysis.critical_periods.caution_months.map((monthData, index) => (
+                      <span key={index} style={{
+                        background: '#e74c3c',
+                        color: 'white',
+                        padding: '4px 12px',
+                        borderRadius: '15px',
+                        fontSize: '14px'
+                      }}>
+                        {monthData.month}월 ({monthData.level})
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </BalanceScore>
+          </AnalysisSection>
+
+          {/* 월별 세운 상세 */}
+          <AnalysisSection>
+            <SectionTitle>📊 월별 운세 상세 분석</SectionTitle>
+            <div style={{ display: 'grid', gap: '20px' }}>
+              {saeunResult.saeun_analysis.monthly_saeun.map((monthData, index) => {
+                const interactionData = saeunResult.saeun_analysis.saeun_interaction.monthly.find(
+                  m => m.month === monthData.month
+                );
+                return (
+                <div
+                  key={index}
+                  style={{
+                    border: '2px solid #e9ecef',
+                    borderRadius: '15px',
+                    padding: '20px',
+                    background: 'white',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                    borderColor: 
+                      interactionData?.fortune_level === '대길' ? '#28a745' :
+                      interactionData?.fortune_level === '소길' ? '#17a2b8' :
+                      interactionData?.fortune_level === '평운' ? '#ffc107' :
+                      interactionData?.fortune_level === '소흉' ? '#fd7e14' : '#dc3545'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                    <div>
+                      <h4 style={{ margin: 0, color: '#2c3e50' }}>{monthData.month}월</h4>
+                      <p style={{ margin: '5px 0', color: '#6c757d', fontSize: '14px' }}>
+                        {monthData.gan}{monthData.ji} ({monthData.gan_wuxing}·{monthData.ji_wuxing})
+                      </p>
+                    </div>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '15px'
+                    }}>
+                      <div style={{
+                        padding: '8px 16px',
+                        borderRadius: '20px',
+                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        background: 
+                          interactionData?.fortune_level === '대길' ? '#28a745' :
+                          interactionData?.fortune_level === '소길' ? '#17a2b8' :
+                          interactionData?.fortune_level === '평운' ? '#ffc107' :
+                          interactionData?.fortune_level === '소흉' ? '#fd7e14' : '#dc3545',
+                        color: 'white'
+                      }}>
+                        {interactionData?.fortune_level || '평운'}
+                      </div>
+                      <div style={{
+                        fontSize: '18px',
+                        fontWeight: 'bold',
+                        color: '#2c3e50'
+                      }}>
+                        {interactionData?.score || 0}점
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '15px' }}>
+                    <p style={{ margin: 0, fontSize: '15px', lineHeight: '1.5', color: '#495057' }}>
+                      {interactionData?.characteristics?.join(', ') || '평상시와 같은 운세입니다'}
+                    </p>
+                  </div>
+
+                  {interactionData && (interactionData.opportunities.length > 0 || interactionData.warnings.length > 0) && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>
+                      {interactionData.opportunities.length > 0 && (
+                        <div>
+                          <strong style={{ color: '#28a745', fontSize: '13px' }}>🍀 기회:</strong>
+                          <ul style={{ margin: '5px 0', paddingLeft: '15px', fontSize: '12px' }}>
+                            {interactionData.opportunities.map((opportunity, i) => (
+                              <li key={i} style={{ color: '#495057', marginBottom: '2px' }}>{opportunity}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {interactionData.warnings.length > 0 && (
+                        <div>
+                          <strong style={{ color: '#dc3545', fontSize: '13px' }}>⚠️ 주의사항:</strong>
+                          <ul style={{ margin: '5px 0', paddingLeft: '15px', fontSize: '12px' }}>
+                            {interactionData.warnings.map((warning, i) => (
+                              <li key={i} style={{ color: '#495057', marginBottom: '2px' }}>{warning}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                );
+              })}
+            </div>
+          </AnalysisSection>
+
+          {/* 연간 조언 */}
+          <AnalysisSection>
+            <SectionTitle>💡 {saeunResult.saeun_analysis.target_year}년 종합 조언</SectionTitle>
+            <div style={{
+              background: '#f8f9fa',
+              padding: '20px',
+              borderRadius: '10px',
+              borderLeft: '5px solid #4caf50'
+            }}>
+              <p style={{ margin: 0, fontSize: '16px', lineHeight: '1.6', color: '#495057' }}>
+                {saeunResult.saeun_analysis.summary}
+              </p>
+            </div>
+            
           </AnalysisSection>
         </ResultContainer>
       )}
