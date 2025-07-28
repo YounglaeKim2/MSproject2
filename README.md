@@ -77,7 +77,16 @@ npm install
 npm start
 ```
 
-### 접속
+## 🌐 현재 서비스 상태
+
+### 접속 URL 및 상태
+| 서비스 | URL | 상태 | 기능 |
+|--------|-----|------|------|
+| **메인 페이지** | http://localhost:4000 | ✅ 운영중 | 서비스 선택 |
+| **사주 서비스** | http://localhost:3000 | ✅ 운영중 | 사주 분석 UI |
+| **사주 API** | http://localhost:8000 | ✅ 운영중 | REST API |
+| **API 문서** | http://localhost:8000/docs | ✅ 접근가능 | Swagger UI |
+
 - **메인 페이지**: http://localhost:4000
 - **사주 서비스**: http://localhost:3000
 - **관상 서비스**: http://localhost:3001
@@ -162,6 +171,18 @@ npm start
 - [FastAPI 공식 문서](https://fastapi.tiangolo.com/)
 - [React 공식 문서](https://react.dev/)
 - [TypeScript 핸드북](https://www.typescriptlang.org/docs/)
+
+## 🎊 프로젝트 현황
+
+### ✅ 완성된 서비스
+- **메인 랜딩 페이지** (포트: 4000) - 서비스 선택 UI 완성
+- **SAJU 서비스** (포트: 8000/3000) - 사주팔자 분석 서비스 완성
+  - 73,442개 만세력 레코드 기반 정확한 계산
+  - 전통 명리학 해석 로직 구현
+  - REST API 및 웹 UI 완성
+
+### 📋 개발 대기 서비스
+- **Physiognomy 서비스** (포트: 8001/3001) - AI 기반 관상 분석 (개발 환경 준비 완료)
 
 ## 🔮 향후 계획
 

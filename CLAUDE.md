@@ -298,8 +298,27 @@ curl http://localhost:8001/health
 - **API 설계**: RESTful 원칙 준수, 명확한 엔드포인트 분리
 - **CORS 설정**: 개발/프로덕션 환경별 적절한 설정
 
+### Port Allocation Table
+| 서비스 | 백엔드 | 프론트엔드 | 설명 |
+|--------|--------|------------|------|
+| Main | - | 4000 | 서비스 선택 랜딩 페이지 |
+| SAJU | 8000 | 3000 | 사주팔자 분석 서비스 |
+| Physiognomy | 8001 | 3001 | 관상 분석 서비스 |
+
+### Core File Paths
+```
+MSproject2_SAJU/
+├── main-app/frontend/src/App.tsx          # 메인 랜딩 페이지
+├── SAJU/backend/app/main.py               # 사주 API 서버
+├── SAJU/frontend/src/App.tsx              # 사주 분석 UI
+├── SAJU/backend/app/services/saju_analyzer.py  # 사주 분석 엔진
+├── SAJU/manseryukDB/DB/manseryuk.db       # 만세력 데이터베이스
+└── 사주해석로직.txt                        # 명리학 해석 로직
+```
+
 ### Common Issues & Solutions
 - **Pydantic v2 호환성**: `regex` → `pattern`, BaseSettings 별도 import
 - **포트 충돌**: 각 서비스별 고정 포트 사용으로 해결
 - **만세력 DB 접근**: SQLite 파일 권한 및 경로 확인 필요
+- **CORS 설정**: 필요시 추가 도메인 허용 설정 필요
 - **Docker 환경**: 각 서비스별 독립적인 docker-compose.yml 사용
