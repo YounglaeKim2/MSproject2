@@ -28,9 +28,9 @@ async def root():
 async def health_check():
     return {"status": "healthy"}
 
-@app.post("/test-saju")
-async def test_saju_analysis():
-    """테스트용 사주 분석"""
+@app.post("/test-extended-saju")
+async def test_extended_saju_analysis():
+    """확장된 사주 분석 테스트"""
     from app.services.saju_analyzer import saju_analyzer
     from app.models.saju import BirthInfoRequest
     
@@ -42,4 +42,7 @@ async def test_saju_analysis():
     # 실제 분석 수행
     result = saju_analyzer.analyze_saju(test_data)
     
-    return {"message": "실제 분석기 호출 성공", "result_type": str(type(result)), "result": result}
+    return {
+        "message": "확장된 사주 분석 결과",
+        "analysis": result
+    }

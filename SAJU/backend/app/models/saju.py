@@ -9,7 +9,7 @@ class BirthInfoRequest(BaseModel):
     day: int
     hour: int
     gender: str
-    name: str
+    name: str = "테스트"
 
 class SajuPaljaResponse(BaseModel):
     """사주팔자 응답"""
