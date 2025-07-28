@@ -139,6 +139,9 @@ class SajuAnalyzer:
         strength = "strong" if supporting_count >= 3 else "weak"
         
         # 용신/기신 도출 (간단한 로직)
+        use_god = day_gan_wuxing
+        avoid_god = day_gan_wuxing
+        
         if strength == "strong":
             # 신강이면 설기하거나 극하는 오행이 용신
             use_god = self.GENERATE_CYCLE[day_gan_wuxing]  # 설기
@@ -149,9 +152,12 @@ class SajuAnalyzer:
                 if target == day_gan_wuxing:
                     use_god = wuxing
                     break
-            else:
-                use_god = day_gan_wuxing
-            avoid_god = self.OVERCOME_CYCLE[day_gan_wuxing]  # 극하는 오행
+            avoid_god = self.OVERCOME_CYCLE[day_gan_wuxing]
+        
+        # 확장된 오행 분석 수행
+        extended_analysis = self._perform_extended_wuxing_analysis(
+            wuxing_count, day_gan_wuxing, strength, use_god, avoid_god
+        )
         
         return WuXingAnalysis(
             wood=wuxing_count['목'],
@@ -161,8 +167,280 @@ class SajuAnalyzer:
             water=wuxing_count['수'],
             strength=strength,
             use_god=use_god,
-            avoid_god=avoid_god
+            avoid_god=avoid_god,
+            extended_analysis=extended_analysis
         )
+    
+    def _perform_extended_wuxing_analysis(self, wuxing_count: dict, day_gan_wuxing: str, 
+                                        strength: str, use_god: str, avoid_god: str) -> dict:
+        """확장된 오행 분석 수행"""
+        total_count = sum(wuxing_count.values())
+        
+        # 오행별 강도 및 백분율 계산
+        wuxing_details = {}
+        for wuxing, count in wuxing_count.items():
+            percentage = (count / total_count * 100) if total_count > 0 else 0
+            strength_level = self._calculate_wuxing_strength(count, percentage)
+            
+            wuxing_details[wuxing] = {
+                'count': count,
+                'percentage': round(percentage, 1),
+                'strength': strength_level,
+                'meaning': self._get_wuxing_meaning(wuxing),
+                'characteristics': self._get_wuxing_characteristics(wuxing)
+            }
+        
+        # 오행 균형 분석
+        balance_analysis = self._analyze_wuxing_balance(wuxing_count, day_gan_wuxing)
+        
+        # 성격 분석
+        personality_analysis = self._analyze_personality_by_wuxing(wuxing_count, day_gan_wuxing)
+        
+        # 보완 방법 제안
+        recommendations = self._generate_balance_recommendations(
+            wuxing_count, day_gan_wuxing, use_god, avoid_god
+        )
+        
+        return {
+            'wuxing_details': wuxing_details,
+            'balance_analysis': balance_analysis,
+            'personality_analysis': personality_analysis,
+            'recommendations': recommendations
+        }
+    
+    def _calculate_wuxing_strength(self, count: int, percentage: float) -> str:
+        """오행 강도 계산"""
+        if count == 0:
+            return "없음"
+        elif percentage < 10:
+            return "매우 약함"
+        elif percentage < 20:
+            return "약함"
+        elif percentage < 30:
+            return "보통"
+        elif percentage < 40:
+            return "강함"
+        else:
+            return "매우 강함"
+    
+    def _get_wuxing_meaning(self, wuxing: str) -> str:
+        """오행 의미 반환"""
+        meanings = {
+            '목': "성장, 창조, 유연성, 인자함",
+            '화': "열정, 활력, 표현력, 밝음",
+            '토': "안정, 신뢰, 포용력, 중후함",
+            '금': "절제, 정의, 결단력, 냉철함",
+            '수': "지혜, 적응력, 유동성, 깊이"
+        }
+        return meanings.get(wuxing, "")
+    
+    def _get_wuxing_characteristics(self, wuxing: str) -> list:
+        """오행별 특성 반환"""
+        characteristics = {
+            '목': ["창의적", "성장지향적", "유연한", "협력적"],
+            '화': ["열정적", "표현력이 풍부한", "사교적", "활동적"],
+            '토': ["안정적", "신뢰할 수 있는", "포용력이 있는", "실용적"],
+            '금': ["결단력이 있는", "정의로운", "체계적", "냉정한"],
+            '수': ["지혜로운", "적응력이 있는", "깊이 있는", "유연한"]
+        }
+        return characteristics.get(wuxing, [])
+    
+    def _analyze_wuxing_balance(self, wuxing_count: dict, day_gan_wuxing: str) -> dict:
+        """오행 균형 분석"""
+        total = sum(wuxing_count.values())
+        average = total / 5
+        
+        excessive = []  # 과다한 오행
+        deficient = []  # 부족한 오행
+        
+        for wuxing, count in wuxing_count.items():
+            if count > average * 1.5:
+                excessive.append(wuxing)
+            elif count < average * 0.5:
+                deficient.append(wuxing)
+        
+        # 균형도 점수 계산 (0-100)
+        variance = sum((count - average) ** 2 for count in wuxing_count.values()) / 5
+        balance_score = max(0, 100 - variance * 10)
+        
+        return {
+            'balance_score': round(balance_score, 1),
+            'excessive_elements': excessive,
+            'deficient_elements': deficient,
+            'dominant_element': max(wuxing_count, key=wuxing_count.get),
+            'weakest_element': min(wuxing_count, key=wuxing_count.get)
+        }
+    
+    def _analyze_personality_by_wuxing(self, wuxing_count: dict, day_gan_wuxing: str) -> dict:
+        """오행 분포에 따른 성격 분석"""
+        total = sum(wuxing_count.values())
+        
+        # 주요 성격 특성 도출
+        dominant_traits = []
+        for wuxing, count in wuxing_count.items():
+            percentage = (count / total * 100) if total > 0 else 0
+            if percentage > 25:  # 25% 이상이면 주요 특성
+                traits = self._get_wuxing_characteristics(wuxing)
+                dominant_traits.extend(traits[:2])  # 상위 2개 특성
+        
+        # 성격 유형 판단
+        personality_type = self._determine_personality_type(wuxing_count, day_gan_wuxing)
+        
+        # 강점과 약점 분석
+        strengths, weaknesses = self._analyze_strengths_weaknesses(wuxing_count)
+        
+        return {
+            'dominant_traits': dominant_traits[:5],  # 상위 5개 특성
+            'personality_type': personality_type,
+            'strengths': strengths,
+            'weaknesses': weaknesses,
+            'advice': self._generate_personality_advice(dominant_traits[:3])
+        }
+    
+    def _determine_personality_type(self, wuxing_count: dict, day_gan_wuxing: str) -> str:
+        """성격 유형 판단"""
+        dominant_element = max(wuxing_count, key=wuxing_count.get)
+        
+        personality_types = {
+            '목': "성장형 - 끊임없이 발전을 추구하는 창의적 성격",
+            '화': "열정형 - 활력이 넘치고 표현력이 풍부한 외향적 성격", 
+            '토': "안정형 - 신뢰할 수 있고 포용력이 있는 온화한 성격",
+            '금': "완벽형 - 원칙을 중시하고 결단력이 있는 냉정한 성격",
+            '수': "지혜형 - 깊이 있게 사고하고 적응력이 뛰어난 유연한 성격"
+        }
+        
+        return personality_types.get(dominant_element, "균형형 - 다양한 특성이 조화된 성격")
+    
+    def _analyze_strengths_weaknesses(self, wuxing_count: dict) -> tuple:
+        """강점과 약점 분석"""
+        total = sum(wuxing_count.values())
+        
+        strengths = []
+        weaknesses = []
+        
+        for wuxing, count in wuxing_count.items():
+            percentage = (count / total * 100) if total > 0 else 0
+            
+            if percentage > 25:  # 강한 오행의 장점
+                if wuxing == '목':
+                    strengths.append("창의력과 성장 잠재력이 뛰어남")
+                elif wuxing == '화':
+                    strengths.append("열정과 표현력이 풍부함")
+                elif wuxing == '토':
+                    strengths.append("안정감과 신뢰성이 높음")
+                elif wuxing == '금':
+                    strengths.append("결단력과 원칙성이 강함")
+                elif wuxing == '수':
+                    strengths.append("지혜와 적응력이 뛰어남")
+            
+            elif percentage < 10:  # 약한 오행의 단점
+                if wuxing == '목':
+                    weaknesses.append("창의력이나 성장 동력이 부족할 수 있음")
+                elif wuxing == '화':
+                    weaknesses.append("열정이나 표현력이 부족할 수 있음")
+                elif wuxing == '토':
+                    weaknesses.append("안정감이나 포용력이 부족할 수 있음")
+                elif wuxing == '금':
+                    weaknesses.append("결단력이나 원칙성이 부족할 수 있음")
+                elif wuxing == '수':
+                    weaknesses.append("지혜나 적응력이 부족할 수 있음")
+        
+        return strengths[:3], weaknesses[:3]
+    
+    def _generate_personality_advice(self, dominant_traits: list) -> str:
+        """성격에 따른 조언 생성"""
+        if "창의적" in dominant_traits:
+            return "창의적 재능을 발휘할 수 있는 분야에서 활동하시면 좋겠습니다."
+        elif "열정적" in dominant_traits:
+            return "열정을 바탕으로 적극적인 도전을 통해 성과를 이루시길 바랍니다."
+        elif "안정적" in dominant_traits:
+            return "신뢰를 바탕으로 한 꾸준한 노력이 큰 성과로 이어질 것입니다."
+        elif "결단력이 있는" in dominant_traits:
+            return "명확한 목표 설정과 체계적인 접근으로 성공을 이루시길 바랍니다."
+        elif "지혜로운" in dominant_traits:
+            return "깊이 있는 사고와 유연한 대응으로 어려움을 극복하시길 바랍니다."
+        else:
+            return "다양한 재능을 균형 있게 발휘하여 조화로운 삶을 이루시길 바랍니다."
+    
+    def _generate_balance_recommendations(self, wuxing_count: dict, day_gan_wuxing: str, 
+                                        use_god: str, avoid_god: str) -> dict:
+        """오행 보완 방법 제안"""
+        total = sum(wuxing_count.values())
+        
+        # 부족한 오행 찾기
+        deficient_elements = []
+        for wuxing, count in wuxing_count.items():
+            percentage = (count / total * 100) if total > 0 else 0
+            if percentage < 15:  # 15% 미만이면 부족
+                deficient_elements.append(wuxing)
+        
+        recommendations = {
+            'lifestyle': [],
+            'colors': [],
+            'directions': [],
+            'foods': [],
+            'activities': []
+        }
+        
+        # 용신(有利한 오행) 보강 방법
+        if use_god in deficient_elements or wuxing_count[use_god] < 2:
+            recommendations.update(self._get_element_recommendations(use_god))
+        
+        # 부족한 오행별 보완 방법
+        for element in deficient_elements:
+            element_rec = self._get_element_recommendations(element)
+            for key in recommendations:
+                recommendations[key].extend(element_rec[key])
+        
+        # 중복 제거
+        for key in recommendations:
+            recommendations[key] = list(set(recommendations[key]))[:3]  # 상위 3개만
+        
+        return recommendations
+    
+    def _get_element_recommendations(self, element: str) -> dict:
+        """특정 오행의 보완 방법"""
+        recommendations = {
+            '목': {
+                'lifestyle': ['동쪽 방향 활동', '아침 시간 활용', '식물 기르기'],
+                'colors': ['초록색', '연두색', '청색'],
+                'directions': ['동쪽', '동남쪽'],
+                'foods': ['녹색 채소', '신맛 음식', '간 기능에 좋은 음식'],
+                'activities': ['독서', '학습', '창작 활동']
+            },
+            '화': {
+                'lifestyle': ['남쪽 방향 활동', '정오 시간 활용', '밝은 조명'],
+                'colors': ['빨간색', '주황색', '분홍색'],
+                'directions': ['남쪽'],
+                'foods': ['쓴맛 음식', '심장에 좋은 음식', '따뜻한 음식'],
+                'activities': ['운동', '사회 활동', '예술 활동']
+            },
+            '토': {
+                'lifestyle': ['중앙 위치 선호', '오후 시간 활용', '안정적 환경'],
+                'colors': ['노란색', '갈색', '베이지색'],
+                'directions': ['중앙', '남서쪽', '북동쪽'],
+                'foods': ['단맛 음식', '위장에 좋은 음식', '곡류'],
+                'activities': ['명상', '요가', '안정적 취미']
+            },
+            '금': {
+                'lifestyle': ['서쪽 방향 활동', '저녁 시간 활용', '깔끔한 환경'],
+                'colors': ['흰색', '회색', '금색'],
+                'directions': ['서쪽', '북서쪽'],
+                'foods': ['매운맛 음식', '폐에 좋은 음식', '견과류'],
+                'activities': ['정리 정돈', '체계적 학습', '규칙적 운동']
+            },
+            '수': {
+                'lifestyle': ['북쪽 방향 활동', '밤 시간 활용', '조용한 환경'],
+                'colors': ['검은색', '남색', '진청색'],
+                'directions': ['북쪽'],
+                'foods': ['짠맛 음식', '신장에 좋은 음식', '해산물'],
+                'activities': ['수영', '독서', '깊이 있는 사고']
+            }
+        }
+        
+        return recommendations.get(element, {
+            'lifestyle': [], 'colors': [], 'directions': [], 'foods': [], 'activities': []
+        })
     
     def analyze_ten_stars(self, palja: SajuPaljaResponse) -> TenStarsAnalysis:
         """십성 분석"""

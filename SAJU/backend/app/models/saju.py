@@ -32,6 +32,7 @@ class WuXingAnalysis(BaseModel):
     strength: str = Field(..., description="일간 강약 (strong/weak)")
     use_god: str = Field(..., description="용신")
     avoid_god: str = Field(..., description="기신")
+    extended_analysis: Optional[Dict[str, Any]] = Field(None, description="확장 오행 분석")
 
 class TenStarsAnalysis(BaseModel):
     """십성 분석 결과"""
