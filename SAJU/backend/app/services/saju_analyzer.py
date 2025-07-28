@@ -379,7 +379,10 @@ class SajuAnalyzer:
             'colors': [],
             'directions': [],
             'foods': [],
-            'activities': []
+            'activities': [],
+            'career_advice': [],
+            'health_advice': [],
+            'relationship_advice': []
         }
         
         # 용신(有利한 오행) 보강 방법
@@ -406,40 +409,56 @@ class SajuAnalyzer:
                 'colors': ['초록색', '연두색', '청색'],
                 'directions': ['동쪽', '동남쪽'],
                 'foods': ['녹색 채소', '신맛 음식', '간 기능에 좋은 음식'],
-                'activities': ['독서', '학습', '창작 활동']
+                'activities': ['독서', '학습', '창작 활동'],
+                'career_advice': ['교육 분야', '상담 업무', '예술 창작', '환경 관련 직업'],
+                'health_advice': ['간 기능 관리', '눈 건강 주의', '스트레스 해소'],
+                'relationship_advice': ['따뜻한 배려심 발휘', '성장을 함께하는 관계', '인내심 기르기']
             },
             '화': {
                 'lifestyle': ['남쪽 방향 활동', '정오 시간 활용', '밝은 조명'],
                 'colors': ['빨간색', '주황색', '분홍색'],
                 'directions': ['남쪽'],
                 'foods': ['쓴맛 음식', '심장에 좋은 음식', '따뜻한 음식'],
-                'activities': ['운동', '사회 활동', '예술 활동']
+                'activities': ['운동', '사회 활동', '예술 활동'],
+                'career_advice': ['방송 관련', '마케팅 업무', '영업직', '엔터테인먼트 업계'],
+                'health_advice': ['심장 건강 관리', '혈압 주의', '충분한 휴식'],
+                'relationship_advice': ['밝은 에너지 전달', '적극적 소통', '감정 조절 연습']
             },
             '토': {
                 'lifestyle': ['중앙 위치 선호', '오후 시간 활용', '안정적 환경'],
                 'colors': ['노란색', '갈색', '베이지색'],
                 'directions': ['중앙', '남서쪽', '북동쪽'],
                 'foods': ['단맛 음식', '위장에 좋은 음식', '곡류'],
-                'activities': ['명상', '요가', '안정적 취미']
+                'activities': ['명상', '요가', '안정적 취미'],
+                'career_advice': ['부동산 업무', '건설 관련', '농업 분야', '요식업'],
+                'health_advice': ['소화기 건강 관리', '규칙적 식사', '적당한 운동'],
+                'relationship_advice': ['신뢰감 조성', '포용력 발휘', '안정적 관계 유지']
             },
             '금': {
                 'lifestyle': ['서쪽 방향 활동', '저녁 시간 활용', '깔끔한 환경'],
                 'colors': ['흰색', '회색', '금색'],
                 'directions': ['서쪽', '북서쪽'],
                 'foods': ['매운맛 음식', '폐에 좋은 음식', '견과류'],
-                'activities': ['정리 정돈', '체계적 학습', '규칙적 운동']
+                'activities': ['정리 정돈', '체계적 학습', '규칙적 운동'],
+                'career_advice': ['금융 업무', '법무 관련', '기계 기술', 'IT 분야'],
+                'health_advice': ['호흡기 건강 관리', '피부 관리', '정기 검진'],
+                'relationship_advice': ['원칙 있는 관계', '명확한 소통', '상호 존중']
             },
             '수': {
                 'lifestyle': ['북쪽 방향 활동', '밤 시간 활용', '조용한 환경'],
                 'colors': ['검은색', '남색', '진청색'],
                 'directions': ['북쪽'],
                 'foods': ['짠맛 음식', '신장에 좋은 음식', '해산물'],
-                'activities': ['수영', '독서', '깊이 있는 사고']
+                'activities': ['수영', '독서', '깊이 있는 사고'],
+                'career_advice': ['연구 업무', '학술 분야', '물류 관련', '컨설팅'],
+                'health_advice': ['신장 기능 관리', '수분 섭취', '과로 주의'],
+                'relationship_advice': ['깊이 있는 대화', '지혜로운 조언', '차분한 관계']
             }
         }
         
         return recommendations.get(element, {
-            'lifestyle': [], 'colors': [], 'directions': [], 'foods': [], 'activities': []
+            'lifestyle': [], 'colors': [], 'directions': [], 'foods': [], 'activities': [], 
+            'career_advice': [], 'health_advice': [], 'relationship_advice': []
         })
     
     def analyze_ten_stars(self, palja: SajuPaljaResponse) -> TenStarsAnalysis:

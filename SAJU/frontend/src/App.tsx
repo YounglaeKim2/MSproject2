@@ -296,6 +296,9 @@ interface SajuResult {
         lifestyle: string[];
         foods: string[];
         activities: string[];
+        career_advice: string[];
+        health_advice: string[];
+        relationship_advice: string[];
       };
       wuxing_details: {
         [element: string]: {
@@ -711,6 +714,32 @@ function App() {
                       <RecommendationTitle>💼 직업 조언</RecommendationTitle>
                       <RecommendationList>
                         {result.wuxing_analysis.extended_analysis.recommendations?.career_advice?.map(
+                          (advice: string, index: number) => (
+                            <RecommendationItem key={index}>
+                              {advice}
+                            </RecommendationItem>
+                          )
+                        )}
+                      </RecommendationList>
+                    </RecommendationCard>
+
+                    <RecommendationCard>
+                      <RecommendationTitle>💊 건강 관리</RecommendationTitle>
+                      <RecommendationList>
+                        {result.wuxing_analysis.extended_analysis.recommendations?.health_advice?.map(
+                          (advice: string, index: number) => (
+                            <RecommendationItem key={index}>
+                              {advice}
+                            </RecommendationItem>
+                          )
+                        )}
+                      </RecommendationList>
+                    </RecommendationCard>
+
+                    <RecommendationCard>
+                      <RecommendationTitle>💑 인간관계</RecommendationTitle>
+                      <RecommendationList>
+                        {result.wuxing_analysis.extended_analysis.recommendations?.relationship_advice?.map(
                           (advice: string, index: number) => (
                             <RecommendationItem key={index}>
                               {advice}
