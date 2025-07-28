@@ -7,6 +7,7 @@
 **완전 분리형 마이크로서비스** 웹 플랫폼 - 전통 명리학 + 현대 AI 기술
 
 ### 서비스 구조
+
 - **Main App** (`main-app/`) - 랜딩 페이지 (:4000)
 - **SAJU Service** (`SAJU/`) - 사주팔자 분석 (:8000/:3000) ✅ **완성**
 - **Physiognomy Service** (`Physiognomy/`) - 관상 분석 (:8001/:3001) 📋 개발중
@@ -16,26 +17,36 @@
 ### ✅ SAJU 서비스 (100% 완성)
 
 #### 백엔드 (37개 메서드)
-- **기본 분석**: 사주팔자, 오행, 십성
-- **확장 분석**: 13개 메서드 (균형점수, 성격유형, 맞춤추천)
-- **대운 분석**: 10년 주기 (2세-81세, 8개 대운)
-- **세운 분석**: 연간/월별 운세
+
+- **기본 분석**: 사주팔자, 오행, 십성 ✅
+- **확장 분석**: 13개 메서드 (균형점수, 성격유형, 맞춤추천) ✅
+- **대운 분석**: 10년 주기 (2세-81세, 8개 대운) ✅
+- **세운 분석**: 연간/월별 운세 ✅
 
 #### API 엔드포인트 (7개)
+
 ```
-POST /analyze     # 완전한 사주 분석
-GET  /palja-only  # 사주팔자만
-GET  /wuxing-only # 오행 분석만
-POST /daeun       # 대운 분석
-POST /saeun       # 세운 분석
-GET  /test        # API 테스트
-GET  /health      # 헬스 체크
+POST /analyze     # 완전한 사주 분석 ✅
+GET  /palja-only  # 사주팔자만 ✅
+GET  /wuxing-only # 오행 분석만 ✅
+POST /daeun       # 대운 분석 ✅
+POST /saeun       # 세운 분석 ✅
+GET  /test        # API 테스트 ✅
+GET  /health      # 헬스 체크 ✅
 ```
 
 #### 프론트엔드
-- React 18 + TypeScript + styled-components
-- 기본 분석 + 대운 + 세운 UI 완성
-- 반응형 디자인, 현대적 UI/UX
+
+- React 18 + TypeScript + styled-components ✅
+- 기본 분석 + 대운 + 세운 UI 완성 ✅
+- 반응형 디자인, 현대적 UI/UX ✅
+
+#### 🔧 최근 버그 수정 (2025.07.28)
+
+- **강점 & 약점 표시 문제** → ✅ 해결
+- **성격/건강/대인관계/재물운 고정 문제** → ✅ 해결
+- **한글 인코딩 문제** → ✅ 해결
+- **API 응답 데이터 구조 개선** → ✅ 완료
 
 ## 📊 만세력 데이터베이스
 
@@ -47,11 +58,12 @@ GET  /health      # 헬스 체크
 ## 🔧 개발 명령어
 
 ### 서비스 실행
+
 ```bash
 # 메인 앱
 cd main-app && npm start
 
-# SAJU 백엔드  
+# SAJU 백엔드
 cd SAJU/backend && uvicorn app.main:app --reload --port 8000
 
 # SAJU 프론트엔드
@@ -59,6 +71,7 @@ cd SAJU/frontend && npm start
 ```
 
 ### API 테스트
+
 ```bash
 # 헬스 체크
 curl http://localhost:8000/health
@@ -96,37 +109,41 @@ SAJU/
 
 ## 🌐 서비스 접속
 
-| 서비스 | URL | 상태 |
-|--------|-----|------|
-| 메인 | http://localhost:4000 | ✅ |
-| 사주 UI | http://localhost:3000 | ✅ |
-| 사주 API | http://localhost:8000 | ✅ |
-| API 문서 | http://localhost:8000/docs | ✅ |
+| 서비스   | URL                        | 상태 |
+| -------- | -------------------------- | ---- |
+| 메인     | http://localhost:4000      | ✅   |
+| 사주 UI  | http://localhost:3000      | ✅   |
+| 사주 API | http://localhost:8000      | ✅   |
+| API 문서 | http://localhost:8000/docs | ✅   |
 
 ## 🔨 기술 스택
 
 - **백엔드**: FastAPI + Pydantic + SQLite
-- **프론트엔드**: React 18 + TypeScript + styled-components  
+- **프론트엔드**: React 18 + TypeScript + styled-components
 - **데이터**: 73,442개 만세력 레코드
 
 ## 📋 개발 가이드라인
 
 ### 코드 수정 시
+
 1. **백엔드**: `saju_analyzer.py` 메서드 추가/수정
 2. **API**: `saju.py` 엔드포인트 업데이트
 3. **프론트엔드**: `App.tsx` UI 컴포넌트 수정
 4. **타입 안전성**: TypeScript 인터페이스 동기화
 
 ### 포트 관리
+
 - Main: 4000 | SAJU: 8000/3000 | Physiognomy: 8001/3001
 
 ### CORS 설정
+
 - 개발환경: 모든 origins 허용
 - SAJU: `http://localhost:3000` 허용
 
 ## 🎊 현재 프로젝트 상태
 
 **SAJU 서비스: 100% 완성** ✅
+
 - 모든 분석 기능 구현 완료
 - 전문가급 정확도의 사주 분석
 - 현대적 UI/UX 완성

@@ -85,14 +85,38 @@ async def analyze_saju(birth_info: BirthInfoRequest):
             # 확장 오행 분석 추가
             if hasattr(analysis_result['wuxing'], 'extended_analysis') and analysis_result['wuxing'].extended_analysis:
                 wuxing_analysis["extended_analysis"] = analysis_result['wuxing'].extended_analysis
+                
+                # 강점과 약점을 personality_analysis에 추가
+                if "personality_analysis" not in wuxing_analysis["extended_analysis"]:
+                    wuxing_analysis["extended_analysis"]["personality_analysis"] = {}
+                
+                # 실제 분석 결과에서 강점과 약점 가져오기
+                wuxing_analysis["extended_analysis"]["personality_analysis"]["strengths"] = analysis_result['personality'].get('strengths', [])
+                wuxing_analysis["extended_analysis"]["personality_analysis"]["weaknesses"] = analysis_result['personality'].get('weaknesses', [])
+                wuxing_analysis["extended_analysis"]["personality_analysis"]["personality_type"] = analysis_result['personality'].get('basic_nature', '')
+            else:
+                # extended_analysis가 없는 경우 새로 생성
+                wuxing_analysis["extended_analysis"] = {
+                    "personality_analysis": {
+                        "strengths": analysis_result['personality'].get('strengths', []),
+                        "weaknesses": analysis_result['personality'].get('weaknesses', []),
+                        "personality_type": analysis_result['personality'].get('basic_nature', '')
+                    }
+                }
             
-            # 해석 구성 (문자열 형식)
+            # 해석 구성 (문자열 형식) - 실제 분석 결과 직접 사용
+            personality_value = analysis_result['personality'].get('basic_nature')
+            career_value = analysis_result['career'].get('career_tendency')
+            health_value = " ".join(analysis_result['health'].get('health_advice', []))
+            relationships_value = analysis_result['relationship'].get('relationship_style')
+            wealth_value = analysis_result['fortune'].get('wealth_tendency')
+            
             interpretations = {
-                "personality": analysis_result['personality'].get('description', '성격이 온화하고 부드러우며, 타인을 배려하는 마음이 깊습니다. 감정이 풍부하고 예술적 감각이 뛰어납니다.'),
-                "career": analysis_result['career'].get('description', '창작 분야나 서비스업에서 능력을 발휘할 수 있습니다. 협력을 중시하는 분야에서 성공 가능성이 높습니다.'),
-                "health": analysis_result['health'].get('description', '전반적으로 건강하나 스트레스 관리에 주의가 필요합니다. 규칙적인 운동과 충분한 휴식을 권합니다.'),
-                "relationships": analysis_result['relationship'].get('description', '인간관계가 원만하고 많은 사람들에게 사랑받습니다. 결혼이나 연애에 유리한 편입니다.'),
-                "wealth": analysis_result['fortune'].get('description', '꾸준한 노력을 통해 안정적인 재물을 축적할 수 있습니다. 투기보다는 저축이 유리합니다.')
+                "personality": personality_value if personality_value else '성격이 온화하고 부드러우며, 타인을 배려하는 마음이 깊습니다. 감정이 풍부하고 예술적 감각이 뛰어납니다.',
+                "career": career_value if career_value else '창작 분야나 서비스업에서 능력을 발휘할 수 있습니다. 협력을 중시하는 분야에서 성공 가능성이 높습니다.',
+                "health": health_value if health_value else '전반적으로 건강하나 스트레스 관리에 주의가 필요합니다. 규칙적인 운동과 충분한 휴식을 권합니다.',
+                "relationships": relationships_value if relationships_value else '인간관계가 원만하고 많은 사람들에게 사랑받습니다. 결혼이나 연애에 유리한 편입니다.',
+                "wealth": wealth_value if wealth_value else '꾸준한 노력을 통해 안정적인 재물을 축적할 수 있습니다. 투기보다는 저축이 유리합니다.'
             }
             
             response = {

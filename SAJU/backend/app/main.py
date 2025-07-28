@@ -1,11 +1,24 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import json
 from app.api import saju
+
+class UnicodeJSONResponse(JSONResponse):
+    def render(self, content) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(",", ":"),
+        ).encode("utf-8")
 
 app = FastAPI(
     title="사주 웹 서비스 API",
     description="사주팔자 분석 및 해석 서비스",
-    version="1.0.0"
+    version="1.0.0",
+    default_response_class=UnicodeJSONResponse
 )
 
 # CORS 설정
