@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  physiognomy-backend:
+    build: ./backend
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=sqlite:///./app.db
+      - DEBUG=True
+      - UPLOAD_PATH=/app/uploads
+    volumes:
+      - ./backend:/app
+      - ./models:/app/models
+      - ./datasets:/app/datasets
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+
+  physiognomy-frontend:
+    build: ./frontend
+    ports:
+      - "3001:3001"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8001
+      - PORT=3001
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm start
+
+  physiognomy-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=physiognomy
+      - POSTGRES_USER=physio_user
+      - POSTGRES_PASSWORD=physio_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - physiognomy_data:/var/lib/postgresql/data
+
+volumes:
+  physiognomy_data:

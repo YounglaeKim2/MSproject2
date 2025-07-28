@@ -15,29 +15,26 @@
 ## 📁 프로젝트 구조
 
 ```
-MSproject2_SAJU/
-├── CLAUDE.md                    # Claude Code용 프로젝트 가이드
-├── SAJU/                        # 원본 사주 관련 자료
-│   ├── manseryukDB/            # 만세력 데이터베이스
-│   └── 사주해석로직.txt          # 명리학 해석 로직 문서
-├── Physiognomy/                # 관상 관련 (향후 개발 예정)
-└── saju-web-service/           # 웹 서비스 메인 프로젝트
-    ├── backend/                # FastAPI 백엔드
-    │   ├── app/
-    │   │   ├── api/           # API 라우터
-    │   │   ├── core/          # 설정 및 코어 모듈
-    │   │   ├── database/      # 데이터베이스 연결
-    │   │   ├── models/        # Pydantic 모델
-    │   │   └── services/      # 사주 분석 엔진
-    │   ├── manseryukDB/       # 만세력 DB (복사본)
-    │   └── requirements.txt   # Python 의존성
-    └── frontend/              # React 프론트엔드
-        ├── src/
-        │   ├── components/    # React 컴포넌트
-        │   ├── services/      # API 통신
-        │   ├── types/         # TypeScript 타입
-        │   └── App.tsx       # 메인 앱
-        └── package.json      # npm 의존성
+MSproject2/
+├── main-app/                   # 메인 랜딩 페이지 (포트: 4000)
+│   ├── frontend/              # 서비스 선택 화면
+│   └── package.json
+├── SAJU/                      # 사주팔자 서비스 (완전 독립)
+│   ├── backend/               # FastAPI 백엔드 (포트: 8000)
+│   ├── frontend/              # React 프론트엔드 (포트: 3000)
+│   ├── manseryukDB/           # 만세력 데이터베이스
+│   ├── 사주해석로직.txt        # 명리학 해석 로직 문서
+│   ├── docker-compose.yml     # Docker 설정
+│   └── README.md              # 사주 서비스 가이드
+├── Physiognomy/               # 관상 분석 서비스 (완전 독립)
+│   ├── backend/               # FastAPI 백엔드 (포트: 8001)
+│   ├── frontend/              # React 프론트엔드 (포트: 3001)
+│   ├── models/                # AI 모델
+│   ├── datasets/              # 학습 데이터
+│   ├── docker-compose.yml     # Docker 설정
+│   └── README.md              # 관상 서비스 가이드
+├── CLAUDE.md                  # Claude Code용 개발 가이드
+└── README.md                  # 프로젝트 전체 가이드
 ```
 
 ## 🚀 설치 및 실행
@@ -47,23 +44,45 @@ MSproject2_SAJU/
 - Node.js 14+
 - npm 또는 yarn
 
-### 백엔드 실행
+### 메인 랜딩 페이지 실행
 ```bash
-cd saju-web-service/backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+cd main-app
+npm install
+npm start
 ```
 
-### 프론트엔드 실행
+### 사주 서비스 실행
 ```bash
-cd saju-web-service/frontend
+# 백엔드
+cd SAJU/backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# 프론트엔드 (새 터미널)
+cd SAJU/frontend
+npm install
+npm start
+```
+
+### 관상 서비스 실행 (동료 개발자용)
+```bash
+# 백엔드
+cd Physiognomy/backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
+
+# 프론트엔드 (새 터미널)
+cd Physiognomy/frontend
 npm install
 npm start
 ```
 
 ### 접속
-- **웹 서비스**: http://localhost:3000
-- **API 문서**: http://localhost:8000/docs
+- **메인 페이지**: http://localhost:4000
+- **사주 서비스**: http://localhost:3000
+- **관상 서비스**: http://localhost:3001
+- **사주 API 문서**: http://localhost:8000/docs
+- **관상 API 문서**: http://localhost:8001/docs
 
 ## 🔧 기술 스택
 
