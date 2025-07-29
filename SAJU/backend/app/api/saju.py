@@ -185,6 +185,93 @@ def _format_for_frontend(analysis_result: Dict[str, Any], birth_info: BirthInfoR
             "error": f"부분적 분석 실패: {str(e)}"
         }
 
+# 대운/세운 분석 엔드포인트들
+@router.post("/daeun")
+async def analyze_daeun(birth_info: BirthInfoRequest):
+    """대운 분석 API"""
+    try:
+        logger.info(f"대운 분석 요청: {birth_info.dict()}")
+        
+        # 1. 입력 검증
+        _validate_birth_info(birth_info)
+        
+        # 2. 사주팔자 추출
+        palja = saju_analyzer.extract_palja(birth_info)
+        logger.info(f"사주팔자 추출 완료")
+        
+        # 3. 대운 분석
+        daeun_analysis = saju_analyzer.calculate_daeun(birth_info, palja)
+        logger.info(f"대운 분석 완료: 총 {len(daeun_analysis.get('daeun_list', []))}개 대운")
+        
+        # 4. 응답 구성
+        response = {
+            "basic_info": {
+                "name": birth_info.name,
+                "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일 {birth_info.hour}시",
+                "gender": "남성" if birth_info.gender.lower() in ["male", "m"] else "여성"
+            },
+            "palja": {
+                "year_pillar": {"stem": palja.year_gan, "branch": palja.year_ji},
+                "month_pillar": {"stem": palja.month_gan, "branch": palja.month_ji},
+                "day_pillar": {"stem": palja.day_gan, "branch": palja.day_ji},
+                "hour_pillar": {"stem": palja.hour_gan, "branch": palja.hour_ji}
+            },
+            "daeun_analysis": daeun_analysis
+        }
+        
+        return JSONResponse(content=response)
+        
+    except Exception as e:
+        logger.error(f"대운 분석 오류: {e}")
+        logger.error(f"상세 에러: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"대운 분석 실패: {str(e)}")
+
+@router.post("/saeun")
+async def analyze_saeun(birth_info: BirthInfoRequest, target_year: int = Query(None, description="분석 대상 연도")):
+    """세운 분석 API"""
+    try:
+        logger.info(f"세운 분석 요청: {birth_info.dict()}, 대상연도: {target_year}")
+        
+        # 1. 입력 검증
+        _validate_birth_info(birth_info)
+        
+        # target_year 기본값 설정 (현재 년도)
+        if target_year is None:
+            from datetime import datetime
+            target_year = datetime.now().year
+        
+        # 2. 사주팔자 추출
+        palja = saju_analyzer.extract_palja(birth_info)
+        logger.info(f"사주팔자 추출 완료")
+        
+        # 3. 세운 분석
+        saeun_analysis = saju_analyzer.calculate_saeun(birth_info, palja, target_year)
+        logger.info(f"세운 분석 완료: 대상년도 {target_year}")
+        
+        # 4. 응답 구성
+        response = {
+            "basic_info": {
+                "name": birth_info.name,
+                "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일 {birth_info.hour}시",
+                "gender": "남성" if birth_info.gender.lower() in ["male", "m"] else "여성",
+                "target_year": target_year
+            },
+            "palja": {
+                "year_pillar": {"stem": palja.year_gan, "branch": palja.year_ji},
+                "month_pillar": {"stem": palja.month_gan, "branch": palja.month_ji},
+                "day_pillar": {"stem": palja.day_gan, "branch": palja.day_ji},
+                "hour_pillar": {"stem": palja.hour_gan, "branch": palja.hour_ji}
+            },
+            "saeun_analysis": saeun_analysis
+        }
+        
+        return JSONResponse(content=response)
+        
+    except Exception as e:
+        logger.error(f"세운 분석 오류: {e}")
+        logger.error(f"상세 에러: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"세운 분석 실패: {str(e)}")
+
 # AI 관련 엔드포인트들
 @router.post("/ai-chat")
 async def ai_chat_interpretation(
@@ -249,9 +336,11 @@ async def test_endpoint():
     """API 테스트"""
     return {
         "message": "새로운 사주 API가 정상 작동중입니다! 🚀",
-        "version": "2.0-refactored",
+        "version": "2.0-refactored-with-daeun",
         "endpoints": [
             "/analyze - 사주 분석 (새 버전)",
+            "/daeun - 대운 분석 ✨FIXED✨",
+            "/saeun - 세운 분석 ✨FIXED✨",
             "/ai-chat - AI 대화형 해석",
             "/ai-usage - AI 사용량 조회", 
             "/ai-test - AI 연결 테스트",
