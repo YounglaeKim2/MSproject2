@@ -1,0 +1,56 @@
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import json
+import traceback
+from app.api import compatibility
+
+class UnicodeJSONResponse(JSONResponse):
+    def render(self, content) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(",", ":"),
+        ).encode("utf-8")
+
+app = FastAPI(
+    title="궁합 분석 서비스 API",
+    description="사주팔자 기반 궁합 분석 및 해석 서비스",
+    version="1.0.0",
+    default_response_class=UnicodeJSONResponse
+)
+
+# CORS 설정
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3002"],  # Compatibility 프론트엔드
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 글로벌 에러 핸들러
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"=== 궁합 분석 에러 핸들러 ===")
+    print(f"URL: {request.url}")
+    print(f"Method: {request.method}")
+    print(f"Error: {str(exc)}")
+    print(f"Traceback: {traceback.format_exc()}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"서버 오류: {str(exc)}"}
+    )
+
+# API 라우터 등록
+app.include_router(compatibility.router, prefix="/api/v1/compatibility", tags=["compatibility"])
+
+@app.get("/")
+async def root():
+    return {"message": "궁합 분석 서비스 API에 오신 것을 환영합니다!"}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": "compatibility-analysis"}
