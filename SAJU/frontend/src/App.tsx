@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
+import AIChatInterface from "./components/AIChatInterface";
 
 const Container = styled.div`
   max-width: 800px;
@@ -83,6 +84,30 @@ const Button = styled.button`
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+  }
+`;
+
+const AIButton = styled.button`
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 20px auto;
+  display: block;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 `;
 
@@ -445,6 +470,7 @@ function App() {
     new Date().getFullYear()
   );
   const [error, setError] = useState("");
+  const [showAIChat, setShowAIChat] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -1543,7 +1569,28 @@ function App() {
               </p>
             </div>
           </AnalysisSection>
+
+          {/* AI 채팅 버튼 */}
+          <AIButton onClick={() => setShowAIChat(true)}>
+            🤖 AI와 상세 해석 나누기
+          </AIButton>
         </ResultContainer>
+      )}
+
+      {/* AI 채팅 인터페이스 */}
+      {result && (
+        <AIChatInterface
+          birthInfo={{
+            year: parseInt(formData.year),
+            month: parseInt(formData.month),
+            day: parseInt(formData.day),
+            hour: parseInt(formData.hour),
+            gender: formData.gender,
+            name: formData.name
+          }}
+          isVisible={showAIChat}
+          onClose={() => setShowAIChat(false)}
+        />
       )}
     </Container>
   );

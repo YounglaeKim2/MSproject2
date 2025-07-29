@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import json
+import traceback
 from app.api import saju
 
 class UnicodeJSONResponse(JSONResponse):
@@ -29,6 +30,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 글로벌 에러 핸들러
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"=== 글로벌 에러 핸들러 ===")
+    print(f"URL: {request.url}")
+    print(f"Method: {request.method}")
+    print(f"Error: {str(exc)}")
+    print(f"Traceback: {traceback.format_exc()}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"서버 오류: {str(exc)}"}
+    )
 
 # API 라우터 등록
 app.include_router(saju.router, prefix="/api/v1/saju", tags=["saju"])

@@ -63,25 +63,40 @@ class SajuAnalyzer:
         # 4. 성격 분석
         personality = self.analyze_personality(palja, wuxing, ten_stars)
         
-        # 5. 운세 분석
+        # 5. 각종 운세 분석
         career = self.analyze_career(palja, wuxing, ten_stars)
         health = self.analyze_health(palja, wuxing)
         relationship = self.analyze_relationship(palja, wuxing, ten_stars)
         fortune = self.analyze_fortune(palja, wuxing, ten_stars)
         
-        # 6. 대운 분석 추가
-        daeun = self.calculate_daeun(birth_info, palja)
-        
         return {
-            "palja": palja,
-            "wuxing": wuxing,
+            "palja": {
+                "year_gan": palja.year_gan,
+                "year_ji": palja.year_ji,
+                "month_gan": palja.month_gan,
+                "month_ji": palja.month_ji,
+                "day_gan": palja.day_gan,
+                "day_ji": palja.day_ji,
+                "hour_gan": palja.hour_gan,
+                "hour_ji": palja.hour_ji
+            },
+            "wuxing": {
+                "wood": wuxing.wood,
+                "fire": wuxing.fire,
+                "earth": wuxing.earth,
+                "metal": wuxing.metal,
+                "water": wuxing.water,
+                "strength": wuxing.strength,
+                "use_god": wuxing.use_god,
+                "avoid_god": wuxing.avoid_god,
+                "extended_analysis": wuxing.extended_analysis
+            },
             "ten_stars": ten_stars,
             "personality": personality,
             "career": career,
             "health": health,
             "relationship": relationship,
-            "fortune": fortune,
-            "daeun": daeun
+            "fortune": fortune
         }
     
     def extract_palja(self, birth_info: BirthInfoRequest) -> SajuPaljaResponse:
