@@ -2,8 +2,14 @@
 Google Gemini AI 기반 사주 해석 서비스
 """
 import os
+import sys
+
+# Windows에서 UTF-8 인코딩 강제 설정
+if sys.platform.startswith('win'):
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 import json
-import asyncio
 import aiohttp
 from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
@@ -99,7 +105,6 @@ class GeminiAIInterpreter:
     def __init__(self):
         # Gemini API 설정 (임시로 직접 설정)
         api_key = "AIzaSyD7OB3MnPASwL6oN7_Ni8hKyPWOEACYeIo"
-        print(f"API Key loaded: {api_key[:20]}...{api_key[-10:]}")  # 디버깅용
         
         # REST API 방식
         self.api_key = api_key
@@ -169,23 +174,13 @@ class GeminiAIInterpreter:
             ]
         }
         
-        # 디버깅용 출력
-        print(f"=== Gemini API 요청 정보 ===")
-        print(f"URL: {self.api_url}")
-        print(f"Headers: {headers}")
-        print(f"Payload: {payload}")
-        print(f"Prompt length: {len(prompt)} chars")
-        
         async with aiohttp.ClientSession() as session:
             async with session.post(self.api_url, headers=headers, json=payload) as response:
-                print(f"Response status: {response.status}")
                 if response.status == 200:
                     data = await response.json()
-                    print(f"Response data: {data}")
                     return data["candidates"][0]["content"]["parts"][0]["text"]
                 else:
                     error_text = await response.text()
-                    print(f"Error response: {error_text}")
                     raise Exception(f"Gemini API 오류 ({response.status}): {error_text}")
     
     def _create_saju_prompt(self, analysis_result: Dict[str, Any], question: str, context: Optional[str] = None) -> str:
@@ -201,23 +196,23 @@ class GeminiAIInterpreter:
 전통 명리학 이론을 바탕으로 정확하고 이해하기 쉬운 해석을 제공합니다.
 
 <사주 분석 결과>
-📅 사주팔자:
+■ 사주팔자:
 - 년주: {palja_info.get('year_pillar', '')}
 - 월주: {palja_info.get('month_pillar', '')}  
 - 일주: {palja_info.get('day_pillar', '')}
 - 시주: {palja_info.get('hour_pillar', '')}
 
-🌟 오행 분석:
+■ 오행 분석:
 - 오행 분포: {wuxing_info.get('distribution', {})}
 - 균형 점수: {wuxing_info.get('balance_score', 0)}점
 - 강약: {wuxing_info.get('strength', '')}
 
-👤 성격 분석:
+■ 성격 분석:
 - 기본 성격: {personality_info.get('basic_nature', '')}
 - 강점: {personality_info.get('strengths', [])}
 - 약점: {personality_info.get('weaknesses', [])}
 
-⭐ 십성 분석:
+■ 십성 분석:
 - 주요 십성: {ten_stars_info.get('dominant_stars', [])}
 - 특징: {ten_stars_info.get('characteristics', '')}
 
