@@ -167,9 +167,9 @@ const WuxingGrid = styled.div`
   margin: 20px 0;
 `;
 
-const WuxingCard = styled.div<{ element: string }>`
+const WuxingCard = styled.div<{ $element: string }>`
   background: ${(props) => {
-    switch (props.element) {
+    switch (props.$element) {
       case "목":
         return "linear-gradient(135deg, #2ecc71, #27ae60)";
       case "화":
@@ -218,15 +218,15 @@ const BalanceScore = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const ScoreCircle = styled.div<{ score: number }>`
+const ScoreCircle = styled.div<{ $score: number }>`
   width: 100px;
   height: 100px;
   border-radius: 50%;
   background: conic-gradient(
     from 0deg,
     #3498db 0deg,
-    #3498db ${(props) => props.score * 3.6}deg,
-    #ecf0f1 ${(props) => props.score * 3.6}deg,
+    #3498db ${(props) => props.$score * 3.6}deg,
+    #ecf0f1 ${(props) => props.$score * 3.6}deg,
     #ecf0f1 360deg
   );
   display: flex;
@@ -772,23 +772,23 @@ function App() {
             <SectionTitle>� 오행 분석</SectionTitle>
 
             <WuxingGrid>
-              <WuxingCard element="목">
+              <WuxingCard $element="목">
                 <ElementName>목(木)</ElementName>
                 <ElementCount>{result.wuxing_analysis.목}</ElementCount>
               </WuxingCard>
-              <WuxingCard element="화">
+              <WuxingCard $element="화">
                 <ElementName>화(火)</ElementName>
                 <ElementCount>{result.wuxing_analysis.화}</ElementCount>
               </WuxingCard>
-              <WuxingCard element="토">
+              <WuxingCard $element="토">
                 <ElementName>토(土)</ElementName>
                 <ElementCount>{result.wuxing_analysis.토}</ElementCount>
               </WuxingCard>
-              <WuxingCard element="금">
+              <WuxingCard $element="금">
                 <ElementName>금(金)</ElementName>
                 <ElementCount>{result.wuxing_analysis.금}</ElementCount>
               </WuxingCard>
-              <WuxingCard element="수">
+              <WuxingCard $element="수">
                 <ElementName>수(水)</ElementName>
                 <ElementCount>{result.wuxing_analysis.수}</ElementCount>
               </WuxingCard>
@@ -811,7 +811,7 @@ function App() {
                     오행 균형 점수
                   </h5>
                   <ScoreCircle
-                    score={
+                    $score={
                       result.wuxing_analysis.extended_analysis.balance_analysis
                         .balance_score
                     }
@@ -1287,7 +1287,7 @@ function App() {
             <SectionTitle>🎯 종합 운세 점수</SectionTitle>
             <BalanceScore>
               <ScoreCircle
-                score={saeunResult.saeun_analysis.annual_score.normalized_score}
+                $score={saeunResult.saeun_analysis.annual_score.normalized_score}
               >
                 {saeunResult.saeun_analysis.annual_score.normalized_score}점
               </ScoreCircle>

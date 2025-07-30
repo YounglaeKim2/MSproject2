@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   physiognomy-backend:
@@ -6,26 +6,31 @@ services:
     ports:
       - "8001:8001"
     environment:
-      - DATABASE_URL=sqlite:///./app.db
+      - GOOGLE_API_KEY=AIzaSyD7OB3MnPASwL6oN7_Ni8hKyPWOEACYeIo
+      - GEMINI_MODEL=gemini-2.5-flash
+      - DATABASE_URL=postgresql://physio_user:physio_password@physiognomy-db/physiognomy
       - DEBUG=True
       - UPLOAD_PATH=/app/uploads
     volumes:
       - ./backend:/app
       - ./models:/app/models
       - ./datasets:/app/datasets
+      - ./관상로직.txt:/app/관상로직.txt
+    depends_on:
+      - physiognomy-db
     command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 
   physiognomy-frontend:
     build: ./frontend
     ports:
-      - "3001:3001"
+      - "3001:80"
     environment:
       - REACT_APP_API_URL=http://localhost:8001
       - PORT=3001
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    command: npm start
+    
 
   physiognomy-db:
     image: postgres:15

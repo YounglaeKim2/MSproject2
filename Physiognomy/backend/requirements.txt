@@ -1,32 +1,14 @@
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-pydantic==2.5.0
-pydantic-settings==2.1.0
-python-multipart==0.0.6
-
-# AI/ML Dependencies
-tensorflow==2.13.0
-torch==2.0.1
-torchvision==0.15.2
-opencv-python==4.8.1.78
-mediapipe==0.10.7
-pillow==10.0.1
-numpy==1.24.3
-scikit-learn==1.3.0
-
-# Image Processing
-opencv-contrib-python==4.8.1.78
-albumentations==1.3.1
-
-# Database
-sqlalchemy>=1.4.42,<1.5
-databases[sqlite]==0.8.0
-aiosqlite==0.19.0
-
-# File Handling
-aiofiles==23.2.1
-
-# Testing
-pytest==7.4.3
-pytest-asyncio==0.21.1
-httpx==0.25.2
+opencv-python
+mediapipe
+numpy
+fastapi
+uvicorn
+python-multipart
+SQLAlchemy
+google-generativeai
+psycopg2-binary
+langchain
+langchain-community
+langchain-google-genai
+faiss-cpu
+sentence-transformers

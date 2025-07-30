@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>AI 관상 분석기</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; max-width: 800px; margin: auto; padding: 20px; background-color: #f9f9f9; color: #333; }
+        h1 { text-align: center; color: #2c3e50; }
+        #disclaimer { border: 2px solid #e74c3c; padding: 15px; margin-bottom: 20px; background-color: #fdedec; border-radius: 8px; }
+        #disclaimer h3 { margin-top: 0; color: #c0392b; }
+        #upload-section { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+        #result { margin-top: 20px; white-space: pre-wrap; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); line-height: 1.6; }
+        #loader { display: none; text-align: center; padding: 20px; }
+        input[type="file"] { border: 1px solid #ddd; padding: 10px; border-radius: 5px; }
+        button { background-color: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        button:hover:not(:disabled) { background-color: #2980b9; }
+    </style>
+</head>
+<body>
+    <h1>AI 관상 분석 (엔터테인먼트용)</h1>
+
+    <div id="disclaimer">
+        <h3>※ 중요 고지 사항 ※</h3>
+        <p>
+            본 AI 관상 분석은 <strong>오직 오락 및 재미를 위한 목적</strong>으로 제공됩니다. 관상학은 과학적 근거가 없는 전통적인 믿음 체계입니다.
+            분석 결과는 예술적, 문화적 해석에 기반한 것이며, 자신이나 타인에 대한 어떠한 판단이나 중요한 결정을 내리는 데 사용되어서는 안 됩니다.
+            기반 AI 기술에는 알려진 편향과 한계가 존재할 수 있습니다.
+        </p>
+        <label>
+            <input type="checkbox" id="agree-checkbox"> 위 내용을 모두 읽고 이해했으며, 본 서비스가 비과학적인 오락용 콘텐츠임에 동의합니다.
+        </label>
+    </div>
+
+    <div id="upload-section">
+        <input type="file" id="image-input" accept="image/jpeg, image/png" disabled>
+        <button id="analyze-button" disabled>분석 시작</button>
+    </div>
+    
+    <div id="loader">
+        <p>분석 중... 잠시만 기다려 주세요.</p>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        const agreeCheckbox = document.getElementById('agree-checkbox');
+        const imageInput = document.getElementById('image-input');
+        const analyzeButton = document.getElementById('analyze-button');
+        const loader = document.getElementById('loader');
+        const resultDiv = document.getElementById('result');
+
+        agreeCheckbox.addEventListener('change', () => {
+            const isChecked = agreeCheckbox.checked;
+            imageInput.disabled = !isChecked;
+            analyzeButton.disabled = !isChecked;
+        });
+
+        analyzeButton.addEventListener('click', async () => {
+            const file = imageInput.files[0];
+            if (!file) {
+                alert('분석할 이미지를 선택해주세요.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            loader.style.display = 'block';
+            resultDiv.innerHTML = '';
+            analyzeButton.disabled = true;
+
+            try {
+                // API 엔드포인트를 /analyze/ 로 수정
+                const response = await fetch('/analyze/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 마크다운 형식의 리포트를 HTML로 간단히 변환하여 표시
+                    resultDiv.innerHTML = data.report.replace(/\n/g, '<br>');
+                } else {
+                    resultDiv.textContent = `오류: ${data.detail || '알 수 없는 오류'}`;
+                }
+            } catch (error) {
+                resultDiv.textContent = `네트워크 오류가 발생했습니다: ${error}`;
+            } finally {
+                loader.style.display = 'none';
+                analyzeButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
