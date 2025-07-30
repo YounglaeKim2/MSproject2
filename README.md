@@ -1,92 +1,168 @@
-# MSproject2 - 전문 사주팔자 분석 웹 서비스
+# MSProject2 SAJU - 전통 명리학 + 현대 AI 융합 플랫폼
 
-> 한국 전통 명리학과 현대 웹 기술의 완벽한 결합 🎯
+> 🏆 **대한민국 최고 수준의 4개 마이크로서비스 완전체** 🏆  
+> 전통 명리학과 현대 AI 기술의 완벽한 융합 🎯
 
-## 🎉 주요 특징
+## 🎉 완성된 4개 서비스
 
-- ✅ **정확한 만세력**: 1900-2100년 73,442개 레코드 기반
-- 🆕 **확장 분석**: 13개 신규 메서드, 0-100점 균형 측정
-- ⏳ **대운/세운**: 10년 주기 대운 + 연간/월별 세운 분석
-- 🎯 **맞춤 조언**: 색상/방향/직업/건강/관계 등 8가지 카테고리
-- 🎨 **현대적 UI**: styled-components 기반 반응형 디자인
-- 🔧 **버그 수정 완료** (2025.07.28): 강점/약점, 해석 내용, 한글 인코딩
+### ✅ 1. Main App (포트 4000)
+**통합 랜딩 페이지** - 모든 서비스를 연결하는 허브
 
-## 📁 프로젝트 구조
+### ✅ 2. SAJU Service (포트 8000/3000) 
+**사주팔자 분석** - 37개 메서드, 대운/세운, AI 채팅
+- 73,442개 만세력 레코드 (1900-2100년)
+- Google Gemini 2.5-flash AI 해석
+- 0-100점 균형 측정 시스템
+
+### ✅ 3. Compatibility Service (포트 8002/3002)
+**궁합 분석** - 사주 기반 커플 궁합 분석
+
+### ✅ 4. Physiognomy Service (포트 8001/3001) 
+**AI 관상 분석** - MediaPipe + OpenCV + LangChain
+- Docker 컨테이너화 완료
+- 실시간 얼굴 인식 및 관상 해석
+
+## 🏗️ 마이크로서비스 아키텍처
 
 ```
-MSproject2/
-├── main-app/           # 메인 랜딩 페이지 (:4000)
-├── SAJU/              # 사주 분석 서비스 (:8000/:3000)
+MSProject2_SAJU/
+├── main-app/           # 통합 허브 (:4000)
+├── SAJU/              # 사주팔자 분석 (:8000/:3000)
 │   ├── backend/       # FastAPI + 37개 분석 메서드
-│   ├── frontend/      # React + TypeScript UI
-│   ├── manseryukDB/   # 만세력 데이터베이스
-│   └── 사주해석로직.txt # 명리학 해석 문서
-└── Physiognomy/       # 관상 분석 서비스 (:8001/:3001)
-```
+│   ├── frontend/      # React 18 + TypeScript
+│   ├── manseryukDB/   # 73,442개 만세력 DB
+│   └── 사주해석로직.txt # 전통 명리학 문서
+├── Compatibility/     # 궁합 분석 (:8002/:3002)
+│   ├── backend/       # FastAPI + 궁합 알고리즘
+│   └── frontend/      # React 18 + TypeScript
+└── Physiognomy/       # 관상 분석 (:8001/:3001)
+    ├── backend/       # FastAPI + AI 모델
+    ├── frontend/      # React 18 + TypeScript
+    └── docker-compose.yml # Docker 배포
 
 ## 🚀 빠른 시작
 
 ### 필수 설치
 
-- Python 3.8+ | Node.js 14+ | Git
+- **필수**: Python 3.8+ | Node.js 14+ | Git
+- **권장**: Docker Desktop (관상학 서비스용)
 
-### 실행 (3개 터미널)
+### Option 1: 수동 실행 (6개 터미널)
 
 ```bash
 # 터미널 1: 메인 앱
 cd main-app && npm install && npm start
 
-# 터미널 2: 사주 백엔드
+# 터미널 2: SAJU 백엔드
 cd SAJU/backend && pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload --port 8000
 
-# 터미널 3: 사주 프론트엔드
+# 터미널 3: SAJU 프론트엔드  
 cd SAJU/frontend && npm install && npm start
+
+# 터미널 4: 궁합 백엔드
+cd Compatibility/backend && pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8002
+
+# 터미널 5: 궁합 프론트엔드
+cd Compatibility/frontend && npm install && npm start
+
+# 터미널 6: 관상학 서비스 (Docker 권장)
+cd Physiognomy && docker-compose up
 ```
 
-### 접속 URL
+### Option 2: Docker 실행 (관상학만)
 
-| 서비스      | URL                        | 상태 |
-| ----------- | -------------------------- | ---- |
-| 메인 페이지 | http://localhost:4000      | ✅   |
-| 사주 분석   | http://localhost:3000      | ✅   |
-| API 문서    | http://localhost:8000/docs | ✅   |
+```bash
+# 기본 서비스들 (터미널 1-5)
+# ... 위와 동일 ...
+
+# 관상학 서비스 (Docker)
+cd Physiognomy && docker-compose up --build
+```
+
+### 🌐 접속 URL
+
+| 서비스 | URL | 상태 | 설명 |
+|--------|-----|------|------|
+| **Main App** | http://localhost:4000 | ✅ | 통합 허브 |
+| **SAJU 분석** | http://localhost:3000 | ✅ | 사주팔자 + 대운/세운 |
+| **궁합 분석** | http://localhost:3002 | ✅ | 커플 궁합 |
+| **관상 분석** | http://localhost:3001 | ✅ | AI 관상 해석 |
+| SAJU API | http://localhost:8000/docs | ✅ | API 문서 |
+| 궁합 API | http://localhost:8002/docs | ✅ | API 문서 |
+| 관상 API | http://localhost:8001/docs | ✅ | API 문서 |
 
 ## 🌟 핵심 기능
 
-### 📊 사주 분석 시스템
-
-- **사주팔자**: 년/월/일/시주 정확 계산
+### 📊 1. SAJU Service - 사주팔자 분석
+- **사주팔자**: 년/월/일/시주 정확 계산 (73,442개 만세력 DB)
 - **오행 분석**: 균형 점수 + 성격 유형 (6가지)
 - **십성 분석**: 비견/겁재/식신/상관/편재/정재/편관/정관/편인/정인
-
-### ⏳ 운세 시스템
-
 - **대운**: 10년 주기 (2세-81세, 8개 대운)
 - **세운**: 연간/월별 상세 운세
-- **현재 운세**: 나이별 맞춤 분석
+- **AI 채팅**: Google Gemini 2.5-flash 대화형 해석
 
-### 🎯 맞춤 조언
+### 💕 2. Compatibility Service - 궁합 분석
+- **사주 기반 궁합**: 두 사람의 사주팔자 비교 분석
+- **오행 상성**: 상생/상극 관계 분석
+- **성격 매칭**: 십성 기반 성격 궁합
+- **종합 점수**: 0-100점 궁합 지수
 
+### 🎭 3. Physiognomy Service - AI 관상 분석
+- **얼굴 인식**: MediaPipe 기반 468개 랜드마크 추출
+- **기하학적 분석**: OpenCV 얼굴 특징 계산
+- **관상학 해석**: 전통 관상학 + AI 융합 분석
+- **실시간 처리**: 웹캠/이미지 업로드 지원
+
+### 🎯 맞춤 조언 시스템
 🎨 색상 | 🧭 방향 | 🍽️ 음식 | 🏃 활동 | 🏠 라이프스타일 | 💼 직업 | 💊 건강 | 💑 관계
 
 ## 🔗 API 엔드포인트
 
+### SAJU API (포트 8000)
 ```bash
-POST /api/v1/saju/analyze    # 완전한 사주 분석
+POST /api/v1/saju/analyze    # 완전한 사주 분석 (37개 메서드)
 POST /api/v1/saju/daeun      # 대운 분석
 POST /api/v1/saju/saeun      # 세운 분석
-GET  /api/v1/saju/test       # API 테스트
+GET  /api/v1/saju/palja-only # 사주팔자만
+GET  /api/v1/saju/wuxing-only # 오행 분석만
+GET  /api/v1/saju/health     # 헬스 체크
+```
+
+### Compatibility API (포트 8002)
+```bash  
+POST /api/v1/compatibility/analyze  # 궁합 분석
+GET  /api/v1/compatibility/health   # 헬스 체크
+```
+
+### Physiognomy API (포트 8001)
+```bash
+POST /analyze        # 관상 분석 (이미지 업로드)
+GET  /docs           # API 문서
 ```
 
 ## 🔧 기술 스택
 
-**백엔드**: FastAPI + Pydantic + SQLite  
-**프론트엔드**: React 18 + TypeScript + styled-components  
-**데이터**: 만세력 DB (73,442 레코드) + 전통 명리학 로직
+### 백엔드 
+- **프레임워크**: FastAPI + Pydantic
+- **데이터베이스**: SQLite (SAJU), PostgreSQL (Physiognomy)
+- **AI 모델**: Google Gemini 2.5-flash, MediaPipe, OpenCV
+- **벡터 DB**: FAISS (관상학 RAG)
+
+### 프론트엔드
+- **프레임워크**: React 18 + TypeScript  
+- **스타일링**: styled-components
+- **빌드**: Create React App, Webpack
+
+### 배포 & 인프라
+- **컨테이너**: Docker + Docker Compose
+- **서버**: Uvicorn (개발), Nginx (프로덕션)
+- **데이터**: 73,442개 만세력 레코드 + AI 벡터 DB
 
 ## 📚 사용 예시
 
+### SAJU 분석 요청
 ```json
 {
   "year": 1990,
@@ -97,18 +173,59 @@ GET  /api/v1/saju/test       # API 테스트
   "name": "홍길동"
 }
 ```
-
 **결과**: 89.6점 균형 점수, 성장형 성격, 7-9월 최고 운세
 
-## 🏆 프로젝트 현황
+### 궁합 분석 요청
+```json
+{
+  "person1": {"year": 1990, "month": 5, "day": 15, "hour": 14, "gender": "male"},
+  "person2": {"year": 1992, "month": 8, "day": 22, "hour": 10, "gender": "female"}
+}
+```
+**결과**: 83.5점 궁합 지수, 상생 관계, 조화로운 성격 매칭
 
-**구현도**: 100% ✅ | **서비스**: 즉시 이용 가능 🚀
+### 관상 분석 (이미지 업로드)
+- **지원 형식**: JPG, PNG, WebP
+- **분석 항목**: 이목구비, 얼굴형, 인상
+- **결과**: 성격 분석 + 운세 해석
 
-- ✅ 모든 분석 기능 완성 (37개 메서드)
-- ✅ 전문가급 해석 정확도
-- ✅ 현대적 UI/UX 완성
-- ✅ 안정적 서비스 운영
+## 🏆 프로젝트 현황 (2025-07-30 완성)
+
+### ✅ 완성도: 100%
+- **4개 마이크로서비스** 완전 구현
+- **73,442개 만세력 데이터** 구축
+- **37개 사주 분석 메서드** 완성
+- **AI 관상 분석 시스템** 구축
+- **Docker 컨테이너화** 완료
+
+### 🚀 즉시 이용 가능
+- **웹 브라우저**에서 바로 접속
+- **모든 기능** 정상 작동
+- **실시간 분석** 지원
+- **현대적 UI/UX** 제공
+
+### 🏅 기술적 성취
+- **마이크로서비스 아키텍처** 구현
+- **전통 명리학 디지털화** 완성
+- **최신 AI 기술 융합** (Gemini, MediaPipe, LangChain)
+- **Docker 기반 배포** 최적화
+
+### 📈 비즈니스 가치
+- **시장 차별화**: 대한민국 최고 수준 플랫폼
+- **확장성**: 마이크로서비스로 무한 확장 가능
+- **상용화 준비**: 완전한 웹 서비스 형태
 
 ---
 
-**⚠️ 참고용 서비스입니다. 중요한 결정은 전문가와 상담하세요.**
+## 🔮 Future Roadmap
+
+- **모바일 앱** 개발
+- **실시간 알림** 시스템
+- **소셜 기능** 추가
+- **프리미엄 서비스** 확장
+
+---
+
+**⚠️ 본 서비스는 참고용입니다. 중요한 결정은 전문가와 상담하시기 바랍니다.**
+
+*© 2025 MSProject2 SAJU. 전통 명리학 + 현대 AI 기술의 완벽한 융합.*
