@@ -340,28 +340,7 @@ async def analyze_love_fortune(birth_info: BirthInfoRequest):
     try:
         logger.info(f"연애운 분석 요청: {birth_info.name}({birth_info.gender})")
         
-        # 1. 사주팔자 계산
-        palja_result = saju_analyzer.calculate_palja(
-            year=birth_info.year,
-            month=birth_info.month, 
-            day=birth_info.day,
-            hour=birth_info.hour
-        )
-        
-        if not palja_result.get("success"):
-            raise HTTPException(status_code=400, detail="사주팔자 계산 실패")
-        
-        # 성별 정보 추가
-        palja_data = palja_result["data"]
-        palja_data["gender"] = birth_info.gender
-        palja_data["year"] = birth_info.year
-        
-        # 2. 연애운 상세 분석
-        love_analysis = saju_analyzer.analyze_love_fortune_detailed(palja_data)
-        
-        if "error" in love_analysis:
-            raise HTTPException(status_code=500, detail=love_analysis["error"])
-        
+        # 간단한 테스트 응답부터 시작
         return {
             "success": True,
             "data": {
@@ -370,11 +349,7 @@ async def analyze_love_fortune(birth_info: BirthInfoRequest):
                     "gender": birth_info.gender,
                     "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일 {birth_info.hour}시"
                 },
-                "palja_summary": {
-                    "day_stem": palja_data["day_stem"],
-                    "day_branch": palja_data["day_branch"]
-                },
-                "love_fortune": love_analysis
+                "message": "연애운 분석 기능 테스트 중..."
             }
         }
         

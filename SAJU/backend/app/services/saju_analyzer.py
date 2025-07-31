@@ -1250,8 +1250,8 @@ class SajuAnalyzer:
         """연애운 상세 분석"""
         try:
             # 기본 정보 추출
-            day_stem = palja['day_stem']
-            day_branch = palja['day_branch'] 
+            day_stem = palja['day_gan']
+            day_ji = palja['day_ji'] 
             gender = palja.get('gender', 'male')
             
             # 각 분석 요소들
@@ -1273,7 +1273,7 @@ class SajuAnalyzer:
     
     def _analyze_ideal_type(self, palja: Dict, gender: str) -> Dict[str, Any]:
         """이상형 분석"""
-        day_stem = palja['day_stem']
+        day_stem = palja['day_gan']
         spouse_star = self._get_spouse_star(day_stem, gender)
         
         # 배우자별 이상형 특징
@@ -1312,8 +1312,8 @@ class SajuAnalyzer:
     
     def _analyze_love_style(self, palja: Dict, gender: str) -> Dict[str, Any]:
         """연애 스타일 분석"""
-        day_stem = palja['day_stem']
-        day_branch = palja['day_branch']
+        day_stem = palja['day_gan']
+        day_ji = palja['day_ji']
         
         # 일간별 연애 성향
         love_tendency = {
@@ -1332,7 +1332,7 @@ class SajuAnalyzer:
         base_style = love_tendency.get(day_stem, {"style": "독특한", "trait": "개성적인 매력", "weakness": "예측하기 어려움"})
         
         # 지지에 따른 추가 특성
-        branch_influence = self._get_branch_love_influence(day_branch)
+        branch_influence = self._get_branch_love_influence(day_ji)
         
         return {
             "main_style": base_style["style"],
@@ -1344,7 +1344,7 @@ class SajuAnalyzer:
     
     def _analyze_marriage_timing(self, palja: Dict, gender: str) -> Dict[str, Any]:
         """결혼 적령기 분석"""
-        day_stem = palja['day_stem']
+        day_stem = palja['day_gan']
         birth_year = palja.get('year', 1990)
         current_year = datetime.now().year
         current_age = current_year - birth_year + 1
@@ -1389,7 +1389,7 @@ class SajuAnalyzer:
     
     def _analyze_monthly_love_fortune(self, palja: Dict) -> Dict[str, Any]:
         """월별 연애운 분석"""
-        day_stem = palja['day_stem']
+        day_stem = palja['day_gan']
         current_year = datetime.now().year
         
         monthly_scores = []
@@ -1456,7 +1456,7 @@ class SajuAnalyzer:
             
         return compatible
     
-    def _get_branch_love_influence(self, day_branch: str) -> str:
+    def _get_branch_love_influence(self, day_ji: str) -> str:
         """지지가 연애에 미치는 영향"""
         branch_traits = {
             '子': "감성적이고 직관적인 연애 스타일",
@@ -1472,7 +1472,7 @@ class SajuAnalyzer:
             '戌': "충실하고 의리있는 연애 스타일",
             '亥': "순수하고 진실한 연애 스타일"
         }
-        return branch_traits.get(day_branch, "독특하고 개성적인 연애 스타일")
+        return branch_traits.get(day_ji, "독특하고 개성적인 연애 스타일")
     
     def _get_approach_method(self, day_stem: str, gender: str) -> str:
         """어프로치 방법 추천"""
@@ -1492,7 +1492,7 @@ class SajuAnalyzer:
     
     def _get_upcoming_marriage_years(self, palja: Dict, current_year: int) -> List[int]:
         """향후 3년간 결혼운이 좋은 해"""
-        day_stem = palja['day_stem']
+        day_stem = palja['day_gan']
         good_years = []
         
         for year in range(current_year, current_year + 4):
