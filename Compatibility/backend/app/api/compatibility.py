@@ -4,7 +4,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from app.models.compatibility import CompatibilityRequest, CompatibilityResponse
-from app.services.compatibility_analyzer import compatibility_analyzer
+from app.services.compatibility_analyzer_simple import simple_compatibility_analyzer
 import logging
 from typing import Dict, Any
 import traceback
@@ -54,7 +54,7 @@ async def analyze_compatibility(request: CompatibilityRequest):
         
         # 2. 궁합 분석 실행
         logger.info("궁합 분석 실행 중...")
-        analysis_result = compatibility_analyzer.analyze_compatibility(request)
+        analysis_result = simple_compatibility_analyzer.analyze_compatibility(request)
         logger.info(f"궁합 분석 완료. 총점: {analysis_result.total_score}점")
         
         # 3. dict로 변환

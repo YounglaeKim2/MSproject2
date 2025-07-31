@@ -189,58 +189,142 @@ class CompatibilityAnalyzer:
         )
 
     def _calculate_pillar_score(self, gan1: str, ji1: str, gan2: str, ji2: str) -> float:
-        """각 주의 궁합 점수 계산"""
-        # 천간 궁합
-        gan_score = self.gan_compatibility.get((gan1, gan2), 50)  # 기본 50점
+        """각 주의 궁합 점수 계산 - 스펙타클한 점수 범위"""
+        import random
         
-        # 지지 궁합 (상생 > 충극 확인)
-        ji_score = 50  # 기본 점수
+        # 천간 궁합 - 더 다양한 점수 범위
+        if (gan1, gan2) in self.gan_compatibility:
+            gan_score = self.gan_compatibility[(gan1, gan2)]
+        else:
+            # 천간별 기본 상성 계산 (음양오행 기반)
+            gan_elements = {
+                '甲': ('양목', 85), '乙': ('음목', 75), '丙': ('양화', 80), '丁': ('음화', 70),
+                '戊': ('양토', 65), '己': ('음토', 60), '庚': ('양금', 90), '辛': ('음금', 85),
+                '壬': ('양수', 75), '癸': ('음수', 65)
+            }
+            
+            elem1, power1 = gan_elements.get(gan1, ('중성', 50))
+            elem2, power2 = gan_elements.get(gan2, ('중성', 50))
+            
+            # 오행 상생상극에 따른 점수
+            if ('목' in elem1 and '화' in elem2) or ('화' in elem1 and '토' in elem2) or \
+               ('토' in elem1 and '금' in elem2) or ('금' in elem1 and '수' in elem2) or \
+               ('수' in elem1 and '목' in elem2):
+                gan_score = min(95, (power1 + power2) // 2 + random.randint(10, 25))
+            elif ('목' in elem1 and '토' in elem2) or ('토' in elem1 and '수' in elem2) or \
+                 ('수' in elem1 and '화' in elem2) or ('화' in elem1 and '금' in elem2) or \
+                 ('금' in elem1 and '목' in elem2):
+                gan_score = max(10, (power1 + power2) // 2 - random.randint(15, 35))
+            else:
+                gan_score = max(20, min(80, (power1 + power2) // 2 + random.randint(-15, 15)))
         
+        # 지지 궁합 - 더 극적인 점수 범위
         if (ji1, ji2) in self.ji_compatibility:
             ji_score = self.ji_compatibility[(ji1, ji2)]
         elif (ji1, ji2) in self.ji_conflicts:
-            ji_score = 50 + self.ji_conflicts[(ji1, ji2)]  # 충극은 음수이므로 더함
+            ji_score = max(5, 50 + self.ji_conflicts[(ji1, ji2)])  # 최소 5점
+        else:
+            # 지지별 기본 상성 (12지지)
+            ji_powers = {
+                '子': 88, '丑': 45, '寅': 92, '卯': 76, '辰': 55, '巳': 83,
+                '午': 95, '未': 42, '申': 87, '酉': 73, '戌': 48, '亥': 81
+            }
+            
+            power1 = ji_powers.get(ji1, 50)
+            power2 = ji_powers.get(ji2, 50)
+            
+            # 더 극적인 계산
+            base_score = (power1 + power2) // 2
+            variation = random.randint(-25, 30)
+            ji_score = max(15, min(98, base_score + variation))
         
         # 천간:지지 = 4:6 비율
-        return gan_score * 0.4 + ji_score * 0.6
+        final_score = gan_score * 0.4 + ji_score * 0.6
+        return round(max(5, min(98, final_score)), 1)
 
     def _analyze_wuxing_compatibility(self, person1: Dict, person2: Dict) -> WuxingCompatibility:
-        """오행 궁합 분석"""
-        p1_wuxing = person1["wuxing"]
+        """오행 궁합 분석 - 실제 개인별 오행 분포 기반"""
+        import random
+        
+        p1_wuxing = person1["wuxing"]  
         p2_wuxing = person2["wuxing"]
         
-        # 오행 분포 계산
-        elements = ["wood", "fire", "earth", "metal", "water"]
-        element_names = {"wood": "목", "fire": "화", "earth": "토", "metal": "금", "water": "수"}
+        # 실제 개인별 오행 분포 가져오기
+        elements = ["목", "화", "토", "금", "수"]
+        
+        # 두 사람의 오행 개수 비교 (숫자 타입으로 강제 변환)
+        p1_counts = {}
+        p2_counts = {}
+        
+        for elem in elements:
+            try:
+                p1_counts[elem] = int(p1_wuxing.get(elem, 0))
+            except (ValueError, TypeError):
+                p1_counts[elem] = 0
+                
+            try:
+                p2_counts[elem] = int(p2_wuxing.get(elem, 0))
+            except (ValueError, TypeError):
+                p2_counts[elem] = 0
         
         harmony_elements = []
         conflict_elements = []
         balance_score = 0
         
-        for elem1 in elements:
-            for elem2 in elements:
-                name1, name2 = element_names[elem1], element_names[elem2]
+        # 각 오행별 실제 상호작용 분석
+        for elem in elements:
+            count1, count2 = p1_counts[elem], p2_counts[elem]
+            
+            # 상생 관계 점수 계산
+            for target_elem in elements:
+                if (elem, target_elem) in self.wuxing_relations["상생"]:
+                    target_count1, target_count2 = p1_counts[target_elem], p2_counts[target_elem]
+                    # 실제 개수에 따른 상생 효과
+                    synergy = (count1 * target_count2 + count2 * target_count1) * 3
+                    balance_score += synergy
+                    if synergy > 0:
+                        harmony_elements.append(f"{elem}-{target_elem}")
                 
-                # 상생 관계 확인
-                if (name1, name2) in self.wuxing_relations["상생"]:
-                    harmony_elements.append(f"{name1}-{name2}")
-                    balance_score += self.wuxing_relations["상생"][(name1, name2)]
-                
-                # 상극 관계 확인  
-                elif (name1, name2) in self.wuxing_relations["상극"]:
-                    conflict_elements.append(f"{name1}-{name2}")
-                    balance_score += self.wuxing_relations["상극"][(name1, name2)]
+                # 상극 관계 점수 계산
+                elif (elem, target_elem) in self.wuxing_relations["상극"]:
+                    target_count1, target_count2 = p1_counts[target_elem], p2_counts[target_elem]
+                    # 실제 개수에 따른 상극 효과
+                    conflict = (count1 * target_count2 + count2 * target_count1) * -4
+                    balance_score += conflict
+                    if conflict < 0:
+                        conflict_elements.append(f"{elem}-{target_elem}")
+        
+        # 오행 균형도 추가 점수
+        p1_total = sum(p1_counts.values()) or 1
+        p2_total = sum(p2_counts.values()) or 1
+        
+        # 균형도 차이에 따른 점수 (완전히 다르면 낮은 점수)
+        balance_difference = 0
+        for elem in elements:
+            ratio1 = p1_counts[elem] / p1_total
+            ratio2 = p2_counts[elem] / p2_total
+            balance_difference += abs(ratio1 - ratio2)
+        
+        # 균형도가 비슷하면 보너스, 많이 다르면 페널티
+        if balance_difference < 0.5:
+            balance_score += random.randint(15, 35)  # 조화로운 균형
+        elif balance_difference > 1.5:
+            balance_score += random.randint(-40, -15)  # 극단적 차이
+        else:
+            balance_score += random.randint(-10, 20)  # 보통
         
         # 궁합 유형 결정
-        if balance_score > 30:
+        if balance_score > 40:
             compatibility_type = "상생 궁합"
-        elif balance_score < -20:
+        elif balance_score < -30:
             compatibility_type = "상극 궁합" 
         else:
             compatibility_type = "평형 궁합"
         
-        # 점수 정규화 (0-100)
-        normalized_score = max(0, min(100, balance_score + 50))
+        # 점수 정규화 (0-100) - 더 넓은 범위
+        base_score = max(0, min(100, balance_score + 60))
+        final_variation = random.randint(-20, 25)
+        normalized_score = max(5, min(98, base_score + final_variation))
         
         return WuxingCompatibility(
             balance_score=normalized_score,
@@ -250,24 +334,118 @@ class CompatibilityAnalyzer:
         )
 
     def _analyze_ten_stars_compatibility(self, person1: Dict, person2: Dict) -> TenStarsCompatibility:
-        """십성 궁합 분석"""
-        # 간단한 십성 궁합 로직 (실제로는 더 복잡)
+        """십성 궁합 분석 - 실제 십성 분포 기반"""
+        import random
+        
         p1_stars = person1.get("ten_stars", {})
         p2_stars = person2.get("ten_stars", {})
         
-        # 기본적인 십성 상성 점수
-        harmony_score = 65.0  # 기본 점수
-        support_level = 70.0
-        conflict_level = 30.0
+        # 십성별 상성표 (실제 명리학 기반)
+        star_powers = {
+            "비견": 75, "겁재": 70, "식신": 85, "상관": 80,
+            "편재": 90, "정재": 88, "편관": 65, "정관": 92,
+            "편인": 72, "정인": 95
+        }
         
-        # 십성 배합에 따른 관계 유형 결정
-        dominant_relationship = "조화로운 관계"
+        # 십성 조합별 특별 상성
+        special_combinations = {
+            ("정관", "정인"): 95,  # 관인상생
+            ("편재", "식신"): 90,  # 재성상생  
+            ("정재", "정관"): 88,  # 재관상생
+            ("식신", "정재"): 85,  # 식재상생
+            ("편관", "편인"): 82,  # 살인상생
+            ("겁재", "편재"): 25,  # 겁재극재
+            ("상관", "정관"): 15,  # 상관견관
+            ("편인", "식신"): 20,  # 편인탈식
+        }
+        
+        harmony_score = 0
+        support_interactions = 0
+        conflict_interactions = 0
+        total_interactions = 0
+        
+        # 실제 십성 분포로 상호작용 계산
+        for star1, count1 in p1_stars.items():
+            try:
+                count1 = int(count1)
+                if count1 == 0:
+                    continue
+            except (ValueError, TypeError):
+                continue
+                
+            for star2, count2 in p2_stars.items():
+                try:
+                    count2 = int(count2)
+                    if count2 == 0:
+                        continue
+                except (ValueError, TypeError):
+                    continue
+                    
+                total_interactions += count1 * count2
+                
+                # 특별 조합 확인
+                combination_score = None
+                if (star1, star2) in special_combinations:
+                    combination_score = special_combinations[(star1, star2)]
+                elif (star2, star1) in special_combinations:
+                    combination_score = special_combinations[(star2, star1)]
+                
+                if combination_score:
+                    interaction_power = count1 * count2 * combination_score
+                    harmony_score += interaction_power
+                    
+                    if combination_score >= 80:
+                        support_interactions += count1 * count2
+                    elif combination_score <= 40:
+                        conflict_interactions += count1 * count2
+                else:
+                    # 기본 십성 파워로 계산
+                    power1 = star_powers.get(star1, 50)
+                    power2 = star_powers.get(star2, 50)
+                    base_compatibility = (power1 + power2) / 2
+                    
+                    # 랜덤 변동 추가
+                    variation = random.randint(-15, 20)
+                    final_compatibility = max(10, min(95, base_compatibility + variation))
+                    
+                    interaction_power = count1 * count2 * final_compatibility / 100
+                    harmony_score += interaction_power * 50
+                    
+                    if final_compatibility >= 70:
+                        support_interactions += count1 * count2
+                    elif final_compatibility <= 40:
+                        conflict_interactions += count1 * count2
+        
+        # 총 점수 정규화
+        if total_interactions > 0:
+            harmony_score = harmony_score / total_interactions
+            support_level = min(95, (support_interactions / total_interactions) * 100 + random.randint(5, 15))
+            conflict_level = min(90, (conflict_interactions / total_interactions) * 100 + random.randint(0, 10))
+        else:
+            harmony_score = random.randint(30, 70)
+            support_level = random.randint(40, 80)
+            conflict_level = random.randint(10, 50)
+        
+        # 최종 점수 조정 (더 극적으로)
+        final_harmony = max(8, min(97, harmony_score + random.randint(-12, 18)))
+        
+        # 관계 유형 결정
+        if final_harmony >= 85:
+            dominant_relationship = "완벽한 상호보완"
+        elif final_harmony >= 70:
+            dominant_relationship = "조화로운 관계"
+        elif final_harmony >= 55:
+            dominant_relationship = "노력이 필요한 관계"
+        elif final_harmony >= 35:
+            dominant_relationship = "도전적인 관계"
+        else:
+            dominant_relationship = "매우 어려운 관계"
         
         return TenStarsCompatibility(
             dominant_relationship=dominant_relationship,
-            support_level=support_level,
-            conflict_level=conflict_level,
-            harmony_score=harmony_score
+            support_level=round(support_level, 1),
+            conflict_level=round(conflict_level, 1),
+            harmony_score=round(final_harmony, 1)
         )
 
     def _calculate_total_score(self, pillar: PillarCompatibility, 

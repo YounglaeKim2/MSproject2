@@ -1,0 +1,18 @@
+{
+  "person1": {
+    "name": "이민수",
+    "year": 1980,
+    "month": 1,
+    "day": 1,
+    "hour": 0,
+    "gender": "male"
+  },
+  "person2": {
+    "name": "최수진", 
+    "year": 2000,
+    "month": 12,
+    "day": 31,
+    "hour": 23,
+    "gender": "female"
+  }
+}
