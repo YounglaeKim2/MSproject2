@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage'
 import SajuPage from './pages/SajuPage'
 import CompatibilityPage from './pages/CompatibilityPage'
 import TestPage from './pages/TestPage'
+import CyworldSajuTestPage from './pages/CyworldSajuTestPage'
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/saju" element={<SajuPage />} />
         <Route path="/compatibility" element={<CompatibilityPage />} />
+        <Route path="/cyworld-test" element={<CyworldSajuTestPage />} />
       </Routes>
     </AppContainer>
   )

@@ -326,6 +326,65 @@ async def test_ai_connection():
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+@router.post("/love-fortune")
+async def analyze_love_fortune(birth_info: BirthInfoRequest):
+    """
+    연애운 상세 분석 API
+    
+    Args:
+        birth_info: 출생 정보 (년월일시, 성별, 이름)
+    
+    Returns:
+        연애운 상세 분석 결과 (이상형, 연애스타일, 결혼적령기, 월별운세)
+    """
+    try:
+        logger.info(f"연애운 분석 요청: {birth_info.name}({birth_info.gender})")
+        
+        # 1. 사주팔자 계산
+        palja_result = saju_analyzer.calculate_palja(
+            year=birth_info.year,
+            month=birth_info.month, 
+            day=birth_info.day,
+            hour=birth_info.hour
+        )
+        
+        if not palja_result.get("success"):
+            raise HTTPException(status_code=400, detail="사주팔자 계산 실패")
+        
+        # 성별 정보 추가
+        palja_data = palja_result["data"]
+        palja_data["gender"] = birth_info.gender
+        palja_data["year"] = birth_info.year
+        
+        # 2. 연애운 상세 분석
+        love_analysis = saju_analyzer.analyze_love_fortune_detailed(palja_data)
+        
+        if "error" in love_analysis:
+            raise HTTPException(status_code=500, detail=love_analysis["error"])
+        
+        return {
+            "success": True,
+            "data": {
+                "basic_info": {
+                    "name": birth_info.name,
+                    "gender": birth_info.gender,
+                    "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일 {birth_info.hour}시"
+                },
+                "palja_summary": {
+                    "day_stem": palja_data["day_stem"],
+                    "day_branch": palja_data["day_branch"]
+                },
+                "love_fortune": love_analysis
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"연애운 분석 오류: {e}")
+        logger.error(f"상세 오류: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"연애운 분석 실패: {str(e)}")
+
 @router.get("/health")
 async def health_check():
     """헬스 체크"""
@@ -341,6 +400,7 @@ async def test_endpoint():
             "/analyze - 사주 분석 (새 버전)",
             "/daeun - 대운 분석 ✨FIXED✨",
             "/saeun - 세운 분석 ✨FIXED✨",
+            "/love-fortune - 연애운 상세 분석 ✨NEW✨",
             "/ai-chat - AI 대화형 해석",
             "/ai-usage - AI 사용량 조회", 
             "/ai-test - AI 연결 테스트",

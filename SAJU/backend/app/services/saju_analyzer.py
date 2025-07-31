@@ -1243,6 +1243,336 @@ class SajuAnalyzer:
             summary += f" {best_months_str}은 특히 좋은 시기가 될 것입니다."
         
         return summary
+    
+    # ============ 연애운 상세 분석 메서드들 ============
+    
+    def analyze_love_fortune_detailed(self, palja: Dict) -> Dict[str, Any]:
+        """연애운 상세 분석"""
+        try:
+            # 기본 정보 추출
+            day_stem = palja['day_stem']
+            day_branch = palja['day_branch'] 
+            gender = palja.get('gender', 'male')
+            
+            # 각 분석 요소들
+            ideal_type = self._analyze_ideal_type(palja, gender)
+            love_style = self._analyze_love_style(palja, gender)
+            marriage_timing = self._analyze_marriage_timing(palja, gender)
+            monthly_love = self._analyze_monthly_love_fortune(palja)
+            
+            return {
+                "ideal_type": ideal_type,
+                "love_style": love_style, 
+                "marriage_timing": marriage_timing,
+                "monthly_fortune": monthly_love,
+                "summary": self._generate_love_summary(ideal_type, love_style, marriage_timing)
+            }
+            
+        except Exception as e:
+            return {"error": f"연애운 분석 오류: {str(e)}"}
+    
+    def _analyze_ideal_type(self, palja: Dict, gender: str) -> Dict[str, Any]:
+        """이상형 분석"""
+        day_stem = palja['day_stem']
+        spouse_star = self._get_spouse_star(day_stem, gender)
+        
+        # 배우자별 이상형 특징
+        ideal_characteristics = {
+            '정관': {  # 남성의 배우자별, 여성의 남편별
+                "appearance": "단정하고 품위있는 외모, 키가 적당하고 균형잡힌 체형",
+                "personality": "책임감 강하고 신뢰할 수 있으며, 사회적 지위가 있는 사람", 
+                "style": "전통적이고 안정적인 연애 스타일 선호"
+            },
+            '편관': {
+                "appearance": "카리스마 있고 강인한 인상, 운동신경이 좋은 체형",
+                "personality": "추진력 있고 결단력 강하며, 리더십이 있는 사람",
+                "style": "역동적이고 자극적인 연애 스타일 선호"
+            },
+            '정재': {  # 남성의 아내별
+                "appearance": "우아하고 여성스러운 외모, 단아한 미모",
+                "personality": "현실적이고 알뜰하며, 가정적인 사람",
+                "style": "안정적이고 현실적인 연애 스타일 선호"
+            },
+            '편재': {
+                "appearance": "밝고 화려한 외모, 매력적이고 활발한 인상",
+                "personality": "사교적이고 활발하며, 재능이 많은 사람", 
+                "style": "자유롭고 개방적인 연애 스타일 선호"
+            }
+        }
+        
+        return {
+            "spouse_star": spouse_star,
+            "characteristics": ideal_characteristics.get(spouse_star, {
+                "appearance": "개성있고 매력적인 외모",
+                "personality": "독특하고 창의적인 성격", 
+                "style": "자유로운 연애 스타일"
+            }),
+            "compatibility_elements": self._get_compatibility_elements(day_stem)
+        }
+    
+    def _analyze_love_style(self, palja: Dict, gender: str) -> Dict[str, Any]:
+        """연애 스타일 분석"""
+        day_stem = palja['day_stem']
+        day_branch = palja['day_branch']
+        
+        # 일간별 연애 성향
+        love_tendency = {
+            '甲': {"style": "적극적", "trait": "정직하고 직선적인 어프로치", "weakness": "둔감할 수 있음"},
+            '乙': {"style": "소극적", "trait": "섬세하고 배려깊은 연애", "weakness": "우유부단할 수 있음"}, 
+            '丙': {"style": "열정적", "trait": "밝고 활발한 매력", "weakness": "감정 기복이 클 수 있음"},
+            '丁': {"style": "온화한", "trait": "따뜻하고 세심한 관심", "weakness": "질투심이 강할 수 있음"},
+            '戊': {"style": "안정적", "trait": "든든하고 믿음직한 파트너", "weakness": "변화를 싫어할 수 있음"},
+            '己': {"style": "신중한", "trait": "깊이 있고 진실한 사랑", "weakness": "표현이 서툴 수 있음"},
+            '庚': {"style": "솔직한", "trait": "명확하고 일관된 태도", "weakness": "차가워 보일 수 있음"},
+            '辛': {"style": "세련된", "trait": "품격있고 우아한 매력", "weakness": "완벽주의 성향"},
+            '壬': {"style": "자유로운", "trait": "포용력 있고 유연한 사랑", "weakness": "일관성이 부족할 수 있음"},
+            '癸': {"style": "깊이있는", "trait": "진심어린 깊은 사랑", "weakness": "소심할 수 있음"}
+        }
+        
+        base_style = love_tendency.get(day_stem, {"style": "독특한", "trait": "개성적인 매력", "weakness": "예측하기 어려움"})
+        
+        # 지지에 따른 추가 특성
+        branch_influence = self._get_branch_love_influence(day_branch)
+        
+        return {
+            "main_style": base_style["style"],
+            "characteristics": base_style["trait"],
+            "potential_weakness": base_style["weakness"],
+            "branch_influence": branch_influence,
+            "approach_method": self._get_approach_method(day_stem, gender)
+        }
+    
+    def _analyze_marriage_timing(self, palja: Dict, gender: str) -> Dict[str, Any]:
+        """결혼 적령기 분석"""
+        day_stem = palja['day_stem']
+        birth_year = palja.get('year', 1990)
+        current_year = datetime.now().year
+        current_age = current_year - birth_year + 1
+        
+        # 일간별 기본 결혼 적령기 (통계적 기준)
+        marriage_age_ranges = {
+            '甲': {"early": 25, "ideal": 29, "late": 35},
+            '乙': {"early": 23, "ideal": 27, "late": 33},
+            '丙': {"early": 24, "ideal": 28, "late": 34}, 
+            '丁': {"early": 22, "ideal": 26, "late": 32},
+            '戊': {"early": 26, "ideal": 30, "late": 36},
+            '己': {"early": 24, "ideal": 28, "late": 34},
+            '庚': {"early": 27, "ideal": 31, "late": 37},
+            '辛': {"early": 25, "ideal": 29, "late": 35},
+            '壬': {"early": 28, "ideal": 32, "late": 38},
+            '癸': {"early": 26, "ideal": 30, "late": 36}
+        }
+        
+        base_timing = marriage_age_ranges.get(day_stem, {"early": 25, "ideal": 29, "late": 35})
+        
+        # 성별 보정 (여성이 일반적으로 2-3년 빠름)
+        if gender == 'female':
+            base_timing = {k: v - 2 for k, v in base_timing.items()}
+        
+        # 현재 상황 판정
+        status = "아직 이름"
+        if current_age >= base_timing["late"]:
+            status = "늦은 결혼 시기"
+        elif current_age >= base_timing["ideal"]:
+            status = "적정 결혼 시기"
+        elif current_age >= base_timing["early"]:
+            status = "이른 결혼 시기" 
+        
+        return {
+            "early_age": base_timing["early"],
+            "ideal_age": base_timing["ideal"], 
+            "late_age": base_timing["late"],
+            "current_status": status,
+            "current_age": current_age,
+            "upcoming_good_years": self._get_upcoming_marriage_years(palja, current_year)
+        }
+    
+    def _analyze_monthly_love_fortune(self, palja: Dict) -> Dict[str, Any]:
+        """월별 연애운 분석"""
+        day_stem = palja['day_stem']
+        current_year = datetime.now().year
+        
+        monthly_scores = []
+        for month in range(1, 13):
+            # 월지와 일간의 관계로 연애운 점수 계산
+            month_score = self._calculate_monthly_love_score(day_stem, month)
+            monthly_scores.append({
+                "month": month,
+                "score": month_score,
+                "level": self._get_love_level(month_score),
+                "advice": self._get_monthly_love_advice(month, month_score)
+            })
+        
+        # 최고/최저 월 찾기
+        best_months = sorted(monthly_scores, key=lambda x: x['score'], reverse=True)[:3]
+        worst_months = sorted(monthly_scores, key=lambda x: x['score'])[:2]
+        
+        return {
+            "monthly_details": monthly_scores,
+            "best_months": [m['month'] for m in best_months],
+            "worst_months": [m['month'] for m in worst_months],
+            "year_average": round(sum(m['score'] for m in monthly_scores) / 12, 1)
+        }
+    
+    # 보조 메서드들
+    def _get_spouse_star(self, day_stem: str, gender: str) -> str:
+        """배우자별 구하기"""
+        if gender == 'male':
+            # 남성: 재성이 배우자별 (일간이 극하는 오행)
+            day_element = self.WUXING_MAP[day_stem]
+            target_element = self.OVERCOME_CYCLE[day_element]
+            
+            # 음양 구분으로 정재/편재 결정
+            if day_stem in self.YANG_STEMS:
+                return '정재' if target_element in ['목', '토', '수'] else '편재'
+            else:
+                return '편재' if target_element in ['목', '토', '수'] else '정재'
+        else:
+            # 여성: 관성이 배우자별 (일간을 극하는 오행)
+            day_element = self.WUXING_MAP[day_stem]
+            target_element = [k for k, v in self.OVERCOME_CYCLE.items() if v == day_element][0]
+            
+            # 음양 구분으로 정관/편관 결정
+            if day_stem in self.YANG_STEMS:
+                return '정관' if target_element in ['화', '금'] else '편관'
+            else:
+                return '편관' if target_element in ['화', '금'] else '정관'
+    
+    def _get_compatibility_elements(self, day_stem: str) -> List[str]:
+        """궁합이 좋은 오행 요소들"""
+        day_element = self.WUXING_MAP[day_stem]
+        
+        # 상생/상극 관계에서 유리한 오행들
+        compatible = []
+        
+        # 나를 생해주는 오행 (인성)
+        for element, generates in self.GENERATE_CYCLE.items():
+            if generates == day_element:
+                compatible.append(element)
+        
+        # 내가 생해주는 오행 (식상) - 적당히
+        if day_element in self.GENERATE_CYCLE:
+            compatible.append(self.GENERATE_CYCLE[day_element])
+            
+        return compatible
+    
+    def _get_branch_love_influence(self, day_branch: str) -> str:
+        """지지가 연애에 미치는 영향"""
+        branch_traits = {
+            '子': "감성적이고 직관적인 연애 스타일",
+            '丑': "신중하고 현실적인 연애 스타일", 
+            '寅': "활발하고 적극적인 연애 스타일",
+            '卯': "섬세하고 로맨틱한 연애 스타일",
+            '辰': "안정적이고 계획적인 연애 스타일",
+            '巳': "열정적이고 지적인 연애 스타일",
+            '午': "밝고 사교적인 연애 스타일",
+            '未': "따뜻하고 배려깊은 연애 스타일", 
+            '申': "재치있고 유머러스한 연애 스타일",
+            '酉': "완벽주의적이고 까다로운 연애 스타일",
+            '戌': "충실하고 의리있는 연애 스타일",
+            '亥': "순수하고 진실한 연애 스타일"
+        }
+        return branch_traits.get(day_branch, "독특하고 개성적인 연애 스타일")
+    
+    def _get_approach_method(self, day_stem: str, gender: str) -> str:
+        """어프로치 방법 추천"""
+        methods = {
+            '甲': "직접적이고 솔직한 고백이 효과적",
+            '乙': "섬세한 관심과 배려로 천천히 다가가기",
+            '丙': "밝고 유쾌한 분위기에서 자연스럽게", 
+            '丁': "따뜻한 마음과 진심이 담긴 접근",
+            '戊': "든든하고 신뢰할 수 있는 모습 보여주기",
+            '己': "깊이 있는 대화와 진실한 마음 전달",
+            '庚': "명확하고 일관된 태도로 접근",
+            '辛': "세련되고 품격있는 방식으로",
+            '壬': "자연스럽고 부담없는 분위기에서",
+            '癸': "은은하고 진심어린 관심 표현"
+        }
+        return methods.get(day_stem, "자신만의 개성적인 방법으로")
+    
+    def _get_upcoming_marriage_years(self, palja: Dict, current_year: int) -> List[int]:
+        """향후 3년간 결혼운이 좋은 해"""
+        day_stem = palja['day_stem']
+        good_years = []
+        
+        for year in range(current_year, current_year + 4):
+            # 간단한 대운 계산으로 결혼운이 좋은 해 판정
+            year_stem_index = (year - 4) % 10  # 갑자년이 기준
+            year_stem = self.HEAVENLY_STEMS[year_stem_index]
+            
+            # 일간과 년간의 관계 판정
+            if self._is_good_marriage_year(day_stem, year_stem):
+                good_years.append(year)
+        
+        return good_years[:2]  # 최대 2개년만 반환
+    
+    def _is_good_marriage_year(self, day_stem: str, year_stem: str) -> bool:
+        """결혼운이 좋은 년도인지 판정"""
+        day_element = self.WUXING_MAP[day_stem]
+        year_element = self.WUXING_MAP[year_stem]
+        
+        # 상생 관계이거나 같은 오행인 경우 결혼운이 좋음
+        return (self.GENERATE_CYCLE.get(year_element) == day_element or 
+                year_element == day_element or
+                self.GENERATE_CYCLE.get(day_element) == year_element)
+    
+    def _calculate_monthly_love_score(self, day_stem: str, month: int) -> int:
+        """월별 연애운 점수 계산"""
+        # 월지 계산 (간단화)
+        month_branches = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑']
+        month_branch = month_branches[month - 1] if month <= 12 else month_branches[0]
+        
+        day_element = self.WUXING_MAP[day_stem]
+        month_element = self.WUXING_MAP[month_branch]
+        
+        # 오행 관계에 따른 점수
+        if day_element == month_element:
+            return 75  # 같은 오행
+        elif self.GENERATE_CYCLE.get(month_element) == day_element:
+            return 85  # 월지가 일간을 생함
+        elif self.GENERATE_CYCLE.get(day_element) == month_element:
+            return 70  # 일간이 월지를 생함  
+        elif self.OVERCOME_CYCLE.get(month_element) == day_element:
+            return 45  # 월지가 일간을 극함
+        elif self.OVERCOME_CYCLE.get(day_element) == month_element:
+            return 65  # 일간이 월지를 극함
+        else:
+            return 60  # 일반적
+    
+    def _get_love_level(self, score: int) -> str:
+        """연애운 수준 판정"""
+        if score >= 80:
+            return "최상"
+        elif score >= 70:
+            return "상"
+        elif score >= 60:
+            return "중"
+        elif score >= 50:
+            return "하"
+        else:
+            return "최하"
+    
+    def _get_monthly_love_advice(self, month: int, score: int) -> str:
+        """월별 연애 조언"""
+        if score >= 80:
+            return f"{month}월은 연애운이 최상! 적극적인 만남과 고백에 좋은 시기입니다."
+        elif score >= 70:
+            return f"{month}월은 연애운이 좋은 시기. 새로운 인연이나 관계 발전에 유리합니다."
+        elif score >= 60:
+            return f"{month}월은 평범한 연애운. 기존 관계를 안정적으로 유지하세요."
+        elif score >= 50:
+            return f"{month}월은 연애운이 다소 약함. 성급한 결정보다는 신중하게 접근하세요."
+        else:
+            return f"{month}월은 연애운 주의 시기. 오해나 갈등을 피하고 차분하게 지내세요."
+    
+    def _generate_love_summary(self, ideal_type: Dict, love_style: Dict, marriage_timing: Dict) -> str:
+        """연애운 종합 요약"""
+        summary = f"당신의 연애 스타일은 '{love_style['main_style']}'이며, "
+        summary += f"이상형은 {ideal_type['characteristics']['personality']} 타입을 선호합니다. "
+        summary += f"결혼 적령기는 {marriage_timing['ideal_age']}세 전후이며, "
+        summary += f"현재는 {marriage_timing['current_status']}에 해당합니다."
+        
+        return summary
 
 # 싱글톤 인스턴스
 saju_analyzer = SajuAnalyzer()
