@@ -59,20 +59,94 @@ except Exception as e:
 
 # 2. 해석 키를 한글 특징명으로 변환하는 매핑
 KEY_TO_FEATURE_MAP: Dict[str, str] = {
-    "FACE_SHAPE_ROUND": "둥근 얼굴형",
-    "FACE_SHAPE_LONG": "긴 얼굴형",
-    "FACE_SHAPE_BALANCED": "균형 잡힌 얼굴형",
-    "FOREHEAD_WIDE": "넓고 높은 이마",
+    # 얼굴형 (Face Shape)
+    "FACE_SHAPE_ROUND": "둥근 얼굴형 (원형)",
+    "FACE_SHAPE_SQUARE": "사각형 얼굴형 (전형)",
+    "FACE_SHAPE_LONG": "긴 얼굴형 (동자형)",
+    "FACE_SHAPE_INVERTED_TRIANGLE": "역삼각형 얼굴형 (V라인)",
+    "FACE_SHAPE_EGG": "계란형 얼굴형",
+
+    # 이마 (Forehead)
+    "FOREHEAD_WIDE_HIGH": "넓고 높은 이마",
     "FOREHEAD_NARROW": "좁은 이마",
-    "FOREHEAD_BALANCED": "조화로운 이마",
-    "EYES_SPACED_WIDE": "눈 사이가 넓은 편",
-    "EYES_SPACED_NARROW": "눈 사이가 좁은 편",
-    "EYES_SPACED_BALANCED": "조화로운 눈 간격",
-    "NOSE_PROMINENT": "높고 뚜렷한 코",
-    "NOSE_WIDE": "복코 (풍성한 콧방울)",
+    "FOREHEAD_ROUNDED": "둥근 이마",
+    "FOREHEAD_ANGULAR": "각진 이마",
+    "FOREHEAD_M_SHAPE": "M자형 이마",
+
+    # 눈 (Eyes)
+    "EYES_LARGE": "큰 눈",
+    "EYES_SMALL": "작은 눈",
+    "EYES_UPWARD_SLANTING": "올라간 눈꼬리",
+    "EYES_DOWNWARD_SLANTING": "처진 눈꼬리",
+    "EYES_ASYMMETRICAL": "짝눈 (자웅안)",
+    "EYES_MONOLID": "외꺼풀 눈",
+    "EYES_DOUBLE_LID": "쌍꺼풀 눈",
+    "EYES_SPACED_WIDE": "눈 사이가 넓은 편 (미간 넓음)",
+    "EYES_SPACED_NARROW": "눈 사이가 좁은 편 (미간 좁음)",
+
+    # 눈썹 (Eyebrows)
+    "EYEBROWS_LONG": "긴 눈썹 (눈보다 김)",
+    "EYEBROWS_SHORT": "짧은 눈썹 (눈보다 짧음)",
+    "EYEBROWS_THICK": "진하고 숱 많은 눈썹",
+    "EYEBROWS_THIN": "옅고 숱 없는 눈썹",
+    "EYEBROWS_STRAIGHT": "일자 눈썹",
+    "EYEBROWS_CRESCENT": "초승달 눈썹",
+    "EYEBROWS_UPWARD": "올라간 눈썹 (장군형)",
+    "EYEBROWS_DOWNWARD": "처진 눈썹 (팔자형)",
+    "EYEBROWS_BROKEN": "끊어진 눈썹",
+    "EYEBROWS_CONNECTED": "이어진 눈썹",
+
+    # 코 (Nose)
+    "NOSE_LARGE": "크고 높은 코",
+    "NOSE_SMALL": "작은 코",
+    "NOSE_LONG": "긴 코",
+    "NOSE_SHORT": "짧은 코",
+    "NOSE_WIDE_WINGS": "복코 (콧방울이 넓고 풍성함)",
+    "NOSE_ROUNDED_TIP": "둥근 코끝",
+    "NOSE_POINTED_TIP": "뾰족한 코끝",
+    "NOSE_UPTURNED": "들창코 (콧구멍 보임)",
+
+    # 광대뼈 (Cheekbones)
+    "CHEEKBONES_PROMINENT": "돌출된 광대뼈",
+    "CHEEKBONES_BALANCED": "균형 잡힌 광대뼈",
+
+    # 입술 및 입 (Lips & Mouth)
     "LIPS_THICK": "도톰한 입술",
+    "LIPS_THIN": "얇은 입술",
+    "MOUTH_LARGE": "큰 입",
+    "MOUTH_SMALL": "작은 입",
     "MOUTH_CORNERS_UP": "올라간 입꼬리",
-    "MOUTH_CORNERS_DOWN": "처진 입꼬리"
+    "MOUTH_CORNERS_DOWN": "처진 입꼬리",
+    "LIPS_UPPER_THICKER": "윗입술이 더 두꺼운 입술",
+    "LIPS_LOWER_THICKER": "아랫입술이 더 두꺼운 입술",
+
+    # 턱 (Chin/Jaw)
+    "JAW_WIDE_THICK": "넓고 두툼한 턱",
+    "JAW_POINTED_VLINE": "뾰족한 V라인 턱",
+    "JAW_SQUARE": "사각턱",
+    "JAW_PROTRUDING": "주걱턱",
+    "JAW_RECEDING": "무턱",
+
+    # 귀 (Ears)
+    "EARS_LARGE": "큰 귀",
+    "EARS_SMALL": "작은 귀",
+    "EARS_THICK_LOBE": "두툼한 귓불 (복귀)",
+    "EARS_THIN_LOBE": "얇거나 없는 귓불",
+    "EARS_POINTED_TOP": "윗부분이 뾰족한 귀 (칼귀)",
+    "EARS_ROUNDED_TOP": "윗부분이 둥근 귀",
+
+    # 인중 (Philtrum)
+    "PHILTRUM_LONG": "긴 인중",
+    "PHILTRUM_SHORT": "짧은 인중",
+    "PHILTRUM_DEEP": "깊은 인중",
+    "PHILTRUM_SHALLOW": "얕은 인중",
+    "PHILTRUM_WIDE": "넓은 인중",
+    "PHILTRUM_NARROW": "좁은 인중",
+
+    # 법령 (Nasolabial Folds)
+    "NASOLABIAL_CLEAR_LONG": "선명하고 긴 법령 (팔자주름)",
+    "NASOLABIAL_FAINT_SHORT": "희미하고 짧은 법령 (팔자주름)",
+    "NASOLABIAL_ENTERING_MOUTH": "입으로 들어가는 법령 (등사입구)"
 }
 
 
@@ -153,8 +227,8 @@ if __name__ == '__main__':
         print("RAG 파이프라인을 초기화하는 중입니다. 잠시만 기다려주세요...")
         test_keys = [
             "FACE_SHAPE_ROUND",
-            "FOREHEAD_WIDE",
-            "NOSE_WIDE",
+            "FOREHEAD_WIDE_HIGH",
+            "NOSE_WIDE_WINGS",
             "MOUTH_CORNERS_UP"
         ]
         print(f"\n테스트 키: {test_keys}")
