@@ -15,6 +15,7 @@ from .services.face_landmarker import get_face_landmarks
 from .services.geometry_calculator import calculate_geometric_metrics
 from .services.rule_engine import analyze_gwansang_rules
 from .services.report_generator import generate_report
+from .services.lucky_charm_generator import generate_lucky_charm_image
 
 # 데이터베이스 테이블 생성
 models.Base.metadata.create_all(bind=engine)
@@ -36,6 +37,7 @@ app.add_middleware(
 
 # 정적 파일 서빙
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
@@ -46,16 +48,16 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-from typing import Union
+from typing import Union, Tuple
 
-def run_analysis_pipeline(image_path: str) -> Union[str, None]:
+def run_analysis_pipeline(image_path: str) -> Union[Tuple[str, str], None]:
     landmarks, height, width = get_face_landmarks(image_path)
     if not landmarks:
         return None
     geometric_metrics = calculate_geometric_metrics(landmarks, height, width)
     gwansang_keys = analyze_gwansang_rules(geometric_metrics)
-    final_report = generate_report(gwansang_keys)
-    return final_report
+    final_report, dalle_prompt = generate_report(gwansang_keys)
+    return final_report, dalle_prompt
 
 @app.post("/analyze/",
           summary="얼굴 이미지 관상 분석",
@@ -72,31 +74,42 @@ async def analyze_face_api(db: Session = Depends(database.get_db), file: UploadF
         with open(image_path, "wb") as buffer:
             buffer.write(await file.read())
 
-        report = run_analysis_pipeline(image_path)
-        
-        if report is None:
+        analysis_result = run_analysis_pipeline(image_path)
+        if analysis_result is None:
             raise HTTPException(status_code=400, detail="얼굴을 감지하지 못했습니다.")
         
-        # 데이터베이스에 분석 결과 저장 (경로 대신 파일명 저장)
+        report, charm_prompt = analysis_result
+
+        # 행운의 부적 이미지 생성
+        try:
+            lucky_charm_image_url = generate_lucky_charm_image(charm_prompt)
+        except Exception as e:
+            print(f"행운의 부적 이미지 생성 실패: {e}")
+            lucky_charm_image_url = None
+
+        # 데이터베이스에 분석 결과 저장
         db_result = models.AnalysisResult(
             original_filename=file.filename,
-            image_path=filename,  # 전체 경로 대신 파일명만 저장
-            report=report
+            image_path=filename,
+            report=report,
+            lucky_charm_image_url=lucky_charm_image_url
         )
         db.add(db_result)
         db.commit()
         db.refresh(db_result)
-            
-        return JSONResponse(content={"success": True, "report": report, "analysis_id": db_result.id})
+
+        image_url = f"/uploads/{filename}"
+        return JSONResponse(content={
+            "success": True,
+            "report": report,
+            "analysis_id": db_result.id,
+            "image_url": image_url,
+            "lucky_charm_image_url": lucky_charm_image_url
+        })
 
     except Exception as e:
         print(f"Error during analysis: {e}")
         raise HTTPException(status_code=500, detail=f"서버 내부 오류가 발생했습니다.")
-    finally:
-        # 분석이 성공하든 실패하든, 생성된 이미지 파일은 항상 삭제
-        if image_path and os.path.exists(image_path):
-            os.remove(image_path)
-            print(f"임시 파일 삭제: {image_path}")
 
 @app.get("/analysis-history/",
          summary="관상 분석 기록 조회",

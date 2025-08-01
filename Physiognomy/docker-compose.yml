@@ -6,11 +6,15 @@ services:
     ports:
       - "8001:8001"
     environment:
-      - GOOGLE_API_KEY=AIzaSyD7OB3MnPASwL6oN7_Ni8hKyPWOEACYeIo
-      - GEMINI_MODEL=gemini-2.5-flash
-      - DATABASE_URL=postgresql://physio_user:physio_password@physiognomy-db/physiognomy
-      - DEBUG=True
-      - UPLOAD_PATH=/app/uploads
+      - DATABASE_URL=${DATABASE_URL}
+      - DEBUG=${DEBUG}
+      - UPLOAD_PATH=${UPLOAD_PATH}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      - OPENAI_API_VERSION=${OPENAI_API_VERSION}
+      - AZURE_OPENAI_DALLE_DEPLOYMENT=${AZURE_OPENAI_DALLE_DEPLOYMENT}
     volumes:
       - ./backend:/app
       - ./models:/app/models

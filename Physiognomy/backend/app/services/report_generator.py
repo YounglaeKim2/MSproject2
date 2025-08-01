@@ -2,7 +2,7 @@
 
 # report_generator.py
 import os
-from typing import List, Dict
+from typing import List, Dict, Tuple, Tuple
 
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.vectorstores import FAISS
@@ -151,9 +151,11 @@ KEY_TO_FEATURE_MAP: Dict[str, str] = {
 
 
 
-def generate_report(interpretation_keys: List[str]) -> str:
+def generate_report(interpretation_keys: List[str]) -> Tuple[str, str]:
     """
-    해석 키 리스트를 받아 AI 모델을 직접 호출하여 종합적인 텍스트 리포트를 생성합니다.
+    해석 키 리스트를 받아 AI 모델을 호출하여, 사용자용 리포트와 DALL-E용 프롬프트를 생성합니다.
+    Returns:
+        Tuple[str, str]: (사용자용 리포트, DALL-E용 프롬프트)
     """
     if not interpretation_keys:
         return "얼굴 특징을 분석할 수 없습니다. 다른 사진으로 시도해보세요."
@@ -173,7 +175,7 @@ def generate_report(interpretation_keys: List[str]) -> str:
         ### 분석 시 고려할 관점:
         1.  **오행(五行) 분석**: 감지된 얼굴형을 바탕으로 사용자의 대표적인 오행(예: 목형(木形), 화형(火形), 토형(土形), 금형(金形), 수형(水形))을 파악하고, 그에 따른 타고난 기질과 재능을 분석의 시작점으로 삼아주세요.
         2.  **삼정(三停)의 균형**: 이마(상정), 코와 광대(중정), 턱(하정)의 비율과 발달 정도를 통해 초년, 중년, 말년운의 전체적인 흐름과 강약을 설명해주세요.
-        3.  **십이궁(十二宮)과 연결**: 주요 특징들을 관련된 궁(예: 코-재백궁(재물), 이마-관록궁(직업), 눈썹-형제궁(대인관계))과 연결하여 구체적인 삶의 영역에 대한 해석을 더해주세요.
+        3.  **십이궁(十二二宮)과 연결**: 주요 특징들을 관련된 궁(예: 코-재백궁(재물), 이마-관록궁(직업), 눈썹-형제궁(대인관계))과 연결하여 구체적인 삶의 영역에 대한 해석을 더해주세요.
         4.  **특징 간의 조화**: 서로 다른 특징들이 어떻게 조화를 이루거나 서로를 보완하는지 설명해주세요. (예: "추진력을 상징하는 발달된 광대뼈를 가지고 있지만, 신중함을 나타내는 차분한 눈매가 이를 균형 있게 잡아주어, 당신은 대담하면서도 실수가 적은 리더의 자질을 갖추고 있습니다.")
 
         ### 재미와 흥미를 더하는 분석:
@@ -191,6 +193,7 @@ def generate_report(interpretation_keys: List[str]) -> str:
         7.  **[당신을 위한 행운의 메시지]**: 당신의 오행 기운에 맞는 행운의 색상이나 아이템을 추천하고, 힘이 되는 짧은 명언을 함께 전달합니다.
         8. **[유명인/동물상]**: 당신의 특징과 잘 어울리는 유명인이나 동물상을 비유로 들어, 당신의 매력을 강조합니다.
         9. **[숨겨진 매력 포인트]**: 당신이 미처 몰랐을 수 있는 숨겨진 매력이나 재능을 한 가지 짚어주세요.
+        10. **[행운의 부적]**: 이 사람의 관상에 가장 큰 행운을 가져다줄, 구체적인 사물이나 상징물(예: 붉은 비단, 잉어 조각상, 네잎클로버)을 딱 하나만 추천하고, 그 이유를 한 문장으로 간결하게 설명해주세요. 이 답변은 사용자에게 직접 보여주지 않고, 부적 이미지를 생성하는 데 사용됩니다.
 
 
         전체적으로 매우 긍정적이고 희망적인 메시지를 전달하는 것을 잊지 마세요.
@@ -218,29 +221,54 @@ def generate_report(interpretation_keys: List[str]) -> str:
 
         # Google Gemini API 직접 사용
         llm = GoogleGenerativeAI(
-            google_api_key=google_api_key,
             model=os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
+            google_api_key=google_api_key,
             temperature=0.7
         )
-        comprehensive_report = llm.invoke(prompt)
+        comprehensive_report_full = llm.invoke(prompt)
+
+        # 답변에서 DALL-E 프롬프트와 사용자 리포트 분리
+        report_lines = comprehensive_report_full.split('\n')
+        user_report_lines = []
+        dalle_prompt_source = "A beautiful, general-purpose lucky charm."
+
+        for line in report_lines:
+            if line.strip().startswith("10. **[행운의 부적]**"):
+                dalle_prompt_source = line.replace("10. **[행운의 부적]**", "").strip()
+            elif not line.strip().startswith("10."):
+                user_report_lines.append(line)
         
-        report_parts = ["💎 AI 관상 종합 분석 리포트 💎\n\n"]
-        report_parts.append(comprehensive_report)
+        user_report = '\n'.join(user_report_lines)
+
+        # DALL-E용 프롬프트 생성
+        dalle_prompt = (
+            f"An artistic and mystical lucky charm amulet, embodying the essence of Korean traditional art. "
+            f"The design should be a beautiful representation of the following concept: '{dalle_prompt_source}'. "
+            f"Create a visually stunning, symbolic, and intricate digital art piece. The charm should radiate positive energy, "
+            f"featuring vibrant colors and elegant patterns. It should feel both ancient and powerful. "
+            f"Do not include any text or letters in the image. Focus on abstract symbols and natural motifs. "
+            f"Style: Vivid, high-detail, digital painting."
+        )
+
+        # 최종 사용자 리포트 생성
+        final_report_parts = [
+            "💎 AI 관상 종합 분석 리포트 💎\n\n",
+            user_report,
+            "\n\n---",
+            "※ 본 분석은 전통 관상학 정보를 기반으로 한 AI 생성 콘텐츠이며, 재미와 자기 성찰을 위한 참고 자료입니다. 과학적 근거나 절대적인 판단 기준으로 사용될 수 없습니다. ※"
+        ]
+        final_report = "\n".join(final_report_parts)
+        
+        return final_report, dalle_prompt
 
     except Exception as e:
         import traceback
         error_trace = traceback.format_exc()
         print(f"ERROR in generate_report: {e}")
         print(f"TRACEBACK: {error_trace}")
-        return f"답변 생성 시스템에 오류가 발생했습니다. 관리자에게 문의하세요."
-
-    
-    
-    # 최종 고지사항 추가
-    report_parts.append("\n\n---\n")
-    report_parts.append("※ 본 분석은 전통 관상학 정보를 기반으로 한 AI 생성 콘텐츠이며, 재미와 자기 성찰을 위한 참고 자료입니다. 과학적 근거나 절대적인 판단 기준으로 사용될 수 없습니다. ※")
-
-    return "\n".join(report_parts)
+        error_report = "답변 생성 시스템에 오류가 발생했습니다. 관리자에게 문의하세요."
+        default_dalle_prompt = "A beautiful, general-purpose lucky charm representing universal good fortune. Style: Vivid, digital art."
+        return error_report, default_dalle_prompt
 
 # --- 테스트용 코드 ---
 if __name__ == '__main__':
