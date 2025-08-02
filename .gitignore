@@ -103,3 +103,18 @@ Physiognomy/backend/uploads/
 
 # Claude settings (keep local only)
 .claude/settings.local.json
+
+# Test files
+*test*.json
+*Test*.json
+C*.json
+
+# Session files
+2025-*-this-session-is-being-continued-from-a-previous-co.txt
+
+# Sample images
+싸이월드*.jpg
+싸이월드*.png
+
+# AI usage tracking
+gemini_usage.json
