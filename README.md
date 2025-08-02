@@ -1,26 +1,98 @@
-# MSProject2 SAJU - 전통 명리학 + 현대 AI 융합 플랫폼
+# 🔮 MSProject2 SAJU 
 
-> 🏆 **대한민국 최고 수준의 4개 마이크로서비스 완전체** 🏆  
-> 전통 명리학과 현대 AI 기술의 완벽한 융합 🎯
+### 전통 명리학 + 현대 AI 기술 융합 플랫폼
 
-## 🎉 완성된 4개 서비스
+<div align="center">
 
-### ✅ 1. Main App (포트 4000)
-**통합 랜딩 페이지** - 모든 서비스를 연결하는 허브
+![서비스 상태](https://img.shields.io/badge/서비스-운영중-brightgreen)
+![마이크로서비스](https://img.shields.io/badge/마이크로서비스-4개-blue)
+![완성도](https://img.shields.io/badge/완성도-100%25-success)
+![AI 모델](https://img.shields.io/badge/AI-Gemini%202.5--flash-orange)
+![배포](https://img.shields.io/badge/배포-Docker-blue)
 
-### ✅ 2. SAJU Service (포트 8000/3000) 
-**사주팔자 분석** - 37개 메서드, 대운/세운, AI 채팅
-- 73,442개 만세력 레코드 (1900-2100년)
-- Google Gemini 2.5-flash AI 해석
-- 0-100점 균형 측정 시스템
+**🏆 대한민국 최고 수준의 4개 마이크로서비스 완전체**
 
-### ✅ 3. Compatibility Service (포트 8002/3002)
-**궁합 분석** - 사주 기반 커플 궁합 분석
+[**🚀 빠른 시작**](#-빠른-시작) • [**📖 사용법**](#-사용-예시) • [**🔗 API 문서**](#-api-엔드포인트) • [**📚 문서**](docs/)
 
-### ✅ 4. Physiognomy Service (포트 8001/3001) 
-**AI 관상 분석** - MediaPipe + OpenCV + LangChain
-- Docker 컨테이너화 완료
-- 실시간 얼굴 인식 및 관상 해석
+</div>
+
+---
+
+## 📊 프로젝트 개요
+
+| 항목 | 내용 |
+|------|------|
+| **서비스 수** | 4개 (Main, SAJU, Compatibility, Physiognomy) |
+| **데이터베이스** | 73,442개 만세력 레코드 (1900-2100년) |
+| **분석 메서드** | 37개 (사주팔자, 오행, 십성, 대운, 세운) |
+| **AI 기술** | Google Gemini 2.5-flash, MediaPipe, OpenCV |
+| **아키텍처** | 마이크로서비스 + Docker |
+| **프론트엔드** | React 18 + TypeScript |
+| **백엔드** | FastAPI + Pydantic |
+
+## 🏗️ 서비스 아키텍처
+
+<div align="center">
+
+```mermaid
+graph TB
+    A[사용자] --> B[Main App :4000]
+    B --> C[SAJU Service :3000]
+    B --> D[Compatibility Service :3002] 
+    B --> E[Physiognomy Service :3001]
+    
+    C --> F[SAJU API :8000]
+    D --> G[Compatibility API :8002]
+    E --> H[Physiognomy API :8001]
+    
+    F --> I[(만세력 DB<br/>73,442 records)]
+    F --> J[Google Gemini 2.5]
+    H --> K[MediaPipe + OpenCV]
+    H --> L[(PostgreSQL)]
+```
+
+</div>
+
+## 🎉 완성된 서비스들
+
+<table>
+<tr>
+<td width="50%">
+
+### 🏠 Main App
+**포트**: 4000  
+**역할**: 통합 랜딩 허브  
+**기술**: React + Vite  
+**상태**: ✅ 운영중
+
+### 🔮 SAJU Service  
+**포트**: 3000/8000  
+**역할**: 사주팔자 분석  
+**기능**: 37개 분석 메서드  
+**데이터**: 73,442개 만세력  
+**AI**: Google Gemini 2.5-flash  
+**상태**: ✅ 운영중
+
+</td>
+<td width="50%">
+
+### 💕 Compatibility Service
+**포트**: 3002/8002  
+**역할**: 궁합 분석  
+**기능**: 사주 기반 궁합  
+**알고리즘**: 오행상성 + 십성매칭  
+**상태**: ✅ 운영중
+
+### 🎭 Physiognomy Service
+**포트**: 3001/8001  
+**역할**: AI 관상 분석  
+**기술**: MediaPipe + OpenCV  
+**배포**: Docker Compose  
+**상태**: ✅ 운영중
+
+</td>
+</tr>
+</table>
 
 ## 🏗️ 마이크로서비스 아키텍처
 
@@ -42,56 +114,80 @@ MSProject2_SAJU/
 
 ## 🚀 빠른 시작
 
-### 필수 설치
+### 📋 필수 요구사항
 
-- **필수**: Python 3.8+ | Node.js 14+ | Git
-- **권장**: Docker Desktop (관상학 서비스용)
+<div align="center">
 
-### Option 1: 수동 실행 (6개 터미널)
+| 요구사항 | 버전 | 필수 여부 |
+|----------|------|----------|
+| Python | 3.8+ | ✅ 필수 |
+| Node.js | 14+ | ✅ 필수 |  
+| Git | latest | ✅ 필수 |
+| Docker Desktop | latest | 🔶 권장 |
+
+</div>
+
+### ⚡ 원클릭 실행
+
+```bash
+# 1. 레포지토리 클론
+git clone https://github.com/your-repo/MSproject2.git
+cd MSproject2
+
+# 2. 모든 서비스 한번에 시작
+./start_all.sh
+
+# 3. 서비스 상태 확인  
+./check_services.sh
+```
+
+### 🔧 수동 실행 (상세 제어)
+
+<details>
+<summary>클릭하여 상세 실행 방법 보기</summary>
 
 ```bash
 # 터미널 1: 메인 앱
 cd main-app && npm install && npm start
 
-# 터미널 2: SAJU 백엔드
+# 터미널 2: SAJU 백엔드  
 cd SAJU/backend && pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 
-# 터미널 3: SAJU 프론트엔드  
+# 터미널 3: SAJU 프론트엔드
 cd SAJU/frontend && npm install && npm start
 
 # 터미널 4: 궁합 백엔드
-cd Compatibility/backend && pip install -r requirements.txt
+cd Compatibility/backend && pip install -r requirements.txt  
 uvicorn app.main:app --reload --port 8002
 
 # 터미널 5: 궁합 프론트엔드
 cd Compatibility/frontend && npm install && npm start
 
-# 터미널 6: 관상학 서비스 (Docker 권장)
+# 터미널 6: 관상학 서비스 (Docker)
 cd Physiognomy && docker-compose up
 ```
 
-### Option 2: Docker 실행 (관상학만)
+</details>
 
-```bash
-# 기본 서비스들 (터미널 1-5)
-# ... 위와 동일 ...
+### 🌐 서비스 접속
 
-# 관상학 서비스 (Docker)
-cd Physiognomy && docker-compose up --build
-```
+<div align="center">
 
-### 🌐 접속 URL
+#### 🖥️ 사용자 서비스
 
-| 서비스 | URL | 상태 | 설명 |
-|--------|-----|------|------|
-| **Main App** | http://localhost:4000 | ✅ | 통합 허브 |
-| **SAJU 분석** | http://localhost:3000 | ✅ | 사주팔자 + 대운/세운 |
-| **궁합 분석** | http://localhost:3002 | ✅ | 커플 궁합 |
-| **관상 분석** | http://localhost:3001 | ✅ | AI 관상 해석 |
-| SAJU API | http://localhost:8000/docs | ✅ | API 문서 |
-| 궁합 API | http://localhost:8002/docs | ✅ | API 문서 |
-| 관상 API | http://localhost:8001/docs | ✅ | API 문서 |
+[![Main App](https://img.shields.io/badge/🏠_Main_App-4000-blue?style=for-the-badge)](http://localhost:4000)
+[![SAJU 분석](https://img.shields.io/badge/🔮_SAJU_분석-3000-purple?style=for-the-badge)](http://localhost:3000)
+[![궁합 분석](https://img.shields.io/badge/💕_궁합_분석-3002-pink?style=for-the-badge)](http://localhost:3002)
+[![관상 분석](https://img.shields.io/badge/🎭_관상_분석-3001-orange?style=for-the-badge)](http://localhost:3001)
+
+#### 📚 API 문서
+
+[![SAJU API](https://img.shields.io/badge/SAJU_API-8000-green?style=flat-square)](http://localhost:8000/docs)
+[![궁합 API](https://img.shields.io/badge/궁합_API-8002-green?style=flat-square)](http://localhost:8002/docs)
+[![관상 API](https://img.shields.io/badge/관상_API-8001-green?style=flat-square)](http://localhost:8001/docs)
+
+</div>
 
 ## 🌟 핵심 기능
 
