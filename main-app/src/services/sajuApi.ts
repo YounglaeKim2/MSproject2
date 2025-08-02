@@ -177,6 +177,40 @@ export interface SaeunResult {
   };
 }
 
+// 연애운 결과 타입
+export interface LoveFortuneResult {
+  success: boolean;
+  data: {
+    basic_info: {
+      name: string;
+      birth_date: string;
+      gender: string;
+    };
+    love_fortune_analysis: {
+      ideal_type: {
+        description: string;
+        key_traits: string[];
+      };
+      love_style: {
+        description: string;
+        approach: string;
+        strengths: string[];
+        advice: string;
+      };
+      marriage_timing: {
+        early: number;
+        ideal: number;
+        late: number;
+      };
+      monthly_fortune: {
+        best_months: string[];
+        caution_months: string[];
+        advice: string;
+      };
+    };
+  };
+}
+
 // API 서비스 함수들
 export const sajuApi = {
   // 기본 사주 분석
@@ -194,6 +228,12 @@ export const sajuApi = {
   // 세운 분석
   async analyzeSaeun(formData: SajuFormData, targetYear: number): Promise<SaeunResult> {
     const response = await axios.post(`${API_BASE_URL}/saeun?target_year=${targetYear}`, formData);
+    return response.data;
+  },
+
+  // 연애운 분석
+  async analyzeLoveFortune(formData: SajuFormData): Promise<LoveFortuneResult> {
+    const response = await axios.post(`${API_BASE_URL}/love-fortune`, formData);
     return response.data;
   },
 

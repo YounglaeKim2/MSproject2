@@ -108,7 +108,7 @@ const SajuForm: React.FC<SajuFormProps> = ({
       </FormGroup>
 
       <Button type="submit" disabled={loading}>
-        {loading ? "분석 중..." : "사주 분석하기"}
+        {loading ? "종합 분석 중... (사주 + 대운 + 세운 + 연애운)" : "🔮 종합 사주 분석하기 (사주 + 대운 + 세운 + 연애운)"}
       </Button>
     </Form>
   );

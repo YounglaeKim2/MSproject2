@@ -463,6 +463,7 @@ function App() {
   const [result, setResult] = useState<SajuResult | null>(null);
   const [daeunResult, setDaeunResult] = useState<DaeunResult | null>(null);
   const [saeunResult, setSaeunResult] = useState<SaeunResult | null>(null);
+  const [loveFortuneResult, setLoveFortuneResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [daeunLoading, setDaeunLoading] = useState(false);
   const [saeunLoading, setSaeunLoading] = useState(false);
@@ -490,22 +491,53 @@ function App() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setDaeunLoading(true);
+    setSaeunLoading(true);
     setError("");
 
     try {
-      console.log("요청 데이터:", formData);
-      const response = await axios.post(
+      console.log("종합 분석 요청 데이터:", formData);
+      
+      // 1. 기본 사주 분석
+      const sajuResponse = await axios.post(
         "http://localhost:8000/api/v1/saju/analyze",
         formData
       );
-      console.log("API 응답:", response.data);
-      setResult(response.data);
+      console.log("사주 분석 완료:", sajuResponse.data);
+      setResult(sajuResponse.data);
+
+      // 2. 대운 분석
+      const daeunResponse = await axios.post(
+        "http://localhost:8000/api/v1/saju/daeun",
+        formData
+      );
+      console.log("대운 분석 완료:", daeunResponse.data);
+      setDaeunResult(daeunResponse.data);
+
+      // 3. 세운 분석
+      const saeunResponse = await axios.post(
+        `http://localhost:8000/api/v1/saju/saeun?target_year=${targetYear}`,
+        formData
+      );
+      console.log("세운 분석 완료:", saeunResponse.data);
+      setSaeunResult(saeunResponse.data);
+
+      // 4. 연애운 분석
+      const loveFortuneResponse = await axios.post(
+        "http://localhost:8000/api/v1/saju/love-fortune",
+        formData
+      );
+      console.log("연애운 분석 완료:", loveFortuneResponse.data);
+      setLoveFortuneResult(loveFortuneResponse.data);
+
     } catch (err: any) {
-      console.error("API 오류:", err);
+      console.error("종합 분석 오류:", err);
       console.error("응답 데이터:", err.response?.data);
       setError(err.response?.data?.detail || "분석 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
+      setDaeunLoading(false);
+      setSaeunLoading(false);
     }
   };
 
@@ -644,11 +676,11 @@ function App() {
         </FormGroup>
 
         <Button type="submit" disabled={loading}>
-          {loading ? "분석 중..." : "사주 분석하기"}
+          {loading ? "종합 분석 중... (사주 + 대운 + 세운 + 연애운)" : "🔮 종합 사주 분석하기 (사주 + 대운 + 세운 + 연애운)"}
         </Button>
       </Form>
 
-      {/* 대운 분석 섹션 */}
+      {/* 대운 분석 섹션 - 통합 분석으로 인해 비활성화
       <Form
         style={{
           marginTop: "20px",
@@ -677,9 +709,9 @@ function App() {
         >
           {daeunLoading ? "대운 분석 중..." : "대운 분석하기"}
         </Button>
-      </Form>
+      </Form> */}
 
-      {/* 세운 분석 섹션 */}
+      {/* 세운 분석 섹션 - 통합 분석으로 인해 비활성화
       <Form
         style={{
           marginTop: "20px",
@@ -725,7 +757,7 @@ function App() {
         >
           {saeunLoading ? "세운 분석 중..." : `${targetYear}년 세운 분석하기`}
         </Button>
-      </Form>
+      </Form> */}
 
       {error && (
         <div
@@ -1569,6 +1601,50 @@ function App() {
               </p>
             </div>
           </AnalysisSection>
+
+          {/* 연애운 분석 결과 */}
+          {loveFortuneResult && (
+            <AnalysisSection>
+              <SectionTitle>💕 연애운 분석 결과</SectionTitle>
+              
+              {loveFortuneResult.success ? (
+                <div style={{ padding: "20px", background: "#fff5f5", borderRadius: "12px", margin: "15px 0" }}>
+                  <h4 style={{ color: "#e53e3e", marginBottom: "15px" }}>
+                    ✨ {loveFortuneResult.data.basic_info.name}님의 연애운
+                  </h4>
+                  <p style={{ 
+                    fontSize: "16px", 
+                    lineHeight: "1.6", 
+                    color: "#495057",
+                    marginBottom: "10px"
+                  }}>
+                    <strong>생년월일:</strong> {loveFortuneResult.data.basic_info.birth_date}
+                  </p>
+                  <p style={{ 
+                    fontSize: "16px", 
+                    lineHeight: "1.6", 
+                    color: "#495057" 
+                  }}>
+                    {loveFortuneResult.data.message}
+                  </p>
+                  {loveFortuneResult.data.detailed_analysis && (
+                    <div style={{ marginTop: "20px" }}>
+                      <h5 style={{ color: "#e53e3e", marginBottom: "10px" }}>상세 분석</h5>
+                      <p style={{ fontSize: "14px", color: "#666" }}>
+                        {loveFortuneResult.data.detailed_analysis}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ padding: "15px", background: "#fff3cd", borderRadius: "8px" }}>
+                  <p style={{ color: "#856404", margin: 0 }}>
+                    연애운 분석 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.
+                  </p>
+                </div>
+              )}
+            </AnalysisSection>
+          )}
 
           {/* AI 채팅 버튼 */}
           <AIButton onClick={() => setShowAIChat(true)}>

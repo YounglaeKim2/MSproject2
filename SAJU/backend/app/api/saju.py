@@ -340,7 +340,78 @@ async def analyze_love_fortune(birth_info: BirthInfoRequest):
     try:
         logger.info(f"연애운 분석 요청: {birth_info.name}({birth_info.gender})")
         
-        # 간단한 테스트 응답부터 시작
+        # 간단한 연애운 분석 (생년월일 기반)
+        # 년도와 월일을 기반으로 일간 추정 (간소화 버전)
+        year_stems = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
+        day_stem = year_stems[(birth_info.year + birth_info.month + birth_info.day) % 10]
+        gender = birth_info.gender
+        
+        # 이상형 분석 (일간 기반)
+        ideal_type_analysis = {
+            "甲": "활동적이고 밝은 성격의 사람을 선호합니다. 리더십이 있고 진취적인 상대에게 매력을 느낍니다.",
+            "乙": "부드럽고 섬세한 성격의 사람을 좋아합니다. 예술적 감각이 있고 따뜻한 마음을 가진 상대를 원합니다.",
+            "丙": "열정적이고 밝은 에너지를 가진 사람에게 끌립니다. 사교적이고 활발한 성격의 상대를 선호합니다.",
+            "丁": "차분하고 지적인 매력을 가진 사람을 좋아합니다. 세심하고 배려심 깊은 상대에게 매력을 느낍니다.",
+            "戊": "안정적이고 믿을 수 있는 사람을 선호합니다. 현실적이고 책임감 있는 상대를 원합니다.",
+            "己": "친근하고 따뜻한 성격의 사람을 좋아합니다. 가정적이고 포용력 있는 상대에게 끌립니다.",
+            "庚": "당당하고 정직한 사람을 선호합니다. 명확하고 솔직한 성격의 상대를 좋아합니다.",
+            "辛": "세련되고 우아한 매력을 가진 사람에게 끌립니다. 품격 있고 감각적인 상대를 원합니다.",
+            "壬": "자유롭고 개방적인 성격의 사람을 좋아합니다. 지혜롭고 적응력이 뛰어난 상대를 선호합니다.",
+            "癸": "깊이 있고 신비로운 매력을 가진 사람에게 끌립니다. 내면이 깊고 이해심 많은 상대를 원합니다."
+        }
+        
+        # 연애 스타일 분석
+        love_style_analysis = {
+            "甲": "직접적이고 적극적인 어프로치를 선호합니다. 솔직하게 마음을 표현하는 스타일입니다.",
+            "乙": "은은하고 섬세한 연애를 좋아합니다. 서서히 감정을 쌓아가는 스타일입니다.",
+            "丙": "열정적이고 로맨틱한 연애를 추구합니다. 화려하고 드라마틱한 관계를 선호합니다.",
+            "丁": "깊이 있고 진지한 연애를 원합니다. 정신적 교감을 중시하는 스타일입니다.",
+            "戊": "안정적이고 현실적인 연애를 선호합니다. 장기적인 관계를 지향하는 스타일입니다.",
+            "己": "부드럽고 배려심 넘치는 연애를 좋아합니다. 상대방을 감싸주는 스타일입니다.",
+            "庚": "명확하고 결단력 있는 연애를 합니다. 확실한 관계를 선호하는 스타일입니다.",
+            "辛": "세련되고 우아한 연애를 추구합니다. 품격 있는 관계를 중시하는 스타일입니다.",
+            "壬": "자유롭고 개방적인 연애를 좋아합니다. 속박받지 않는 관계를 선호하는 스타일입니다.",
+            "癸": "깊고 내밀한 연애를 원합니다. 영혼의 교감을 중시하는 스타일입니다."
+        }
+        
+        # 결혼 적령기 (성별 고려)
+        base_marriage_age = {
+            "甲": {"early": 25, "ideal": 29, "late": 35},
+            "乙": {"early": 24, "ideal": 28, "late": 34},
+            "丙": {"early": 23, "ideal": 27, "late": 33},
+            "丁": {"early": 26, "ideal": 30, "late": 36},
+            "戊": {"early": 27, "ideal": 31, "late": 37},
+            "己": {"early": 25, "ideal": 29, "late": 35},
+            "庚": {"early": 28, "ideal": 32, "late": 38},
+            "辛": {"early": 24, "ideal": 28, "late": 34},
+            "壬": {"early": 26, "ideal": 30, "late": 36},
+            "癸": {"early": 27, "ideal": 31, "late": 37}
+        }
+        
+        marriage_timing = base_marriage_age.get(day_stem, {"early": 25, "ideal": 29, "late": 35})
+        if gender == "female":  # 여성은 평균 2-3년 빠름
+            marriage_timing = {k: v - 2 for k, v in marriage_timing.items()}
+        
+        love_fortune_result = {
+            "ideal_type": {
+                "description": ideal_type_analysis.get(day_stem, "매력적인 사람을 선호합니다."),
+                "key_traits": ["매력적인 외모", "좋은 성격", "가치관 일치"]
+            },
+            "love_style": {
+                "description": love_style_analysis.get(day_stem, "자연스러운 연애를 추구합니다."),
+                "approach": "진심 어린 마음으로 다가가세요",
+                "strengths": ["진실한 마음", "깊은 애정"],
+                "advice": "자신만의 매력을 발휘하여 좋은 인연을 만들어보세요."
+            },
+            "marriage_timing": marriage_timing,
+            "monthly_fortune": {
+                "best_months": ["5월", "8월", "10월"],
+                "caution_months": ["2월", "7월"],
+                "advice": "긍정적인 마음으로 새로운 만남에 열려있으세요."
+            }
+        }
+        
+        # 성공적인 분석 결과 반환
         return {
             "success": True,
             "data": {
@@ -349,7 +420,7 @@ async def analyze_love_fortune(birth_info: BirthInfoRequest):
                     "gender": birth_info.gender,
                     "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일 {birth_info.hour}시"
                 },
-                "message": "연애운 분석 기능 테스트 중..."
+                "love_fortune_analysis": love_fortune_result
             }
         }
         
