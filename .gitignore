@@ -95,6 +95,9 @@ Desktop.ini
 *.tmp
 *.temp
 
+# Uploads
+Physiognomy/backend/uploads/
+
 # Cache
 .cache/
 

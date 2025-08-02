@@ -8,6 +8,8 @@ const App: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [luckyCharmImageUrl, setLuckyCharmImageUrl] = useState('');
   const [error, setError] = useState('');
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,6 +41,10 @@ const App: React.FC = () => {
       });
       if (response.data.success) {
         setResult(response.data.report);
+        setImageUrl(`http://localhost:8001${response.data.image_url}`);
+        if (response.data.lucky_charm_image_url) {
+          setLuckyCharmImageUrl(response.data.lucky_charm_image_url);
+        }
       } else {
         setError(response.data.detail || '분석에 실패했습니다.');
       }
@@ -54,6 +60,34 @@ const App: React.FC = () => {
       setIsLoading(false);
     }
   }, [selectedFile]);
+
+  const handleDownload = async () => {
+    if (!luckyCharmImageUrl) return;
+
+    try {
+      // 외부 URL의 이미지를 fetch를 통해 blob으로 변환
+      const response = await fetch(luckyCharmImageUrl);
+      const blob = await response.blob();
+
+      // Blob URL 생성
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      // a 태그를 동적으로 생성하여 다운로드 실행
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = 'lucky-charm.png'; // 저장될 파일명
+      document.body.appendChild(link);
+      link.click();
+
+      // 생성된 a 태그와 Blob URL 정리
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+
+    } catch (error) {
+      console.error("부적 이미지 다운로드 실패:", error);
+      setError("이미지를 다운로드하는 중 오류가 발생했습니다.");
+    }
+  };
 
   return (
     <AppContainer>
@@ -87,10 +121,20 @@ const App: React.FC = () => {
         {error && <ErrorBox>{error}</ErrorBox>}
         
         {result && (
-          <ResultBox>
-            <h3>분석 결과</h3>
-            <pre>{result}</pre>
-          </ResultBox>
+          <ResultContainer>
+            <ResultBox>
+              <h3>분석 결과</h3>
+              {imageUrl && <ResultImage src={imageUrl} alt="분석 이미지" />}
+              <pre>{result}</pre>
+            </ResultBox>
+            {luckyCharmImageUrl && (
+              <ResultBox>
+                <h3>행운의 부적</h3>
+                <ResultImage src={luckyCharmImageUrl} alt="행운의 부적" />
+                <DownloadButton onClick={handleDownload}>부적 다운로드</DownloadButton>
+              </ResultBox>
+            )}
+          </ResultContainer>
         )}
       </MainContent>
       
@@ -230,9 +274,16 @@ const Loader = styled.div`
   div:nth-child(3) { animation-delay: -0.15s; }
 `;
 
-const ResultBox = styled.div`
+const ResultContainer = styled.div`
+  display: flex;
+  gap: 20px;
   width: 100%;
   margin-top: 20px;
+  align-items: flex-start;
+`;
+
+const ResultBox = styled.div`
+  flex: 1;
   background-color: #ffffff;
   padding: 25px;
   border-radius: 8px;
@@ -252,6 +303,23 @@ const ResultBox = styled.div`
     font-family: 'Noto Sans KR', sans-serif;
     font-size: 1rem;
     line-height: 1.8;
+  }
+`;
+
+const ResultImage = styled.img`
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+`;
+
+const DownloadButton = styled(AnalyzeButton)`
+  width: 100%;
+  margin-top: 10px;
+  background-color: #28a745; // 초록색 계열
+
+  &:hover:not(:disabled) {
+    background-color: #218838;
   }
 `;
 

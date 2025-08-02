@@ -10,4 +10,5 @@ class AnalysisResult(Base):
     original_filename = Column(String, index=True)
     image_path = Column(String)
     report = Column(Text)
+    lucky_charm_image_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
