@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSProject2 SAJU - 전통 명리학과 AI의 만남</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+        
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .service-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .service-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #FFE4B5;
+        }
+        
+        .service-description {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .service-button {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E8E);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .service-button:hover {
+            background: linear-gradient(45deg, #FF5252, #FF7575);
+            transform: scale(1.05);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        
+        .completed {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .development {
+            background: #FF9800;
+            color: white;
+        }
+        
+        .footer {
+            opacity: 0.7;
+            margin-top: 2rem;
+        }
+        
+        .footer p {
+            margin: 0.5rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 MSProject2 SAJU</h1>
+        <p class="subtitle">전통 명리학과 현대 AI 기술의 완벽한 조화</p>
+        
+        <div class="service-grid">
+            <div class="service-card">
+                <h3 class="service-title">
+                    사주팔자 분석
+                    <span class="status-badge completed">완성</span>
+                </h3>
+                <p class="service-description">
+                    73,442개 만세력 데이터와 37개 분석 메서드로 
+                    정확한 사주팔자 분석을 제공합니다.
+                    대운, 세운 분석과 AI 대화형 해석까지!
+                </p>
+                <button class="service-button" onclick="openService('http://localhost:3000')">
+                    사주 분석 시작하기
+                </button>
+            </div>
+
+            <div class="service-card">
+                <h3 class="service-title">
+                    관상 분석
+                    <span class="status-badge development">개발중</span>
+                </h3>
+                <p class="service-description">
+                    얼굴 인식 AI와 전통 관상학을 결합하여
+                    성격, 운세, 건강 등을 종합 분석합니다.
+                    행운의 부적 생성 기능까지!
+                </p>
+                <button class="service-button" onclick="openService('http://localhost:3001')">
+                    관상 분석 체험하기
+                </button>
+            </div>
+
+            <div class="service-card">
+                <h3 class="service-title">
+                    궁합 분석
+                    <span class="status-badge completed">완성</span>
+                </h3>
+                <p class="service-description">
+                    두 사람의 사주를 종합 분석하여
+                    연애, 결혼, 사업 궁합을 정밀하게
+                    진단하고 조언을 제공합니다.
+                </p>
+                <button class="service-button" onclick="openService('http://localhost:3002')">
+                    궁합 분석 시작하기
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🏆 대한민국 최고 수준의 온라인 명리학 플랫폼 🚀</p>
+            <p style="font-size: 0.9rem;">
+                정적 HTML 페이지 | Made with ❤️ by MSProject2 Team
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function openService(url) {
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
