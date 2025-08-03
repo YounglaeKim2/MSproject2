@@ -494,5 +494,466 @@ class ExtendedFortuneAnalyzer:
             "dominant_element": "토"
         }
 
+    def analyze_career_fortune(self, birth_info: Dict) -> Dict[str, Any]:
+        """💼 직업운 상세 분석"""
+        try:
+            dominant_element = self.get_dominant_element(birth_info)
+            element_props = self.wuxing_properties[dominant_element]
+            birth_year = birth_info["year"]
+            current_year = datetime.now().year
+            age = current_year - birth_year
+            
+            # 이직 시기 분석
+            if dominant_element in ["목", "화"]:
+                job_change_months = ["3월", "6월", "9월"]
+                change_reason = "성장과 발전을 추구하는 성향으로 새로운 도전이 좋습니다"
+            else:
+                job_change_months = ["1월", "4월", "10월"]
+                change_reason = "신중한 성향으로 충분한 준비 후 이직하는 것이 좋습니다"
+            
+            # 승진운 분석
+            if age < 30:
+                promotion_advice = "실무 능력을 키우고 인맥을 넓히는 시기입니다"
+                promotion_timing = "올해 하반기부터 기회가 보입니다"
+            elif age < 40:
+                promotion_advice = "리더십을 발휘하고 책임감을 보이는 시기입니다"
+                promotion_timing = "내년이 승진의 적기입니다"
+            else:
+                promotion_advice = "경험과 지혜를 바탕으로 후배를 이끄는 시기입니다"
+                promotion_timing = "안정적인 위치에서 영향력을 발휘하세요"
+            
+            # 창업운 분석
+            if dominant_element in ["화", "금"]:
+                startup_suitability = "창업에 적합한 기운을 가지고 있습니다"
+                startup_fields = ["서비스업", "IT", "컨설팅", "디자인"]
+                startup_timing = "올해 말~내년 초가 창업하기 좋은 시기입니다"
+            else:
+                startup_suitability = "안정적인 직장에서 경력을 쌓는 것이 더 좋습니다"
+                startup_fields = ["교육", "제조", "유통", "부동산"]
+                startup_timing = "충분한 경험과 자본을 준비한 후 도전하세요"
+            
+            # 부업 추천
+            side_jobs = []
+            if dominant_element == "목":
+                side_jobs = ["온라인 강의", "블로그 운영", "식물 판매", "편집/교정"]
+            elif dominant_element == "화":
+                side_jobs = ["유튜브 크리에이터", "이벤트 기획", "사진/영상", "온라인 쇼핑몰"]
+            elif dominant_element == "토":
+                side_jobs = ["부동산 투자", "요리 클래스", "핸드메이드", "펜션 운영"]
+            elif dominant_element == "금":
+                side_jobs = ["투자 상담", "온라인 쇼핑몰", "귀금속 거래", "악기 레슨"]
+            else:  # 수
+                side_jobs = ["번역", "온라인 강의", "컨설팅", "투자"]
+            
+            # 직장 인간관계
+            if dominant_element in ["화", "목"]:
+                relationship_style = "적극적으로 소통하고 협력하는 스타일이 좋습니다"
+                networking_advice = "다양한 사람들과 네트워킹을 확대하세요"
+            else:
+                relationship_style = "신뢰할 수 있는 소수와 깊은 관계를 맺는 것이 좋습니다"
+                networking_advice = "품질 높은 인맥을 만들어가세요"
+            
+            return {
+                "job_change_months": job_change_months,
+                "change_reason": change_reason,
+                "promotion_advice": promotion_advice,
+                "promotion_timing": promotion_timing,
+                "startup_suitability": startup_suitability,
+                "startup_fields": startup_fields,
+                "startup_timing": startup_timing,
+                "side_jobs": side_jobs,
+                "relationship_style": relationship_style,
+                "networking_advice": networking_advice,
+                "dominant_element": dominant_element
+            }
+            
+        except Exception as e:
+            logger.error(f"직업운 분석 오류: {e}")
+            return self._get_default_career_fortune()
+
+    def analyze_health_fortune(self, birth_info: Dict) -> Dict[str, Any]:
+        """🏥 건강운 세분화"""
+        try:
+            dominant_element = self.get_dominant_element(birth_info)
+            birth_month = birth_info["month"]
+            gender = birth_info.get("gender", "male")
+            
+            # 장기별 건강 주의사항
+            organ_care = {}
+            if dominant_element == "목":
+                organ_care = {
+                    "간담": "간 건강에 주의하고 스트레스 관리가 중요합니다",
+                    "눈": "눈의 피로를 줄이고 충분한 수면을 취하세요",
+                    "근육": "유연성 운동과 스트레칭을 꾸준히 하세요"
+                }
+            elif dominant_element == "화":
+                organ_care = {
+                    "심장": "심혈관 건강을 위해 규칙적인 운동을 하세요",
+                    "혈액순환": "혈액순환을 위해 따뜻하게 보온하세요",
+                    "신경": "과도한 흥분을 피하고 마음의 안정을 찾으세요"
+                }
+            elif dominant_element == "토":
+                organ_care = {
+                    "소화기": "규칙적인 식사와 소화에 좋은 음식을 드세요",
+                    "비장": "단 음식을 적당히 섭취하고 과식을 피하세요",
+                    "근육": "근력 운동으로 체력을 기르세요"
+                }
+            elif dominant_element == "금":
+                organ_care = {
+                    "폐": "호흡기 건강을 위해 공기 좋은 곳에서 운동하세요",
+                    "대장": "섬유질이 풍부한 음식을 섭취하세요",
+                    "피부": "건조하지 않게 보습에 신경 쓰세요"
+                }
+            else:  # 수
+                organ_care = {
+                    "신장": "수분 섭취를 충분히 하고 염분을 줄이세요",
+                    "방광": "요로 건강을 위해 청결을 유지하세요",
+                    "뼈": "칼슘 섭취와 골밀도 검사를 정기적으로 받으세요"
+                }
+            
+            # 운동 추천
+            exercise_recommendations = []
+            if dominant_element in ["목", "화"]:
+                exercise_recommendations = [
+                    "유산소 운동 (달리기, 자전거, 수영)",
+                    "팀 스포츠 (축구, 농구, 배구)",
+                    "댄스나 에어로빅",
+                    "등산이나 트레킹"
+                ]
+            else:
+                exercise_recommendations = [
+                    "요가나 태극권",
+                    "근력 운동 (웨이트 트레이닝)",
+                    "산책이나 가벼운 조깅",
+                    "수영이나 아쿠아로빅"
+                ]
+            
+            # 식단 조언
+            diet_advice = []
+            if dominant_element == "목":
+                diet_advice = [
+                    "신선한 채소와 과일을 많이 섭취하세요",
+                    "신맛이 나는 음식이 도움됩니다",
+                    "과도한 음주는 피하세요"
+                ]
+            elif dominant_element == "화":
+                diet_advice = [
+                    "쓴맛이 나는 음식을 적당히 드세요",
+                    "매운 음식은 적당히 조절하세요",
+                    "충분한 수분 섭취가 중요합니다"
+                ]
+            elif dominant_element == "토":
+                diet_advice = [
+                    "단맛이 나는 자연 식품을 드세요",
+                    "소화가 잘 되는 음식을 선택하세요",
+                    "규칙적인 식사 시간을 지키세요"
+                ]
+            elif dominant_element == "금":
+                diet_advice = [
+                    "매운맛 음식을 적당히 드세요",
+                    "호흡기에 좋은 배, 도라지 등을 섭취하세요",
+                    "기름진 음식은 줄이세요"
+                ]
+            else:  # 수
+                diet_advice = [
+                    "짠맛을 적당히 조절하세요",
+                    "신장에 좋은 검은콩, 검은깨를 드세요",
+                    "찬 음식보다는 따뜻한 음식을 선택하세요"
+                ]
+            
+            # 수면 패턴
+            if birth_month in [3, 4, 5, 6, 7, 8]:  # 봄여름생
+                sleep_pattern = "밤 11시 이전에 잠자리에 들고 7시간 이상 수면하세요"
+                sleep_reason = "양기가 강한 시기에 태어나 충분한 휴식이 필요합니다"
+            else:  # 가을겨울생
+                sleep_pattern = "밤 10시 이전에 잠자리에 들고 8시간 이상 수면하세요"
+                sleep_reason = "음기가 강한 시기에 태어나 깊은 잠이 중요합니다"
+            
+            # 건강검진 시기
+            if dominant_element in ["목", "화"]:
+                checkup_timing = ["3월", "9월"]
+                checkup_focus = "간기능, 심혈관 검사를 중심으로 받으세요"
+            else:
+                checkup_timing = ["6월", "12월"]
+                checkup_focus = "소화기, 호흡기 검사를 중심으로 받으세요"
+            
+            return {
+                "organ_care": organ_care,
+                "exercise_recommendations": exercise_recommendations,
+                "diet_advice": diet_advice,
+                "sleep_pattern": sleep_pattern,
+                "sleep_reason": sleep_reason,
+                "checkup_timing": checkup_timing,
+                "checkup_focus": checkup_focus,
+                "dominant_element": dominant_element
+            }
+            
+        except Exception as e:
+            logger.error(f"건강운 분석 오류: {e}")
+            return self._get_default_health_fortune()
+
+    def analyze_study_fortune(self, birth_info: Dict) -> Dict[str, Any]:
+        """📚 학업/자기계발운"""
+        try:
+            dominant_element = self.get_dominant_element(birth_info)
+            birth_hour = birth_info.get("hour", 12)
+            age = datetime.now().year - birth_info["year"]
+            
+            # 학습 적기
+            if dominant_element in ["목", "수"]:
+                study_months = ["2월", "3월", "9월", "10월"]
+                study_reason = "집중력이 높아지는 시기로 깊이 있는 학습이 가능합니다"
+            else:
+                study_months = ["4월", "5월", "8월", "11월"]
+                study_reason = "활발한 에너지로 다양한 분야 학습이 효과적입니다"
+            
+            # 시험운
+            if birth_hour >= 9 and birth_hour <= 15:  # 오전~오후
+                exam_timing = "오전 시간대 시험이 유리합니다"
+                exam_preparation = "아침 일찍 일어나서 공부하는 습관을 기르세요"
+            else:
+                exam_timing = "오후~저녁 시간대 시험이 유리합니다"
+                exam_preparation = "저녁 시간에 집중해서 공부하는 것이 좋습니다"
+            
+            # 자격증 추천
+            certifications = []
+            if dominant_element == "목":
+                certifications = [
+                    "교육 관련 자격증 (교원자격증, 평생교육사)",
+                    "환경 관련 자격증 (환경기사, 조경기사)",
+                    "언어 관련 자격증 (토익, 토플, 번역사)",
+                    "상담 관련 자격증 (상담심리사, 청소년상담사)"
+                ]
+            elif dominant_element == "화":
+                certifications = [
+                    "IT 관련 자격증 (정보처리기사, 컴활)",
+                    "문화예술 자격증 (문화예술교육사, 큐레이터)",
+                    "방송통신 자격증 (방송통신기사, PD)",
+                    "마케팅 자격증 (디지털마케팅, 광고기획)"
+                ]
+            elif dominant_element == "토":
+                certifications = [
+                    "부동산 자격증 (공인중개사, 감정평가사)",
+                    "건설 관련 자격증 (건축기사, 토목기사)",
+                    "요리 자격증 (조리기능사, 영양사)",
+                    "경영 자격증 (경영지도사, 회계사)"
+                ]
+            elif dominant_element == "금":
+                certifications = [
+                    "금융 자격증 (은행FP, 투자상담사)",
+                    "법률 자격증 (법무사, 변리사)",
+                    "기계 자격증 (기계기사, 설비기사)",
+                    "음악 자격증 (음악치료사, 실용음악)"
+                ]
+            else:  # 수
+                certifications = [
+                    "물류 자격증 (물류관리사, 유통관리사)",
+                    "수산업 자격증 (수산기사, 해양기사)",
+                    "의료 자격증 (간호사, 물리치료사)",
+                    "철학/종교 자격증 (종교지도자, 상담사)"
+                ]
+            
+            # 독서 추천
+            reading_genres = []
+            if dominant_element == "목":
+                reading_genres = ["자기계발서", "교육학", "심리학", "환경과학"]
+            elif dominant_element == "화":
+                reading_genres = ["경영서", "마케팅", "IT기술서", "예술서"]
+            elif dominant_element == "토":
+                reading_genres = ["실용서", "요리책", "건강서", "부동산"]
+            elif dominant_element == "금":
+                reading_genres = ["경제서", "투자서", "법률서", "음악서"]
+            else:  # 수
+                reading_genres = ["철학서", "역사서", "과학서", "종교서"]
+            
+            # 어학 학습
+            if dominant_element in ["목", "수"]:
+                language_aptitude = "언어 학습 능력이 뛰어납니다"
+                language_methods = [
+                    "읽기와 쓰기 중심 학습",
+                    "문법과 구조 이해에 집중",
+                    "독서를 통한 자연스러운 습득"
+                ]
+            else:
+                language_aptitude = "말하기와 듣기 학습이 더 효과적입니다"
+                language_methods = [
+                    "회화와 듣기 중심 학습",
+                    "실제 대화 상황 연습",
+                    "미디어를 활용한 학습"
+                ]
+            
+            return {
+                "study_months": study_months,
+                "study_reason": study_reason,
+                "exam_timing": exam_timing,
+                "exam_preparation": exam_preparation,
+                "certifications": certifications,
+                "reading_genres": reading_genres,
+                "language_aptitude": language_aptitude,
+                "language_methods": language_methods,
+                "dominant_element": dominant_element
+            }
+            
+        except Exception as e:
+            logger.error(f"학업운 분석 오류: {e}")
+            return self._get_default_study_fortune()
+
+    def analyze_family_fortune(self, birth_info: Dict) -> Dict[str, Any]:
+        """👨‍👩‍👧‍👦 가족운"""
+        try:
+            dominant_element = self.get_dominant_element(birth_info)
+            gender = birth_info.get("gender", "male")
+            birth_month = birth_info["month"]
+            
+            # 부모 관계
+            if dominant_element in ["목", "수"]:
+                parent_relationship = "부모님과 깊이 있는 소통을 하는 것이 좋습니다"
+                parent_advice = [
+                    "정기적으로 안부를 묻고 대화 시간을 가지세요",
+                    "부모님의 지혜와 경험을 존중하세요",
+                    "효도는 마음보다 실천이 중요합니다"
+                ]
+            else:
+                parent_relationship = "부모님과 활발한 교류를 하는 것이 좋습니다"
+                parent_advice = [
+                    "함께 여행이나 외출을 계획하세요",
+                    "부모님께 새로운 경험을 제안해보세요",
+                    "자주 만나서 즐거운 시간을 보내세요"
+                ]
+            
+            # 형제자매 관계
+            if dominant_element in ["화", "목"]:
+                sibling_relationship = "형제자매와 협력적인 관계를 만들어가세요"
+                sibling_advice = "서로 도움을 주고받으며 가족의 화합을 이루세요"
+            else:
+                sibling_relationship = "형제자매와 적당한 거리를 유지하는 것이 좋습니다"
+                sibling_advice = "각자의 독립성을 존중하며 필요할 때 지원하세요"
+            
+            # 자녀운 (결혼한 경우)
+            if gender == "male":
+                children_timing = ["봄", "가을"] if dominant_element in ["목", "금"] else ["여름", "겨울"]
+                children_advice = "자녀와의 소통에서 아버지의 역할을 충실히 하세요"
+                parenting_style = "규칙과 원칙을 세우되 사랑으로 이끌어주세요"
+            else:
+                children_timing = ["여름", "겨울"] if dominant_element in ["화", "수"] else ["봄", "가을"]
+                children_advice = "자녀의 감정을 이해하고 공감하는 어머니가 되세요"
+                parenting_style = "따뜻한 사랑으로 감싸주되 독립심도 길러주세요"
+            
+            # 가족 모임
+            if birth_month in [3, 4, 5, 9, 10, 11]:  # 봄가을생
+                family_gathering = "봄과 가을에 가족 모임을 자주 가지세요"
+                gathering_activities = ["등산", "나들이", "문화활동", "전통명절 중시"]
+            else:  # 여름겨울생
+                family_gathering = "여름과 겨울에 가족 모임을 자주 가지세요"
+                gathering_activities = ["해수욕", "스키", "실내활동", "연말연시 모임"]
+            
+            # 세대 갈등 해결
+            if dominant_element in ["토", "금"]:
+                generation_gap = "전통과 현대의 조화를 이루는 역할을 하세요"
+                conflict_resolution = [
+                    "서로 다른 세대의 관점을 이해하려 노력하세요",
+                    "중재자 역할을 통해 가족 화합을 이끌어주세요",
+                    "전통을 존중하면서도 변화를 수용하세요"
+                ]
+            else:
+                generation_gap = "소통의 다리 역할을 하는 것이 좋습니다"
+                conflict_resolution = [
+                    "열린 마음으로 대화의 장을 마련하세요",
+                    "새로운 방식으로 가족간 소통을 시도하세요",
+                    "서로의 차이를 인정하고 존중하세요"
+                ]
+            
+            return {
+                "parent_relationship": parent_relationship,
+                "parent_advice": parent_advice,
+                "sibling_relationship": sibling_relationship,
+                "sibling_advice": sibling_advice,
+                "children_timing": children_timing,
+                "children_advice": children_advice,
+                "parenting_style": parenting_style,
+                "family_gathering": family_gathering,
+                "gathering_activities": gathering_activities,
+                "generation_gap": generation_gap,
+                "conflict_resolution": conflict_resolution,
+                "dominant_element": dominant_element
+            }
+            
+        except Exception as e:
+            logger.error(f"가족운 분석 오류: {e}")
+            return self._get_default_family_fortune()
+
+    def _get_default_career_fortune(self) -> Dict[str, Any]:
+        """기본 직업운 데이터"""
+        return {
+            "job_change_months": ["3월", "6월", "9월"],
+            "change_reason": "신중하게 계획하여 이직하는 것이 좋습니다",
+            "promotion_advice": "꾸준한 노력과 성실함으로 인정받으세요",
+            "promotion_timing": "내년이 승진의 기회입니다",
+            "startup_suitability": "충분한 준비 후 창업을 고려하세요",
+            "startup_fields": ["서비스업", "컨설팅"],
+            "startup_timing": "경험을 쌓은 후 도전하세요",
+            "side_jobs": ["온라인 강의", "블로그 운영"],
+            "relationship_style": "신뢰할 수 있는 관계를 만들어가세요",
+            "networking_advice": "진정성 있는 인맥을 구축하세요",
+            "dominant_element": "토"
+        }
+
+    def _get_default_health_fortune(self) -> Dict[str, Any]:
+        """기본 건강운 데이터"""
+        return {
+            "organ_care": {
+                "전신": "균형잡힌 생활습관을 유지하세요",
+                "면역": "면역력 강화에 신경 쓰세요"
+            },
+            "exercise_recommendations": ["걷기", "요가", "수영"],
+            "diet_advice": [
+                "규칙적인 식사를 하세요",
+                "영양 균형을 맞추세요",
+                "충분한 수분을 섭취하세요"
+            ],
+            "sleep_pattern": "7-8시간 규칙적인 수면을 취하세요",
+            "sleep_reason": "충분한 휴식이 건강의 기본입니다",
+            "checkup_timing": ["6월", "12월"],
+            "checkup_focus": "정기적인 종합검진을 받으세요",
+            "dominant_element": "토"
+        }
+
+    def _get_default_study_fortune(self) -> Dict[str, Any]:
+        """기본 학업운 데이터"""
+        return {
+            "study_months": ["3월", "6월", "9월", "12월"],
+            "study_reason": "꾸준한 학습이 가장 중요합니다",
+            "exam_timing": "본인에게 맞는 시간대를 찾으세요",
+            "exam_preparation": "충분한 준비와 계획이 필요합니다",
+            "certifications": ["컴활", "토익", "기본 자격증"],
+            "reading_genres": ["자기계발서", "실용서"],
+            "language_aptitude": "꾸준한 노력으로 향상 가능합니다",
+            "language_methods": ["체계적인 학습", "반복 연습"],
+            "dominant_element": "토"
+        }
+
+    def _get_default_family_fortune(self) -> Dict[str, Any]:
+        """기본 가족운 데이터"""
+        return {
+            "parent_relationship": "부모님과 좋은 관계를 유지하세요",
+            "parent_advice": [
+                "정기적으로 안부를 묻으세요",
+                "효도하는 마음을 실천하세요"
+            ],
+            "sibling_relationship": "형제자매와 화목한 관계를 만드세요",
+            "sibling_advice": "서로 도움을 주고받으세요",
+            "children_timing": ["봄", "가을"],
+            "children_advice": "자녀와의 소통을 중요하게 생각하세요",
+            "parenting_style": "사랑과 규칙의 균형을 맞추세요",
+            "family_gathering": "정기적인 가족 모임을 가지세요",
+            "gathering_activities": ["식사", "여행", "문화활동"],
+            "generation_gap": "서로를 이해하려 노력하세요",
+            "conflict_resolution": [
+                "열린 마음으로 대화하세요",
+                "서로의 입장을 존중하세요"
+            ],
+            "dominant_element": "토"
+        }
+
 # 전역 인스턴스
 extended_fortune_analyzer = ExtendedFortuneAnalyzer()

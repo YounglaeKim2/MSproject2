@@ -618,10 +618,162 @@ async def analyze_love_fortune(birth_info: BirthInfoRequest):
         logger.error(f"상세 오류: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"연애운 분석 실패: {str(e)}")
 
+# Phase 2 확장 운세 엔드포인트들
+@router.post("/career-fortune")
+async def analyze_career_fortune(birth_info: BirthInfoRequest):
+    """💼 직업운 상세 분석 API"""
+    try:
+        logger.info(f"직업운 분석 요청: {birth_info.dict()}")
+        _validate_birth_info(birth_info)
+        
+        # 직업운 분석 실행
+        career_result = extended_fortune_analyzer.analyze_career_fortune(birth_info.dict())
+        
+        return {
+            "success": True,
+            "data": {
+                "basic_info": {
+                    "name": birth_info.name,
+                    "gender": birth_info.gender,
+                    "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일 {birth_info.hour}시"
+                },
+                "career_fortune": career_result
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"직업운 분석 오류: {e}")
+        raise HTTPException(status_code=500, detail=f"직업운 분석 실패: {str(e)}")
+
+@router.post("/health-fortune")
+async def analyze_health_fortune(birth_info: BirthInfoRequest):
+    """🏥 건강운 세분화 API"""
+    try:
+        logger.info(f"건강운 분석 요청: {birth_info.dict()}")
+        _validate_birth_info(birth_info)
+        
+        # 건강운 분석 실행
+        health_result = extended_fortune_analyzer.analyze_health_fortune(birth_info.dict())
+        
+        return {
+            "success": True,
+            "data": {
+                "basic_info": {
+                    "name": birth_info.name,
+                    "gender": birth_info.gender,
+                    "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일 {birth_info.hour}시"
+                },
+                "health_fortune": health_result
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"건강운 분석 오류: {e}")
+        raise HTTPException(status_code=500, detail=f"건강운 분석 실패: {str(e)}")
+
+@router.post("/study-fortune")
+async def analyze_study_fortune(birth_info: BirthInfoRequest):
+    """📚 학업/자기계발운 API"""
+    try:
+        logger.info(f"학업운 분석 요청: {birth_info.dict()}")
+        _validate_birth_info(birth_info)
+        
+        # 학업운 분석 실행
+        study_result = extended_fortune_analyzer.analyze_study_fortune(birth_info.dict())
+        
+        return {
+            "success": True,
+            "data": {
+                "basic_info": {
+                    "name": birth_info.name,
+                    "gender": birth_info.gender,
+                    "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일 {birth_info.hour}시"
+                },
+                "study_fortune": study_result
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"학업운 분석 오류: {e}")
+        raise HTTPException(status_code=500, detail=f"학업운 분석 실패: {str(e)}")
+
+@router.post("/family-fortune")
+async def analyze_family_fortune(birth_info: BirthInfoRequest):
+    """👨‍👩‍👧‍👦 가족운 API"""
+    try:
+        logger.info(f"가족운 분석 요청: {birth_info.dict()}")
+        _validate_birth_info(birth_info)
+        
+        # 가족운 분석 실행
+        family_result = extended_fortune_analyzer.analyze_family_fortune(birth_info.dict())
+        
+        return {
+            "success": True,
+            "data": {
+                "basic_info": {
+                    "name": birth_info.name,
+                    "gender": birth_info.gender,
+                    "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일 {birth_info.hour}시"
+                },
+                "family_fortune": family_result
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"가족운 분석 오류: {e}")
+        raise HTTPException(status_code=500, detail=f"가족운 분석 실패: {str(e)}")
+
+# Phase 2 통합 확장 운세 API
+@router.post("/extended-fortune-phase2")
+async def analyze_extended_fortune_phase2(birth_info: BirthInfoRequest):
+    """🔮 Phase 2 확장 운세 통합 분석 API (4개 운세)"""
+    try:
+        logger.info(f"Phase 2 확장 운세 분석 요청: {birth_info.dict()}")
+        _validate_birth_info(birth_info)
+        
+        birth_data = birth_info.dict()
+        
+        # Phase 2 4개 운세 동시 분석
+        career_result = extended_fortune_analyzer.analyze_career_fortune(birth_data)
+        health_result = extended_fortune_analyzer.analyze_health_fortune(birth_data)
+        study_result = extended_fortune_analyzer.analyze_study_fortune(birth_data)
+        family_result = extended_fortune_analyzer.analyze_family_fortune(birth_data)
+        
+        return {
+            "success": True,
+            "data": {
+                "basic_info": {
+                    "name": birth_info.name,
+                    "gender": birth_info.gender,
+                    "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일 {birth_info.hour}시"
+                },
+                "phase2_fortune": {
+                    "career_fortune": career_result,
+                    "health_fortune": health_result,
+                    "study_fortune": study_result,
+                    "family_fortune": family_result
+                }
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Phase 2 확장 운세 분석 오류: {e}")
+        raise HTTPException(status_code=500, detail=f"Phase 2 확장 운세 분석 실패: {str(e)}")
+
 @router.get("/health")
 async def health_check():
     """헬스 체크"""
-    return {"status": "healthy", "service": "saju-analysis", "version": "2.0-refactored"}
+    return {"status": "healthy", "service": "saju-analysis", "version": "2.0-refactored-phase2"}
 
 @router.get("/test")
 async def test_endpoint():
@@ -639,6 +791,11 @@ async def test_endpoint():
             "/transportation-fortune - 교통운 분석 🚗",
             "/social-fortune - 소셜운 분석 📱",
             "/hobby-fortune - 취미운 분석 🎨",
+            "/career-fortune - 직업운 상세 분석 💼 ✨Phase2✨",
+            "/health-fortune - 건강운 세분화 🏥 ✨Phase2✨",
+            "/study-fortune - 학업/자기계발운 📚 ✨Phase2✨",
+            "/family-fortune - 가족운 👨‍👩‍👧‍👦 ✨Phase2✨",
+            "/extended-fortune-phase2 - Phase 2 통합 분석 🔮 ✨Phase2✨",
             "/ai-chat - AI 대화형 해석",
             "/ai-usage - AI 사용량 조회", 
             "/ai-test - AI 연결 테스트",

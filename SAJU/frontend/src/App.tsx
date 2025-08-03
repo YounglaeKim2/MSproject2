@@ -465,6 +465,7 @@ function App() {
   const [saeunResult, setSaeunResult] = useState<SaeunResult | null>(null);
   const [loveFortuneResult, setLoveFortuneResult] = useState<any>(null);
   const [extendedFortuneResult, setExtendedFortuneResult] = useState<any>(null);
+  const [phase2FortuneResult, setPhase2FortuneResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [daeunLoading, setDaeunLoading] = useState(false);
   const [saeunLoading, setSaeunLoading] = useState(false);
@@ -650,6 +651,61 @@ function App() {
           }
         };
         setExtendedFortuneResult(tempExtendedData);
+      }
+
+      // 6. Phase 2 확장 운세 분석 (직업운, 건강운, 학업운, 가족운)
+      try {
+        const phase2FortuneResponse = await axios.post(
+          "http://localhost:8000/api/v1/saju/extended-fortune-phase2",
+          formData
+        );
+        console.log("Phase 2 확장 운세 분석 완료:", phase2FortuneResponse.data);
+        setPhase2FortuneResult(phase2FortuneResponse.data);
+      } catch (phase2Error) {
+        console.warn("Phase 2 확장 운세 API 호출 실패, 임시 데이터 사용:", phase2Error);
+        // 임시 Phase 2 데이터
+        const tempPhase2Data = {
+          success: true,
+          data: {
+            basic_info: {
+              name: formData.name,
+              birth_date: `${formData.year}년 ${formData.month}월 ${formData.day}일 ${formData.hour}시`,
+              gender: formData.gender
+            },
+            phase2_fortune: {
+              career_fortune: {
+                job_change_months: ["3월", "6월", "9월"],
+                change_reason: "성장과 발전을 추구하는 성향으로 새로운 도전이 좋습니다",
+                promotion_advice: "실무 능력을 키우고 인맥을 넓히는 시기입니다",
+                startup_fields: ["IT", "컨설팅", "서비스업"],
+                side_jobs: ["온라인 강의", "블로그 운영"],
+                networking_advice: "다양한 사람들과 네트워킹을 확대하세요"
+              },
+              health_fortune: {
+                organ_care: {
+                  "심장": "심혈관 건강을 위해 규칙적인 운동을 하세요",
+                  "간담": "간 건강에 주의하고 스트레스 관리가 중요합니다"
+                },
+                exercise_recommendations: ["유산소 운동", "요가", "수영"],
+                diet_advice: ["신선한 채소 섭취", "규칙적인 식사", "충분한 수분"],
+                checkup_timing: ["3월", "9월"]
+              },
+              study_fortune: {
+                study_months: ["2월", "3월", "9월", "10월"],
+                study_reason: "집중력이 높아지는 시기로 깊이 있는 학습이 가능합니다",
+                certifications: ["토익", "컴활", "정보처리기사"],
+                reading_genres: ["자기계발서", "경영서", "IT기술서"]
+              },
+              family_fortune: {
+                parent_relationship: "부모님과 깊이 있는 소통을 하는 것이 좋습니다",
+                parent_advice: ["정기적으로 안부를 묻기", "효도 실천"],
+                children_timing: ["봄", "가을"],
+                gathering_activities: ["등산", "문화활동", "여행"]
+              }
+            }
+          }
+        };
+        setPhase2FortuneResult(tempPhase2Data);
       }
 
     } catch (err: any) {
@@ -2407,6 +2463,407 @@ function App() {
             </div>
           </AnalysisSection>
 
+
+          {/* Phase 2 확장 운세 분석 결과 */}
+          {phase2FortuneResult && (
+            <div style={{ marginTop: "30px" }}>
+              <SectionTitle
+                style={{
+                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  color: "white",
+                  textAlign: "center"
+                }}
+              >
+                🔮 Phase 2 확장 운세 분석
+              </SectionTitle>
+
+              {phase2FortuneResult.success ? (
+                <div>
+                  {/* 직업운 분석 */}
+                  <AnalysisSection style={{ marginBottom: "25px" }}>
+                    <SectionTitle
+                      style={{
+                        background: "#6f42c1",
+                        color: "white",
+                        borderRadius: "15px 15px 0 0"
+                      }}
+                    >
+                      💼 직업운 상세 분석
+                    </SectionTitle>
+                    
+                    {phase2FortuneResult.data.phase2_fortune?.career_fortune && (
+                      <div style={{ marginTop: "20px" }}>
+                        {/* 이직 시기 */}
+                        <div style={{ 
+                          background: "#f8f9fa", 
+                          padding: "15px", 
+                          borderRadius: "10px", 
+                          marginBottom: "15px",
+                          borderLeft: "5px solid #6f42c1"
+                        }}>
+                          <h4 style={{ margin: "0 0 10px 0", color: "#2c3e50" }}>
+                            📅 이직 적기
+                          </h4>
+                          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px" }}>
+                            {phase2FortuneResult.data.phase2_fortune.career_fortune.job_change_months?.map((month: string, i: number) => (
+                              <span key={i} style={{
+                                background: "#6f42c1",
+                                color: "white",
+                                padding: "5px 12px",
+                                borderRadius: "15px",
+                                fontSize: "12px",
+                                fontWeight: "bold"
+                              }}>
+                                {month}
+                              </span>
+                            ))}
+                          </div>
+                          <p style={{ fontSize: "14px", color: "#666", fontStyle: "italic", margin: 0 }}>
+                            {phase2FortuneResult.data.phase2_fortune.career_fortune.change_reason}
+                          </p>
+                        </div>
+
+                        {/* 승진운 */}
+                        <div style={{ 
+                          background: "#e8f5e8", 
+                          padding: "15px", 
+                          borderRadius: "10px", 
+                          marginBottom: "15px",
+                          borderLeft: "5px solid #28a745"
+                        }}>
+                          <h4 style={{ margin: "0 0 10px 0", color: "#2c3e50" }}>
+                            🚀 승진운
+                          </h4>
+                          <p style={{ fontSize: "16px", color: "#495057", lineHeight: "1.6", margin: 0 }}>
+                            {phase2FortuneResult.data.phase2_fortune.career_fortune.promotion_advice}
+                          </p>
+                        </div>
+
+                        {/* 창업/부업 */}
+                        <div style={{ 
+                          background: "#fff3cd", 
+                          padding: "15px", 
+                          borderRadius: "10px", 
+                          marginBottom: "15px",
+                          borderLeft: "5px solid #ffc107"
+                        }}>
+                          <h4 style={{ margin: "0 0 10px 0", color: "#2c3e50" }}>
+                            💡 창업/부업 분야
+                          </h4>
+                          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px" }}>
+                            {phase2FortuneResult.data.phase2_fortune.career_fortune.startup_fields?.map((field: string, i: number) => (
+                              <span key={i} style={{
+                                background: "#ffc107",
+                                color: "#212529",
+                                padding: "5px 12px",
+                                borderRadius: "15px",
+                                fontSize: "12px",
+                                fontWeight: "bold"
+                              }}>
+                                {field}
+                              </span>
+                            ))}
+                          </div>
+                          <h5 style={{ margin: "15px 0 5px 0", color: "#2c3e50" }}>추천 부업:</h5>
+                          <ul style={{ paddingLeft: "20px", color: "#495057", margin: 0 }}>
+                            {phase2FortuneResult.data.phase2_fortune.career_fortune.side_jobs?.map((job: string, i: number) => (
+                              <li key={i} style={{ marginBottom: "5px" }}>{job}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </AnalysisSection>
+
+                  {/* 건강운 분석 */}
+                  <AnalysisSection style={{ marginBottom: "25px" }}>
+                    <SectionTitle
+                      style={{
+                        background: "#dc3545",
+                        color: "white",
+                        borderRadius: "15px 15px 0 0"
+                      }}
+                    >
+                      🏥 건강운 세분화
+                    </SectionTitle>
+                    
+                    {phase2FortuneResult.data.phase2_fortune?.health_fortune && (
+                      <div style={{ marginTop: "20px" }}>
+                        {/* 장기별 건강 관리 */}
+                        <div style={{ 
+                          background: "#f8f9fa", 
+                          padding: "15px", 
+                          borderRadius: "10px", 
+                          marginBottom: "15px",
+                          borderLeft: "5px solid #dc3545"
+                        }}>
+                          <h4 style={{ margin: "0 0 15px 0", color: "#2c3e50" }}>
+                            🫁 장기별 건강 관리
+                          </h4>
+                          {Object.entries(phase2FortuneResult.data.phase2_fortune.health_fortune.organ_care || {}).map(([organ, advice], i) => (
+                            <div key={i} style={{ marginBottom: "10px" }}>
+                              <strong style={{ color: "#dc3545" }}>{organ}:</strong>
+                              <span style={{ marginLeft: "8px", color: "#495057" }}>{advice as string}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* 운동 추천 */}
+                        <div style={{ 
+                          background: "#e8f4fd", 
+                          padding: "15px", 
+                          borderRadius: "10px", 
+                          marginBottom: "15px",
+                          borderLeft: "5px solid #17a2b8"
+                        }}>
+                          <h4 style={{ margin: "0 0 10px 0", color: "#2c3e50" }}>
+                            🏃‍♂️ 추천 운동
+                          </h4>
+                          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                            {phase2FortuneResult.data.phase2_fortune.health_fortune.exercise_recommendations?.map((exercise: string, i: number) => (
+                              <span key={i} style={{
+                                background: "#17a2b8",
+                                color: "white",
+                                padding: "5px 12px",
+                                borderRadius: "15px",
+                                fontSize: "12px",
+                                fontWeight: "bold"
+                              }}>
+                                {exercise}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* 식단 조언 */}
+                        <div style={{ 
+                          background: "#d1ecf1", 
+                          padding: "15px", 
+                          borderRadius: "10px", 
+                          marginBottom: "15px",
+                          borderLeft: "5px solid #0dcaf0"
+                        }}>
+                          <h4 style={{ margin: "0 0 10px 0", color: "#2c3e50" }}>
+                            🍎 식단 조언
+                          </h4>
+                          <ul style={{ paddingLeft: "20px", color: "#495057", margin: 0 }}>
+                            {phase2FortuneResult.data.phase2_fortune.health_fortune.diet_advice?.map((advice: string, i: number) => (
+                              <li key={i} style={{ marginBottom: "5px" }}>{advice}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </AnalysisSection>
+
+                  {/* 학업/자기계발운 분석 */}
+                  <AnalysisSection style={{ marginBottom: "25px" }}>
+                    <SectionTitle
+                      style={{
+                        background: "#20c997",
+                        color: "white",
+                        borderRadius: "15px 15px 0 0"
+                      }}
+                    >
+                      📚 학업/자기계발운
+                    </SectionTitle>
+                    
+                    {phase2FortuneResult.data.phase2_fortune?.study_fortune && (
+                      <div style={{ marginTop: "20px" }}>
+                        {/* 학습 적기 */}
+                        <div style={{ 
+                          background: "#f8f9fa", 
+                          padding: "15px", 
+                          borderRadius: "10px", 
+                          marginBottom: "15px",
+                          borderLeft: "5px solid #20c997"
+                        }}>
+                          <h4 style={{ margin: "0 0 10px 0", color: "#2c3e50" }}>
+                            📅 학습 적기
+                          </h4>
+                          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px" }}>
+                            {phase2FortuneResult.data.phase2_fortune.study_fortune.study_months?.map((month: string, i: number) => (
+                              <span key={i} style={{
+                                background: "#20c997",
+                                color: "white",
+                                padding: "5px 12px",
+                                borderRadius: "15px",
+                                fontSize: "12px",
+                                fontWeight: "bold"
+                              }}>
+                                {month}
+                              </span>
+                            ))}
+                          </div>
+                          <p style={{ fontSize: "14px", color: "#666", fontStyle: "italic", margin: 0 }}>
+                            {phase2FortuneResult.data.phase2_fortune.study_fortune.study_reason}
+                          </p>
+                        </div>
+
+                        {/* 자격증 추천 */}
+                        <div style={{ 
+                          background: "#e2e3e5", 
+                          padding: "15px", 
+                          borderRadius: "10px", 
+                          marginBottom: "15px",
+                          borderLeft: "5px solid #6c757d"
+                        }}>
+                          <h4 style={{ margin: "0 0 10px 0", color: "#2c3e50" }}>
+                            🏆 추천 자격증
+                          </h4>
+                          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                            {phase2FortuneResult.data.phase2_fortune.study_fortune.certifications?.map((cert: string, i: number) => (
+                              <span key={i} style={{
+                                background: "#6c757d",
+                                color: "white",
+                                padding: "5px 12px",
+                                borderRadius: "15px",
+                                fontSize: "12px",
+                                fontWeight: "bold"
+                              }}>
+                                {cert}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* 독서 장르 */}
+                        <div style={{ 
+                          background: "#fff3cd", 
+                          padding: "15px", 
+                          borderRadius: "10px", 
+                          marginBottom: "15px",
+                          borderLeft: "5px solid #ffc107"
+                        }}>
+                          <h4 style={{ margin: "0 0 10px 0", color: "#2c3e50" }}>
+                            📖 추천 독서 장르
+                          </h4>
+                          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                            {phase2FortuneResult.data.phase2_fortune.study_fortune.reading_genres?.map((genre: string, i: number) => (
+                              <span key={i} style={{
+                                background: "#ffc107",
+                                color: "#212529",
+                                padding: "5px 12px",
+                                borderRadius: "15px",
+                                fontSize: "12px",
+                                fontWeight: "bold"
+                              }}>
+                                {genre}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </AnalysisSection>
+
+                  {/* 가족운 분석 */}
+                  <AnalysisSection style={{ marginBottom: "25px" }}>
+                    <SectionTitle
+                      style={{
+                        background: "#fd7e14",
+                        color: "white",
+                        borderRadius: "15px 15px 0 0"
+                      }}
+                    >
+                      👨‍👩‍👧‍👦 가족운
+                    </SectionTitle>
+                    
+                    {phase2FortuneResult.data.phase2_fortune?.family_fortune && (
+                      <div style={{ marginTop: "20px" }}>
+                        {/* 부모 관계 */}
+                        <div style={{ 
+                          background: "#f8f9fa", 
+                          padding: "15px", 
+                          borderRadius: "10px", 
+                          marginBottom: "15px",
+                          borderLeft: "5px solid #fd7e14"
+                        }}>
+                          <h4 style={{ margin: "0 0 10px 0", color: "#2c3e50" }}>
+                            👴👵 부모님과의 관계
+                          </h4>
+                          <p style={{ fontSize: "16px", color: "#495057", lineHeight: "1.6", marginBottom: "10px" }}>
+                            {phase2FortuneResult.data.phase2_fortune.family_fortune.parent_relationship}
+                          </p>
+                          <ul style={{ paddingLeft: "20px", color: "#495057", margin: 0 }}>
+                            {phase2FortuneResult.data.phase2_fortune.family_fortune.parent_advice?.map((advice: string, i: number) => (
+                              <li key={i} style={{ marginBottom: "5px" }}>{advice}</li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* 자녀 계획 */}
+                        <div style={{ 
+                          background: "#d1ecf1", 
+                          padding: "15px", 
+                          borderRadius: "10px", 
+                          marginBottom: "15px",
+                          borderLeft: "5px solid #0dcaf0"
+                        }}>
+                          <h4 style={{ margin: "0 0 10px 0", color: "#2c3e50" }}>
+                            👶 자녀 계획
+                          </h4>
+                          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                            {phase2FortuneResult.data.phase2_fortune.family_fortune.children_timing?.map((timing: string, i: number) => (
+                              <span key={i} style={{
+                                background: "#0dcaf0",
+                                color: "white",
+                                padding: "5px 12px",
+                                borderRadius: "15px",
+                                fontSize: "12px",
+                                fontWeight: "bold"
+                              }}>
+                                {timing}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* 가족 모임 */}
+                        <div style={{ 
+                          background: "#e2e3e5", 
+                          padding: "15px", 
+                          borderRadius: "10px", 
+                          marginBottom: "15px",
+                          borderLeft: "5px solid #6c757d"
+                        }}>
+                          <h4 style={{ margin: "0 0 10px 0", color: "#2c3e50" }}>
+                            🎉 가족 모임 활동
+                          </h4>
+                          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                            {phase2FortuneResult.data.phase2_fortune.family_fortune.gathering_activities?.map((activity: string, i: number) => (
+                              <span key={i} style={{
+                                background: "#6c757d",
+                                color: "white",
+                                padding: "5px 12px",
+                                borderRadius: "15px",
+                                fontSize: "12px",
+                                fontWeight: "bold"
+                              }}>
+                                {activity}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </AnalysisSection>
+                </div>
+              ) : (
+                <div style={{
+                  background: "#f8d7da",
+                  color: "#721c24",
+                  padding: "20px",
+                  borderRadius: "10px",
+                  textAlign: "center"
+                }}>
+                  <p style={{ margin: 0, fontSize: "16px" }}>
+                    Phase 2 확장 운세 분석 중 문제가 발생했습니다. 백엔드 API 연결을 확인해주세요.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* AI 채팅 버튼 */}
           <AIButton onClick={() => setShowAIChat(true)}>
