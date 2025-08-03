@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from app.models.saju import BirthInfoRequest
 from app.services.saju_analyzer import saju_analyzer
 from app.services.gemini_ai_interpreter import get_gemini_interpreter
+from app.services.extended_fortune_analyzer import extended_fortune_analyzer
 import logging
 from typing import Optional, Dict, Any
 import traceback
@@ -326,6 +327,192 @@ async def test_ai_connection():
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+@router.post("/extended-fortune")
+async def analyze_extended_fortune(birth_info: BirthInfoRequest):
+    """
+    확장 운세 분석 API (1단계: 4개 운세)
+    
+    Args:
+        birth_info: 출생 정보 (년월일시, 성별, 이름)
+    
+    Returns:
+        주거운, 교통운, 소셜운, 취미운 분석 결과
+    """
+    try:
+        logger.info(f"확장 운세 분석 요청: {birth_info.name}({birth_info.gender})")
+        
+        # 출생 정보를 dict로 변환
+        birth_data = {
+            "year": birth_info.year,
+            "month": birth_info.month,
+            "day": birth_info.day,
+            "hour": birth_info.hour,
+            "gender": birth_info.gender,
+            "name": birth_info.name
+        }
+        
+        # 각 운세 분석 실행
+        residence_result = extended_fortune_analyzer.analyze_residence_fortune(birth_data)
+        transportation_result = extended_fortune_analyzer.analyze_transportation_fortune(birth_data)
+        social_result = extended_fortune_analyzer.analyze_social_fortune(birth_data)
+        hobby_result = extended_fortune_analyzer.analyze_hobby_fortune(birth_data)
+        
+        # 성공적인 분석 결과 반환
+        return {
+            "success": True,
+            "data": {
+                "basic_info": {
+                    "name": birth_info.name,
+                    "gender": birth_info.gender,
+                    "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일 {birth_info.hour}시"
+                },
+                "residence_fortune": residence_result,
+                "transportation_fortune": transportation_result,
+                "social_fortune": social_result,
+                "hobby_fortune": hobby_result
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"확장 운세 분석 오류: {e}")
+        logger.error(f"상세 오류: {traceback.format_exc()}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"확장 운세 분석 중 오류가 발생했습니다: {str(e)}"
+        )
+
+@router.post("/residence-fortune")
+async def analyze_residence_fortune_only(birth_info: BirthInfoRequest):
+    """
+    주거운 분석 API
+    
+    Args:
+        birth_info: 출생 정보
+    
+    Returns:
+        주거운 분석 결과 (이사방향, 인테리어, 풍수 등)
+    """
+    try:
+        logger.info(f"주거운 분석 요청: {birth_info.name}")
+        
+        birth_data = {
+            "year": birth_info.year,
+            "month": birth_info.month,
+            "day": birth_info.day,
+            "hour": birth_info.hour,
+            "gender": birth_info.gender,
+            "name": birth_info.name
+        }
+        
+        result = extended_fortune_analyzer.analyze_residence_fortune(birth_data)
+        
+        return {
+            "success": True,
+            "data": {
+                "basic_info": {
+                    "name": birth_info.name,
+                    "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일"
+                },
+                "residence_fortune": result
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"주거운 분석 오류: {e}")
+        raise HTTPException(status_code=500, detail=f"주거운 분석 실패: {str(e)}")
+
+@router.post("/transportation-fortune")
+async def analyze_transportation_fortune_only(birth_info: BirthInfoRequest):
+    """교통운 분석 API"""
+    try:
+        birth_data = {
+            "year": birth_info.year,
+            "month": birth_info.month,
+            "day": birth_info.day,
+            "hour": birth_info.hour,
+            "gender": birth_info.gender,
+            "name": birth_info.name
+        }
+        
+        result = extended_fortune_analyzer.analyze_transportation_fortune(birth_data)
+        
+        return {
+            "success": True,
+            "data": {
+                "basic_info": {
+                    "name": birth_info.name,
+                    "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일"
+                },
+                "transportation_fortune": result
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"교통운 분석 오류: {e}")
+        raise HTTPException(status_code=500, detail=f"교통운 분석 실패: {str(e)}")
+
+@router.post("/social-fortune")
+async def analyze_social_fortune_only(birth_info: BirthInfoRequest):
+    """소셜운 분석 API"""
+    try:
+        birth_data = {
+            "year": birth_info.year,
+            "month": birth_info.month,
+            "day": birth_info.day,
+            "hour": birth_info.hour,
+            "gender": birth_info.gender,
+            "name": birth_info.name
+        }
+        
+        result = extended_fortune_analyzer.analyze_social_fortune(birth_data)
+        
+        return {
+            "success": True,
+            "data": {
+                "basic_info": {
+                    "name": birth_info.name,
+                    "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일"
+                },
+                "social_fortune": result
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"소셜운 분석 오류: {e}")
+        raise HTTPException(status_code=500, detail=f"소셜운 분석 실패: {str(e)}")
+
+@router.post("/hobby-fortune")
+async def analyze_hobby_fortune_only(birth_info: BirthInfoRequest):
+    """취미운 분석 API"""
+    try:
+        birth_data = {
+            "year": birth_info.year,
+            "month": birth_info.month,
+            "day": birth_info.day,
+            "hour": birth_info.hour,
+            "gender": birth_info.gender,
+            "name": birth_info.name
+        }
+        
+        result = extended_fortune_analyzer.analyze_hobby_fortune(birth_data)
+        
+        return {
+            "success": True,
+            "data": {
+                "basic_info": {
+                    "name": birth_info.name,
+                    "birth_date": f"{birth_info.year}년 {birth_info.month}월 {birth_info.day}일"
+                },
+                "hobby_fortune": result
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"취미운 분석 오류: {e}")
+        raise HTTPException(status_code=500, detail=f"취미운 분석 실패: {str(e)}")
+
 @router.post("/love-fortune")
 async def analyze_love_fortune(birth_info: BirthInfoRequest):
     """
@@ -447,6 +634,11 @@ async def test_endpoint():
             "/daeun - 대운 분석 ✨FIXED✨",
             "/saeun - 세운 분석 ✨FIXED✨",
             "/love-fortune - 연애운 상세 분석 ✨NEW✨",
+            "/extended-fortune - 확장 운세 분석 (4개 운세) ✨1단계✨",
+            "/residence-fortune - 주거운 분석 🏠",
+            "/transportation-fortune - 교통운 분석 🚗",
+            "/social-fortune - 소셜운 분석 📱",
+            "/hobby-fortune - 취미운 분석 🎨",
             "/ai-chat - AI 대화형 해석",
             "/ai-usage - AI 사용량 조회", 
             "/ai-test - AI 연결 테스트",

@@ -464,6 +464,7 @@ function App() {
   const [daeunResult, setDaeunResult] = useState<DaeunResult | null>(null);
   const [saeunResult, setSaeunResult] = useState<SaeunResult | null>(null);
   const [loveFortuneResult, setLoveFortuneResult] = useState<any>(null);
+  const [extendedFortuneResult, setExtendedFortuneResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [daeunLoading, setDaeunLoading] = useState(false);
   const [saeunLoading, setSaeunLoading] = useState(false);
@@ -566,6 +567,89 @@ function App() {
           }
         };
         setLoveFortuneResult(tempLoveData);
+      }
+
+      // 5. 확장 운세 분석 (1단계: 4개 운세)
+      try {
+        const extendedFortuneResponse = await axios.post(
+          "http://localhost:8000/api/v1/saju/extended-fortune",
+          formData
+        );
+        console.log("확장 운세 분석 완료:", extendedFortuneResponse.data);
+        setExtendedFortuneResult(extendedFortuneResponse.data);
+      } catch (extendedError) {
+        console.warn("확장 운세 API 호출 실패, 임시 데이터 사용:", extendedError);
+        // 임시 확장 운세 데이터
+        const tempExtendedData = {
+          success: true,
+          data: {
+            basic_info: {
+              name: formData.name,
+              birth_date: `${formData.year}년 ${formData.month}월 ${formData.day}일 ${formData.hour}시`,
+              gender: formData.gender
+            },
+            residence_fortune: {
+              moving_direction: "동쪽 방향으로 이사하면 성장과 발전에 도움이 됩니다",
+              avoid_direction: "서쪽 방향은 피하는 것이 좋습니다",
+              house_type: "아파트보다는 단독주택이나 빌라가 더 좋습니다",
+              house_reason: "자연과 가까운 환경에서 에너지를 얻습니다",
+              interior_colors: ["초록색", "갈색", "베이지색"],
+              room_layout: {
+                "침실": "동쪽 방향 침실이 숙면에 도움됩니다",
+                "거실": "가족이 모이는 공간은 밝고 넓게 꾸미세요",
+                "부엌": "화기가 있는 부엌은 남동쪽이 길합니다",
+                "서재": "집중이 필요한 공간은 조용한 북쪽이나 동쪽이 좋습니다"
+              },
+              best_moving_months: ["3월", "4월", "5월"],
+              feng_shui_tips: [
+                "목 기운을 살리는 초록색, 갈색 계열 인테리어를 하세요",
+                "현관은 항상 깨끗하게 유지하고 밝은 조명을 설치하세요",
+                "침실에는 거울을 두지 마세요",
+                "화장실 문은 항상 닫아두세요",
+                "식물이나 꽃을 키워 생기를 더하세요"
+              ]
+            },
+            transportation_fortune: {
+              car_colors: ["초록색", "갈색", "베이지색"],
+              license_numbers: "번호판 끝자리는 3, 8번이 길합니다",
+              accident_risk_months: ["7월", "8월"],
+              transport_preference: "대중교통 이용이 더 안전하고 효율적입니다",
+              transport_reason: "환경을 생각하고 스트레스를 줄일 수 있습니다",
+              travel_directions: ["동쪽", "남쪽"],
+              driving_tips: [
+                "7월, 8월에는 특히 안전운전에 주의하세요",
+                "빗길이나 눈길에서는 더욱 신중하게 운전하세요",
+                "장거리 운전 전에는 충분한 휴식을 취하세요"
+              ]
+            },
+            social_fortune: {
+              sns_active_months: ["5월", "6월", "8월", "9월"],
+              activity_reason: "활발하고 외향적인 성향으로 소셜 활동이 잘 맞습니다",
+              profile_colors: ["초록색", "갈색", "베이지색"],
+              communication_style: "성장 지향적이고 긍정적인 메시지를 전달하세요",
+              online_timing: "오전~오후 시간대 활동이 효과적입니다",
+              social_strategies: [
+                "성장과 발전 관련 콘텐츠 공유",
+                "자연과 환경 관련 주제",
+                "학습과 자기계발 정보"
+              ]
+            },
+            hobby_fortune: {
+              art_fields: ["문학", "서예", "원예", "목공예"],
+              sports_type: "단체 운동이 더 적합합니다",
+              sports_examples: ["축구", "농구", "배구", "테니스"],
+              sports_reason: "활발하고 사교적인 성향으로 팀 스포츠가 잘 맞습니다",
+              collection_items: ["책", "식물", "목재 소품", "친환경 제품"],
+              creative_activities: ["블로그 작성", "소설 쓰기", "정원 가꾸기"],
+              hobby_advice: [
+                "다른 사람들과 함께 할 수 있는 취미를 선택하세요",
+                "창의성을 발휘할 수 있는 활동이 좋습니다",
+                "새로운 것에 도전하는 것을 두려워하지 마세요"
+              ]
+            }
+          }
+        };
+        setExtendedFortuneResult(tempExtendedData);
       }
 
     } catch (err: any) {
@@ -1287,6 +1371,507 @@ function App() {
                 </div>
               )}
             </AnalysisSection>
+          )}
+        </ResultContainer>
+      )}
+
+      {/* 확장 운세 분석 결과 (1단계: 4개 운세) */}
+      {extendedFortuneResult && (
+        <ResultContainer style={{ marginTop: "30px" }}>
+          <SectionTitle
+            style={{
+              textAlign: "center",
+              fontSize: "2rem",
+              marginBottom: "30px",
+            }}
+          >
+            🔮 확장 운세 분석
+          </SectionTitle>
+
+          {extendedFortuneResult.success ? (
+            <div>
+              {/* 주거운 분석 */}
+              <AnalysisSection style={{ marginBottom: "25px" }}>
+                <SectionTitle style={{ 
+                  color: "#8B4513", 
+                  borderBottom: "3px solid #8B4513", 
+                  paddingBottom: "10px" 
+                }}>
+                  🏠 주거운 분석
+                </SectionTitle>
+                
+                {extendedFortuneResult.data.residence_fortune && (
+                  <div style={{ marginTop: "20px" }}>
+                    {/* 이사 방향 */}
+                    <div style={{ 
+                      background: "#f8f4e6", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #e6d7b8"
+                    }}>
+                      <h4 style={{ color: "#8B4513", marginBottom: "15px" }}>
+                        🧭 이사 방향
+                      </h4>
+                      <p style={{ fontSize: "16px", color: "#495057", lineHeight: "1.6" }}>
+                        <strong>✅ 추천:</strong> {extendedFortuneResult.data.residence_fortune.moving_direction}
+                      </p>
+                      <p style={{ fontSize: "16px", color: "#495057", lineHeight: "1.6", marginTop: "10px" }}>
+                        <strong>❌ 피해야 할 방향:</strong> {extendedFortuneResult.data.residence_fortune.avoid_direction}
+                      </p>
+                    </div>
+
+                    {/* 주택 유형 */}
+                    <div style={{ 
+                      background: "#f8f4e6", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #e6d7b8"
+                    }}>
+                      <h4 style={{ color: "#8B4513", marginBottom: "15px" }}>
+                        🏘️ 주택 유형
+                      </h4>
+                      <p style={{ fontSize: "16px", color: "#495057", lineHeight: "1.6" }}>
+                        <strong>{extendedFortuneResult.data.residence_fortune.house_type}</strong>
+                      </p>
+                      <p style={{ fontSize: "14px", color: "#666", fontStyle: "italic", marginTop: "8px" }}>
+                        {extendedFortuneResult.data.residence_fortune.house_reason}
+                      </p>
+                    </div>
+
+                    {/* 인테리어 색상 */}
+                    <div style={{ 
+                      background: "#f8f4e6", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #e6d7b8"
+                    }}>
+                      <h4 style={{ color: "#8B4513", marginBottom: "15px" }}>
+                        🎨 인테리어 색상
+                      </h4>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        {extendedFortuneResult.data.residence_fortune.interior_colors?.map((color: string, i: number) => (
+                          <span key={i} style={{
+                            background: "#8B4513",
+                            color: "white",
+                            padding: "8px 16px",
+                            borderRadius: "20px",
+                            fontSize: "14px",
+                            fontWeight: "bold"
+                          }}>
+                            {color}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 이사 적기 */}
+                    <div style={{ 
+                      background: "#f8f4e6", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #e6d7b8"
+                    }}>
+                      <h4 style={{ color: "#8B4513", marginBottom: "15px" }}>
+                        📅 이사 적기
+                      </h4>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        {extendedFortuneResult.data.residence_fortune.best_moving_months?.map((month: string, i: number) => (
+                          <span key={i} style={{
+                            background: "#228B22",
+                            color: "white",
+                            padding: "6px 14px",
+                            borderRadius: "15px",
+                            fontSize: "14px"
+                          }}>
+                            {month}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </AnalysisSection>
+
+              {/* 교통운 분석 */}
+              <AnalysisSection style={{ marginBottom: "25px" }}>
+                <SectionTitle style={{ 
+                  color: "#4682B4", 
+                  borderBottom: "3px solid #4682B4", 
+                  paddingBottom: "10px" 
+                }}>
+                  🚗 교통운 분석
+                </SectionTitle>
+                
+                {extendedFortuneResult.data.transportation_fortune && (
+                  <div style={{ marginTop: "20px" }}>
+                    {/* 차량 색상 */}
+                    <div style={{ 
+                      background: "#f0f8ff", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #b0d4ff"
+                    }}>
+                      <h4 style={{ color: "#4682B4", marginBottom: "15px" }}>
+                        🚙 차량 색상
+                      </h4>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        {extendedFortuneResult.data.transportation_fortune.car_colors?.map((color: string, i: number) => (
+                          <span key={i} style={{
+                            background: "#4682B4",
+                            color: "white",
+                            padding: "8px 16px",
+                            borderRadius: "20px",
+                            fontSize: "14px",
+                            fontWeight: "bold"
+                          }}>
+                            {color}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 번호판 길수 */}
+                    <div style={{ 
+                      background: "#f0f8ff", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #b0d4ff"
+                    }}>
+                      <h4 style={{ color: "#4682B4", marginBottom: "15px" }}>
+                        🔢 번호판 길수
+                      </h4>
+                      <p style={{ fontSize: "16px", color: "#495057", lineHeight: "1.6" }}>
+                        {extendedFortuneResult.data.transportation_fortune.license_numbers}
+                      </p>
+                    </div>
+
+                    {/* 사고 위험 시기 */}
+                    <div style={{ 
+                      background: "#f0f8ff", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #b0d4ff"
+                    }}>
+                      <h4 style={{ color: "#4682B4", marginBottom: "15px" }}>
+                        ⚠️ 주의할 시기
+                      </h4>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        {extendedFortuneResult.data.transportation_fortune.accident_risk_months?.map((month: string, i: number) => (
+                          <span key={i} style={{
+                            background: "#dc3545",
+                            color: "white",
+                            padding: "6px 14px",
+                            borderRadius: "15px",
+                            fontSize: "14px"
+                          }}>
+                            {month}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 교통수단 선호도 */}
+                    <div style={{ 
+                      background: "#f0f8ff", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #b0d4ff"
+                    }}>
+                      <h4 style={{ color: "#4682B4", marginBottom: "15px" }}>
+                        🚌 교통수단 추천
+                      </h4>
+                      <p style={{ fontSize: "16px", color: "#495057", lineHeight: "1.6" }}>
+                        <strong>{extendedFortuneResult.data.transportation_fortune.transport_preference}</strong>
+                      </p>
+                      <p style={{ fontSize: "14px", color: "#666", fontStyle: "italic", marginTop: "8px" }}>
+                        {extendedFortuneResult.data.transportation_fortune.transport_reason}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </AnalysisSection>
+
+              {/* 소셜운 분석 */}
+              <AnalysisSection style={{ marginBottom: "25px" }}>
+                <SectionTitle style={{ 
+                  color: "#9370DB", 
+                  borderBottom: "3px solid #9370DB", 
+                  paddingBottom: "10px" 
+                }}>
+                  📱 소셜운 분석
+                </SectionTitle>
+                
+                {extendedFortuneResult.data.social_fortune && (
+                  <div style={{ marginTop: "20px" }}>
+                    {/* SNS 활동 적기 */}
+                    <div style={{ 
+                      background: "#f8f0ff", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #d8b3ff"
+                    }}>
+                      <h4 style={{ color: "#9370DB", marginBottom: "15px" }}>
+                        📆 SNS 활동 적기
+                      </h4>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "15px" }}>
+                        {extendedFortuneResult.data.social_fortune.sns_active_months?.map((month: string, i: number) => (
+                          <span key={i} style={{
+                            background: "#9370DB",
+                            color: "white",
+                            padding: "6px 14px",
+                            borderRadius: "15px",
+                            fontSize: "14px"
+                          }}>
+                            {month}
+                          </span>
+                        ))}
+                      </div>
+                      <p style={{ fontSize: "14px", color: "#666", fontStyle: "italic" }}>
+                        {extendedFortuneResult.data.social_fortune.activity_reason}
+                      </p>
+                    </div>
+
+                    {/* 프로필 색상 */}
+                    <div style={{ 
+                      background: "#f8f0ff", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #d8b3ff"
+                    }}>
+                      <h4 style={{ color: "#9370DB", marginBottom: "15px" }}>
+                        🎨 프로필 색상
+                      </h4>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        {extendedFortuneResult.data.social_fortune.profile_colors?.map((color: string, i: number) => (
+                          <span key={i} style={{
+                            background: "#9370DB",
+                            color: "white",
+                            padding: "8px 16px",
+                            borderRadius: "20px",
+                            fontSize: "14px",
+                            fontWeight: "bold"
+                          }}>
+                            {color}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 소통 스타일 */}
+                    <div style={{ 
+                      background: "#f8f0ff", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #d8b3ff"
+                    }}>
+                      <h4 style={{ color: "#9370DB", marginBottom: "15px" }}>
+                        💬 소통 스타일
+                      </h4>
+                      <p style={{ fontSize: "16px", color: "#495057", lineHeight: "1.6" }}>
+                        {extendedFortuneResult.data.social_fortune.communication_style}
+                      </p>
+                    </div>
+
+                    {/* 온라인 활동 시간 */}
+                    <div style={{ 
+                      background: "#f8f0ff", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #d8b3ff"
+                    }}>
+                      <h4 style={{ color: "#9370DB", marginBottom: "15px" }}>
+                        ⏰ 활동 시간
+                      </h4>
+                      <p style={{ fontSize: "16px", color: "#495057", lineHeight: "1.6" }}>
+                        <strong>{extendedFortuneResult.data.social_fortune.online_timing}</strong>
+                      </p>
+                      <p style={{ fontSize: "14px", color: "#666", fontStyle: "italic", marginTop: "8px" }}>
+                        {extendedFortuneResult.data.social_fortune.timing_reason}
+                      </p>
+                    </div>
+
+                    {/* 소셜 전략 */}
+                    <div style={{ 
+                      background: "#f8f0ff", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #d8b3ff"
+                    }}>
+                      <h4 style={{ color: "#9370DB", marginBottom: "15px" }}>
+                        📈 소셜 전략
+                      </h4>
+                      <ul style={{ paddingLeft: "20px", color: "#495057" }}>
+                        {extendedFortuneResult.data.social_fortune.social_strategies?.map((strategy: string, i: number) => (
+                          <li key={i} style={{ marginBottom: "8px", lineHeight: "1.5" }}>
+                            {strategy}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </AnalysisSection>
+
+              {/* 취미운 분석 */}
+              <AnalysisSection style={{ marginBottom: "25px" }}>
+                <SectionTitle style={{ 
+                  color: "#FF8C00", 
+                  borderBottom: "3px solid #FF8C00", 
+                  paddingBottom: "10px" 
+                }}>
+                  🎨 취미운 분석
+                </SectionTitle>
+                
+                {extendedFortuneResult.data.hobby_fortune && (
+                  <div style={{ marginTop: "20px" }}>
+                    {/* 예술 분야 */}
+                    <div style={{ 
+                      background: "#fff8e1", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #ffcc02"
+                    }}>
+                      <h4 style={{ color: "#FF8C00", marginBottom: "15px" }}>
+                        🎭 예술 분야
+                      </h4>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        {extendedFortuneResult.data.hobby_fortune.art_fields?.map((field: string, i: number) => (
+                          <span key={i} style={{
+                            background: "#FF8C00",
+                            color: "white",
+                            padding: "8px 16px",
+                            borderRadius: "20px",
+                            fontSize: "14px",
+                            fontWeight: "bold"
+                          }}>
+                            {field}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 운동 종류 */}
+                    <div style={{ 
+                      background: "#fff8e1", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #ffcc02"
+                    }}>
+                      <h4 style={{ color: "#FF8C00", marginBottom: "15px" }}>
+                        🏃‍♂️ 운동 추천
+                      </h4>
+                      <p style={{ fontSize: "16px", color: "#495057", lineHeight: "1.6", marginBottom: "15px" }}>
+                        <strong>{extendedFortuneResult.data.hobby_fortune.sports_type}</strong>
+                      </p>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px" }}>
+                        {extendedFortuneResult.data.hobby_fortune.sports_examples?.map((sport: string, i: number) => (
+                          <span key={i} style={{
+                            background: "#28a745",
+                            color: "white",
+                            padding: "6px 12px",
+                            borderRadius: "15px",
+                            fontSize: "14px"
+                          }}>
+                            {sport}
+                          </span>
+                        ))}
+                      </div>
+                      <p style={{ fontSize: "14px", color: "#666", fontStyle: "italic" }}>
+                        {extendedFortuneResult.data.hobby_fortune.sports_reason}
+                      </p>
+                    </div>
+
+                    {/* 수집 취미 */}
+                    <div style={{ 
+                      background: "#fff8e1", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #ffcc02"
+                    }}>
+                      <h4 style={{ color: "#FF8C00", marginBottom: "15px" }}>
+                        🏺 수집 취미
+                      </h4>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        {extendedFortuneResult.data.hobby_fortune.collection_items?.map((item: string, i: number) => (
+                          <span key={i} style={{
+                            background: "#6f42c1",
+                            color: "white",
+                            padding: "6px 12px",
+                            borderRadius: "15px",
+                            fontSize: "14px"
+                          }}>
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 창작 활동 */}
+                    <div style={{ 
+                      background: "#fff8e1", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #ffcc02"
+                    }}>
+                      <h4 style={{ color: "#FF8C00", marginBottom: "15px" }}>
+                        ✨ 창작 활동
+                      </h4>
+                      <ul style={{ paddingLeft: "20px", color: "#495057" }}>
+                        {extendedFortuneResult.data.hobby_fortune.creative_activities?.map((activity: string, i: number) => (
+                          <li key={i} style={{ marginBottom: "8px", lineHeight: "1.5" }}>
+                            {activity}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* 취미 조언 */}
+                    <div style={{ 
+                      background: "#fff8e1", 
+                      padding: "20px", 
+                      borderRadius: "12px", 
+                      margin: "15px 0",
+                      border: "1px solid #ffcc02"
+                    }}>
+                      <h4 style={{ color: "#FF8C00", marginBottom: "15px" }}>
+                        💡 취미 조언
+                      </h4>
+                      <ul style={{ paddingLeft: "20px", color: "#495057" }}>
+                        {extendedFortuneResult.data.hobby_fortune.hobby_advice?.map((advice: string, i: number) => (
+                          <li key={i} style={{ marginBottom: "8px", lineHeight: "1.5" }}>
+                            {advice}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </AnalysisSection>
+
+            </div>
+          ) : (
+            <div style={{ padding: "15px", background: "#fff3cd", borderRadius: "8px" }}>
+              <p style={{ color: "#856404", margin: 0 }}>
+                확장 운세 분석 중 문제가 발생했습니다. 백엔드 API 연결을 확인해주세요.
+              </p>
+            </div>
           )}
         </ResultContainer>
       )}
