@@ -22,12 +22,12 @@
 
 | 항목 | 내용 |
 |------|------|
-| **서비스 수** | 4개 (Main, SAJU, Compatibility, Physiognomy) |
+| **서비스 수** | 5개 (Main, SAJU Web/Mobile, Compatibility, Physiognomy) |
 | **데이터베이스** | 73,442개 만세력 레코드 (1900-2100년) |
-| **분석 메서드** | 37개 (사주팔자, 오행, 십성, 대운, 세운) |
+| **분석 메서드** | 37개 (사주팔자, 오행, 십성, 대운, 세운) + 8개 확장운세 |
 | **AI 기술** | Google Gemini 2.5-flash, MediaPipe, OpenCV |
-| **아키텍처** | 마이크로서비스 + Docker |
-| **프론트엔드** | React 18 + TypeScript |
+| **아키텍처** | 마이크로서비스 + 크로스플랫폼 (웹/모바일) |
+| **프론트엔드** | React 18 + React Native (Expo) + TypeScript |
 | **백엔드** | FastAPI + Pydantic |
 
 ## 🏗️ 서비스 아키텍처
@@ -37,16 +37,19 @@
 ```mermaid
 graph TB
     A[사용자] --> B[Main App :4000]
-    B --> C[SAJU Service :3000]
+    A --> M[📱 Mobile App :8082]
+    B --> C[SAJU Web :3000]
     B --> D[Compatibility Service :3002] 
     B --> E[Physiognomy Service :3001]
     
     C --> F[SAJU API :8000]
+    M --> F
     D --> G[Compatibility API :8002]
     E --> H[Physiognomy API :8001]
     
     F --> I[(만세력 DB<br/>73,442 records)]
     F --> J[Google Gemini 2.5]
+    F --> N[8개 확장운세<br/>Phase 1+2]
     H --> K[MediaPipe + OpenCV]
     H --> L[(PostgreSQL)]
 ```
@@ -68,9 +71,16 @@ graph TB
 ### 🔮 SAJU Service  
 **포트**: 3000/8000  
 **역할**: 사주팔자 분석  
-**기능**: 37개 분석 메서드  
+**기능**: 37개 분석 메서드 + 8개 확장운세  
 **데이터**: 73,442개 만세력  
 **AI**: Google Gemini 2.5-flash  
+**상태**: ✅ 운영중
+
+### 📱 AppService Mobile
+**포트**: 8082  
+**역할**: 모바일 사주 분석 앱  
+**플랫폼**: iOS/Android (React Native + Expo)  
+**기능**: 웹과 동등한 모든 기능  
 **상태**: ✅ 운영중
 
 </td>
@@ -97,20 +107,26 @@ graph TB
 ## 🏗️ 마이크로서비스 아키텍처
 
 ```
-MSProject2_SAJU/
+MSProject2/
 ├── main-app/           # 통합 허브 (:4000)
 ├── SAJU/              # 사주팔자 분석 (:8000/:3000)
-│   ├── backend/       # FastAPI + 37개 분석 메서드
+│   ├── backend/       # FastAPI + 37개 분석 메서드 + 8개 확장운세
 │   ├── frontend/      # React 18 + TypeScript
 │   ├── manseryukDB/   # 73,442개 만세력 DB
 │   └── 사주해석로직.txt # 전통 명리학 문서
+├── AppService/        # 모바일 앱 (:8082)
+│   └── FortuneApp/    # React Native + Expo
 ├── Compatibility/     # 궁합 분석 (:8002/:3002)
 │   ├── backend/       # FastAPI + 궁합 알고리즘
 │   └── frontend/      # React 18 + TypeScript
-└── Physiognomy/       # 관상 분석 (:8001/:3001)
-    ├── backend/       # FastAPI + AI 모델
-    ├── frontend/      # React 18 + TypeScript
-    └── docker-compose.yml # Docker 배포
+├── Physiognomy/       # 관상 분석 (:8001/:3001)
+│   ├── backend/       # FastAPI + AI 모델
+│   ├── frontend/      # React 18 + TypeScript
+│   └── docker-compose.yml # Docker 배포
+└── docs/              # 프로젝트 문서
+    ├── 01-setup/      # 설치 및 설정 가이드
+    ├── 02-api/        # API 문서
+    └── 03-features/   # 기능 상세 설명
 
 ## 🚀 빠른 시작
 
@@ -187,6 +203,10 @@ cd Physiognomy && docker-compose up
 [![궁합 API](https://img.shields.io/badge/궁합_API-8002-green?style=flat-square)](http://localhost:8002/docs)
 [![관상 API](https://img.shields.io/badge/관상_API-8001-green?style=flat-square)](http://localhost:8001/docs)
 
+#### 📱 모바일 앱
+
+[![Mobile App](https://img.shields.io/badge/📱_Mobile_App-8082-indigo?style=flat-square)](http://localhost:8082) (Expo 웹 모드)
+
 </div>
 
 ## 🌟 핵심 기능
@@ -197,7 +217,15 @@ cd Physiognomy && docker-compose up
 - **십성 분석**: 비견/겁재/식신/상관/편재/정재/편관/정관/편인/정인
 - **대운**: 10년 주기 (2세-81세, 8개 대운)
 - **세운**: 연간/월별 상세 운세
+- **확장운세**: 8개 영역 (연애/성격/인관/재물/직업/건강/학업/가족)
 - **AI 채팅**: Google Gemini 2.5-flash 대화형 해석
+
+### 📱 4. AppService Mobile - 모바일 앱
+- **크로스플랫폼**: iOS/Android 동시 지원 (React Native + Expo)
+- **완전한 기능**: 웹 버전과 동등한 모든 사주 분석 기능
+- **8개 확장운세**: Phase 1+2 모든 운세 카드 지원
+- **실시간 API**: SAJU 백엔드와 완전 연동
+- **직관적 UI**: 모바일 최적화된 사용자 경험
 
 ### 💕 2. Compatibility Service - 궁합 분석
 - **사주 기반 궁합**: 두 사람의 사주팔자 비교 분석
@@ -285,25 +313,28 @@ GET  /docs           # API 문서
 - **분석 항목**: 이목구비, 얼굴형, 인상
 - **결과**: 성격 분석 + 운세 해석
 
-## 🏆 프로젝트 현황 (2025-07-30 완성)
+## 🏆 프로젝트 현황 (2025-08-03 완성)
 
 ### ✅ 완성도: 100%
-- **4개 마이크로서비스** 완전 구현
+- **5개 서비스** 완전 구현 (웹 4개 + 모바일 1개)
 - **73,442개 만세력 데이터** 구축
-- **37개 사주 분석 메서드** 완성
+- **37개 사주 분석 메서드 + 8개 확장운세** 완성
+- **크로스플랫폼 앱** 구축 (웹 + iOS/Android)
 - **AI 관상 분석 시스템** 구축
 - **Docker 컨테이너화** 완료
 
 ### 🚀 즉시 이용 가능
 - **웹 브라우저**에서 바로 접속
+- **모바일 앱** (iOS/Android) 실행 가능
 - **모든 기능** 정상 작동
 - **실시간 분석** 지원
 - **현대적 UI/UX** 제공
 
 ### 🏅 기술적 성취
 - **마이크로서비스 아키텍처** 구현
+- **크로스플랫폼 개발** 완성 (웹 + 모바일)
 - **전통 명리학 디지털화** 완성
-- **최신 AI 기술 융합** (Gemini, MediaPipe, LangChain)
+- **최신 AI 기술 융합** (Gemini, MediaPipe, React Native)
 - **Docker 기반 배포** 최적화
 
 ### 📈 비즈니스 가치
@@ -315,10 +346,18 @@ GET  /docs           # API 문서
 
 ## 🔮 Future Roadmap
 
-- **모바일 앱** 개발
+### 🚀 Next Features (구현 대기)
+- **AI 기반 예상 질문 제안 시스템** - 사주 맞춤 질문 자동 생성
+- **궁합운 점수 극단화** - 명확한 결과 (0-30 또는 70-100)
 - **실시간 알림** 시스템
 - **소셜 기능** 추가
 - **프리미엄 서비스** 확장
+
+### 📚 완전한 문서화
+- 전체 설치/실행 가이드
+- API 상세 문서
+- 모바일 앱 개발 과정
+- AI 시스템 설계 문서
 
 ---
 
