@@ -10,6 +10,9 @@ const App: React.FC = () => {
   const [result, setResult] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [luckyCharmImageUrl, setLuckyCharmImageUrl] = useState('');
+  const [charmPrompt, setCharmPrompt] = useState('');
+  const [analysisId, setAnalysisId] = useState<number | null>(null);
+  const [isGeneratingCharm, setIsGeneratingCharm] = useState(false);
   const [error, setError] = useState('');
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,9 +45,9 @@ const App: React.FC = () => {
       if (response.data.success) {
         setResult(response.data.report);
         setImageUrl(`http://localhost:8001${response.data.image_url}`);
-        if (response.data.lucky_charm_image_url) {
-          setLuckyCharmImageUrl(response.data.lucky_charm_image_url);
-        }
+        setCharmPrompt(response.data.charm_prompt);
+        setAnalysisId(response.data.analysis_id);
+        setLuckyCharmImageUrl(''); // 이전 부적 이미지 초기화
       } else {
         setError(response.data.detail || '분석에 실패했습니다.');
       }
@@ -60,6 +63,38 @@ const App: React.FC = () => {
       setIsLoading(false);
     }
   }, [selectedFile]);
+
+  const handleGenerateCharm = async () => {
+    if (!charmPrompt || !analysisId) return;
+
+    setIsGeneratingCharm(true);
+    setError('');
+
+    try {
+      const response = await axios.post(`http://localhost:8001/generate-charm/`, null, {
+        params: {
+          prompt: charmPrompt,
+          analysis_id: analysisId
+        }
+      });
+
+      if (response.data.success) {
+        setLuckyCharmImageUrl(`http://localhost:8001${response.data.lucky_charm_image_url}`);
+      } else {
+        setError(response.data.detail || '부적 생성에 실패했습니다.');
+      }
+    } catch (err: any) {
+      if (err.response) {
+        setError(`오류: ${err.response.data.detail || '서버에서 오류가 발생했습니다.'}`);
+      } else if (err.request) {
+        setError('서버에 연결할 수 없습니다.');
+      } else {
+        setError(`네트워크 오류가 발생했습니다: ${err.message}`);
+      }
+    } finally {
+      setIsGeneratingCharm(false);
+    }
+  };
 
   const handleDownload = async () => {
     if (!luckyCharmImageUrl) return;
@@ -121,20 +156,36 @@ const App: React.FC = () => {
         {error && <ErrorBox>{error}</ErrorBox>}
         
         {result && (
-          <ResultContainer>
-            <ResultBox>
-              <h3>분석 결과</h3>
-              {imageUrl && <ResultImage src={imageUrl} alt="분석 이미지" />}
-              <pre>{result}</pre>
-            </ResultBox>
+          <ResultBox>
+            <h3>분석 결과</h3>
+            {imageUrl && <ResultImage src={imageUrl} alt="분석 이미지" />}
+            <pre>{result}</pre>
+            
+            <hr style={{ margin: '30px 0', border: 'none', borderTop: '1px solid #eee' }} />
+
+            {isGeneratingCharm && <Loader><div></div><div></div><div></div></Loader>}
+
+            {!luckyCharmImageUrl && !isGeneratingCharm && (
+              <AnalyzeButton 
+                onClick={handleGenerateCharm} 
+                disabled={isLoading}
+                style={{ width: '100%' }}
+              >
+                행운의 부적 생성
+              </AnalyzeButton>
+            )}
+
             {luckyCharmImageUrl && (
-              <ResultBox>
+              <div>
                 <h3>행운의 부적</h3>
                 <ResultImage src={luckyCharmImageUrl} alt="행운의 부적" />
-                <DownloadButton onClick={handleDownload}>부적 다운로드</DownloadButton>
-              </ResultBox>
+                <ButtonContainer>
+                  <DownloadButton onClick={handleDownload}>부적 다운로드</DownloadButton>
+                  <AnalyzeButton disabled>부적 만들러가기</AnalyzeButton>
+                </ButtonContainer>
+              </div>
             )}
-          </ResultContainer>
+          </ResultBox>
         )}
       </MainContent>
       
@@ -275,20 +326,22 @@ const Loader = styled.div`
 `;
 
 const ResultContainer = styled.div`
-  display: flex;
-  gap: 20px;
   width: 100%;
   margin-top: 20px;
-  align-items: flex-start;
 `;
 
 const ResultBox = styled.div`
-  flex: 1;
+  width: 100%;
   background-color: #ffffff;
   padding: 25px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   animation: ${fadeIn} 0.5s ease-out;
+  margin-bottom: 20px; /* 박스 간의 세로 간격 추가 */
+
+  &:last-child {
+    margin-bottom: 0; /* 마지막 박스는 간격 없음 */
+  }
 
   h3 {
     margin-top: 0;
@@ -307,6 +360,9 @@ const ResultBox = styled.div`
 `;
 
 const ResultImage = styled.img`
+  display: block; /* 중앙 정렬을 위해 block으로 설정 */
+  margin-left: auto;
+  margin-right: auto;
   max-width: 100%;
   border-radius: 8px;
   margin-bottom: 20px;
@@ -314,12 +370,21 @@ const ResultImage = styled.img`
 `;
 
 const DownloadButton = styled(AnalyzeButton)`
-  width: 100%;
-  margin-top: 10px;
   background-color: #28a745; // 초록색 계열
 
   &:hover:not(:disabled) {
     background-color: #218838;
+  }
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-top: 20px; /* 버튼 컨테이너 자체에 상단 여백 추가 */
+
+  & > button {
+    flex: 1; /* 자식 버튼들의 너비를 동일하게 설정 */
   }
 `;
 

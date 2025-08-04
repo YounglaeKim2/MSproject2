@@ -80,19 +80,12 @@ async def analyze_face_api(db: Session = Depends(database.get_db), file: UploadF
         
         report, charm_prompt = analysis_result
 
-        # 행운의 부적 이미지 생성
-        try:
-            lucky_charm_image_url = generate_lucky_charm_image(charm_prompt)
-        except Exception as e:
-            print(f"행운의 부적 이미지 생성 실패: {e}")
-            lucky_charm_image_url = None
-
         # 데이터베이스에 분석 결과 저장
         db_result = models.AnalysisResult(
             original_filename=file.filename,
             image_path=filename,
             report=report,
-            lucky_charm_image_url=lucky_charm_image_url
+            lucky_charm_image_url=None  # 초기에는 부적 URL 없음
         )
         db.add(db_result)
         db.commit()
@@ -104,12 +97,33 @@ async def analyze_face_api(db: Session = Depends(database.get_db), file: UploadF
             "report": report,
             "analysis_id": db_result.id,
             "image_url": image_url,
-            "lucky_charm_image_url": lucky_charm_image_url
+            "charm_prompt": charm_prompt  # 프롬프트를 프론트엔드로 전달
         })
 
     except Exception as e:
         print(f"Error during analysis: {e}")
         raise HTTPException(status_code=500, detail=f"서버 내부 오류가 발생했습니다.")
+
+@app.post("/generate-charm/",
+          summary="행운의 부적 생성",
+          description="관상 분석 결과로 생성된 프롬프트를 사용하여 행운의 부적 이미지를 생성합니다.")
+async def generate_charm_api(prompt: str, analysis_id: int, db: Session = Depends(database.get_db)):
+    try:
+        lucky_charm_image_url = generate_lucky_charm_image(prompt)
+        
+        # DB에 부적 이미지 URL 업데이트
+        db_result = db.query(models.AnalysisResult).filter(models.AnalysisResult.id == analysis_id).first()
+        if db_result:
+            db_result.lucky_charm_image_url = lucky_charm_image_url
+            db.commit()
+
+        return JSONResponse(content={
+            "success": True,
+            "lucky_charm_image_url": lucky_charm_image_url
+        })
+    except Exception as e:
+        print(f"행운의 부적 이미지 생성 실패: {e}")
+        raise HTTPException(status_code=500, detail="행운의 부적 이미지 생성에 실패했습니다.")
 
 @app.get("/analysis-history/",
          summary="관상 분석 기록 조회",
