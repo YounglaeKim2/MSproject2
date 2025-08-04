@@ -97,6 +97,7 @@ Desktop.ini
 
 # Uploads
 Physiognomy/backend/uploads/
+Physiognomy/backend/app/static/amulets/
 
 # Cache
 .cache/

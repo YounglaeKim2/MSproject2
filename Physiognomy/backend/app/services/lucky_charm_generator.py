@@ -1,10 +1,14 @@
 import os
-import openai
 import requests
 from datetime import datetime
+from openai import AzureOpenAI
 
-# OpenAI API 키 설정
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Azure OpenAI 클라이언트 초기화
+client = AzureOpenAI(
+    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+    api_version=os.getenv("OPENAI_API_VERSION"),
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+)
 
 # 이미지 저장 디렉토리 설정
 IMAGE_DIR = "app/static/amulets"
@@ -12,7 +16,7 @@ os.makedirs(IMAGE_DIR, exist_ok=True)
 
 def generate_lucky_charm_image(prompt: str) -> str:
     """
-    DALL-E API를 사용하여 행운의 부적 이미지를 생성하고 저장합니다.
+    Azure DALL-E API를 사용하여 행운의 부적 이미지를 생성하고 저장합니다.
 
     Args:
         prompt (str): 이미지 생성을 위한 DALL-E 프롬프트
@@ -20,20 +24,19 @@ def generate_lucky_charm_image(prompt: str) -> str:
     Returns:
         str: 생성된 이미지의 URL
     """
-    if not openai.api_key:
-        raise ValueError("OPENAI_API_KEY 환경변수가 설정되지 않았습니다.")
-
     try:
-        response = openai.Image.create(
-            model="dall-e-3",
+        result = client.images.generate(
+            model=os.getenv("AZURE_OPENAI_DALLE_DEPLOYMENT"), # DALL-E 3 모델의 배포 이름 사용
             prompt=prompt,
-            size="1024x1024",
-            quality="standard",
             n=1,
+            size="1024x1024"
         )
-        
-        image_url = response.data[0].url
-        
+
+        image_url = result.data[0].url
+
+        if not image_url:
+            raise ValueError("API 응답에서 이미지 URL을 찾을 수 없습니다.")
+
         # 이미지 다운로드
         image_data = requests.get(image_url).content
         
