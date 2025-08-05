@@ -5,12 +5,12 @@
 <div align="center">
 
 ![서비스 상태](https://img.shields.io/badge/서비스-운영중-brightgreen)
-![마이크로서비스](https://img.shields.io/badge/마이크로서비스-4개-blue)
+![마이크로서비스](https://img.shields.io/badge/마이크로서비스-5개-blue)
 ![완성도](https://img.shields.io/badge/완성도-100%25-success)
 ![AI 모델](https://img.shields.io/badge/AI-Gemini%202.5--flash-orange)
 ![배포](https://img.shields.io/badge/배포-Docker-blue)
 
-**🏆 대한민국 최고 수준의 4개 마이크로서비스 완전체**
+**🏆 대한민국 최고 수준의 5개 마이크로서비스 완전체**
 
 [**🚀 빠른 시작**](#-빠른-시작) • [**📖 사용법**](#-사용-예시) • [**🔗 API 문서**](#-api-엔드포인트) • [**📚 문서**](docs/)
 
@@ -36,7 +36,7 @@
 
 ```mermaid
 graph TB
-    A[사용자] --> B[Main App :4000]
+    A[사용자] --> B[Landing Page :4000]
     A --> M[📱 Mobile App :8082]
     B --> C[SAJU Web :3000]
     B --> D[Compatibility Service :3002] 
@@ -62,10 +62,10 @@ graph TB
 <tr>
 <td width="50%">
 
-### 🏠 Main App
+### 🏠 Main Landing
 **포트**: 4000  
 **역할**: 통합 랜딩 허브  
-**기술**: React + Vite  
+**기술**: HTML + CSS + Python  
 **상태**: ✅ 운영중
 
 ### 🔮 SAJU Service  
