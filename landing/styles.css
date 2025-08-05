@@ -1,0 +1,402 @@
+/* 🚀 MSProject2 SAJU 랜딩 페이지 - 최적화된 CSS */
+
+/* === 테마 변수 시스템 === */
+:root {
+  /* 라이트 모드 (기본) */
+  --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --bg-secondary: rgba(0, 0, 0, 0.1);
+  --bg-card: rgba(255, 255, 255, 0.1);
+  --bg-card-hover: rgba(255, 255, 255, 0.2);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.9);
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --accent-primary: linear-gradient(45deg, #ffd700, #ffed4e);
+  --accent-secondary: #4ade80;
+  --border-color: rgba(255, 255, 255, 0.2);
+  --shadow-color: rgba(0, 0, 0, 0.2);
+  --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.2);
+  --bg-hover: rgba(255, 255, 255, 0.2);
+  --transition-theme: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
+  --button-bg: linear-gradient(45deg, #ffd700, #ffed4e);
+  --button-text: #333;
+
+  /* 상태 색상 */
+  --status-online: #4ade80;
+  --status-offline: #f87171;
+  --status-checking: #fbbf24;
+
+  /* 전환 효과 */
+  --transition-theme: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 다크 모드 */
+[data-theme="dark"] {
+  --bg-primary: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+  --bg-secondary: rgba(255, 255, 255, 0.05);
+  --bg-card: rgba(255, 255, 255, 0.05);
+  --bg-card-hover: rgba(255, 255, 255, 0.1);
+  --text-primary: #e0e0e0;
+  --text-secondary: rgba(224, 224, 224, 0.8);
+  --text-muted: rgba(224, 224, 224, 0.6);
+  --accent-primary: linear-gradient(45deg, #bb86fc, #6366f1);
+  --accent-secondary: #10b981;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.4);
+  --bg-hover: rgba(255, 255, 255, 0.15);
+  --transition-theme: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
+  --button-bg: linear-gradient(45deg, #bb86fc, #6366f1);
+  --button-text: #ffffff;
+}
+
+/* 라이트 모드 (밝은 버전) */
+[data-theme="light"] {
+  --bg-primary: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  --bg-secondary: rgba(255, 255, 255, 0.3);
+  --bg-card: rgba(255, 255, 255, 0.4);
+  --bg-card-hover: rgba(255, 255, 255, 0.6);
+  --text-primary: #2d3436;
+  --text-secondary: #636e72;
+  --text-muted: #74b9ff;
+  --accent-primary: linear-gradient(45deg, #fd79a8, #fdcb6e);
+  --accent-secondary: #00b894;
+  --border-color: rgba(45, 52, 54, 0.1);
+  --shadow-color: rgba(45, 52, 54, 0.15);
+  --shadow-hover: 0 20px 40px rgba(45, 52, 54, 0.1);
+  --bg-hover: rgba(255, 255, 255, 0.8);
+  --transition-theme: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
+  --button-bg: linear-gradient(45deg, #fd79a8, #fdcb6e);
+  --button-text: #ffffff;
+}
+
+/* 고대비 모드 */
+[data-theme="high-contrast"] {
+  --bg-primary: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  --bg-secondary: rgba(255, 255, 255, 0.1);
+  --bg-card: rgba(255, 255, 255, 0.05);
+  --bg-card-hover: rgba(255, 255, 255, 0.1);
+  --text-primary: #ffffff;
+  --text-secondary: #ffffff;
+  --text-muted: #cccccc;
+  --accent-primary: linear-gradient(45deg, #ffff00, #ffffff);
+  --accent-secondary: #00ff00;
+  --border-color: #ffffff;
+  --shadow-color: rgba(255, 255, 255, 0.3);
+  --shadow-hover: 0 20px 40px rgba(255, 255, 255, 0.2);
+  --bg-hover: rgba(255, 255, 255, 0.2);
+  --transition-theme: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
+  --button-bg: linear-gradient(45deg, #ffff00, #ffffff);
+  --button-text: #000000;
+}
+
+/* === 기본 리셋 & 최적화 === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-primary);
+  min-height: 100vh;
+  color: var(--text-primary);
+  transition: var(--transition-theme);
+}
+
+/* === 레이아웃 최적화 === */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.header {
+  background: var(--bg-secondary);
+  backdrop-filter: blur(10px);
+  padding: 2rem 0;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+  transition: var(--transition-theme);
+}
+
+.logo {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  background: var(--accent-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: var(--transition-theme);
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  transition: var(--transition-theme);
+}
+
+.main {
+  padding: 3rem 0;
+}
+
+/* === 히어로 섹션 === */
+.hero {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.hero h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  transition: var(--transition-theme);
+}
+
+.badges {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.badge {
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  transition: var(--transition-theme);
+}
+
+/* === 서비스 그리드 최적화 === */
+.services {
+  margin-bottom: 3rem;
+}
+.services h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+.service-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  text-align: center;
+  transition: var(--transition-theme), transform 0.3s ease, box-shadow 0.3s ease;
+}
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+.service-card h4 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  transition: var(--transition-theme);
+}
+.service-card p {
+  margin-bottom: 1rem;
+  color: var(--text-secondary);
+  transition: var(--transition-theme);
+}
+
+/* === 버튼 최적화 === */
+.btn {
+  display: inline-block;
+  background: var(--button-bg);
+  color: var(--button-text);
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: var(--transition-theme), transform 0.3s ease;
+}
+.btn:hover {
+  transform: scale(1.05);
+}
+
+/* === 상태 표시기 최적화 === */
+.status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-left: 8px;
+  transition: var(--transition-theme), all 0.3s ease;
+}
+.status-online {
+  background-color: var(--status-online);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+  animation: pulse-success 2s infinite;
+}
+.status-offline {
+  background-color: var(--status-offline);
+  box-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
+  animation: pulse-error 2s infinite;
+}
+.status-checking {
+  background-color: var(--status-checking);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+  animation: pulse-warning 1s infinite;
+}
+
+/* === 애니메이션 최적화 === */
+@keyframes pulse-success {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+@keyframes pulse-error {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+@keyframes pulse-warning {
+  0%,
+  100% {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  50% {
+    opacity: 0.6;
+    transform: rotate(180deg);
+  }
+}
+
+/* === API 문서 섹션 === */
+.api-docs {
+  margin-bottom: 3rem;
+}
+.api-docs h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.api-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.api-link {
+  display: block;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background 0.3s ease;
+}
+.api-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* === 새로고침 버튼 === */
+.refresh-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+  color: #fff;
+  z-index: 1000;
+}
+.refresh-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(360deg);
+}
+
+/* === 푸터 === */
+.footer {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1.5rem 0;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 2rem;
+}
+
+/* === 반응형 최적화 === */
+@media (max-width: 768px) {
+  .logo {
+    font-size: 2rem;
+  }
+  .hero h2 {
+    font-size: 1.5rem;
+  }
+  .badges {
+    flex-direction: column;
+    align-items: center;
+  }
+  .service-grid {
+    grid-template-columns: 1fr;
+  }
+  .refresh-button {
+    width: 40px;
+    height: 40px;
+    top: 15px;
+    right: 15px;
+    font-size: 1rem;
+  }
+}
+
+/* === 성능 최적화 === */
+.service-card,
+.api-link,
+.btn {
+  will-change: transform;
+}
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

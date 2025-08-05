@@ -1,0 +1,78 @@
+{
+  "name": "MSProject2 SAJU - 전통 명리학 + AI 융합 플랫폼",
+  "short_name": "SAJU Platform",
+  "description": "전통 명리학과 현대 AI 기술을 융합한 5개 마이크로서비스 플랫폼",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "ko",
+  "dir": "ltr",
+  "categories": ["productivity", "lifestyle", "entertainment"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23667eea'/%3E%3Ctext x='50' y='65' text-anchor='middle' font-size='50' fill='white'%3E🔮%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23667eea'/%3E%3Ctext x='50' y='65' text-anchor='middle' font-size='40' fill='white'%3E🔮%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 800'%3E%3Crect width='400' height='800' fill='%23667eea'/%3E%3Ctext x='200' y='400' text-anchor='middle' font-size='30' fill='white'%3ESAJU Platform%3C/text%3E%3C/svg%3E",
+      "sizes": "400x800",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "SAJU 분석",
+      "short_name": "SAJU",
+      "description": "사주 분석 서비스",
+      "url": "http://localhost:3000",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='65' text-anchor='middle' font-size='50'%3E🔮%3C/text%3E%3C/svg%3E",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "궁합 분석",
+      "short_name": "궁합",
+      "description": "궁합 분석 서비스",
+      "url": "http://localhost:3002",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='65' text-anchor='middle' font-size='50'%3E💕%3C/text%3E%3C/svg%3E",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "관상 분석",
+      "short_name": "관상",
+      "description": "관상 분석 서비스",
+      "url": "http://localhost:3001",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='65' text-anchor='middle' font-size='50'%3E🎭%3C/text%3E%3C/svg%3E",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>테마 시스템 테스트</title>
+    <style>
+      /* 간단한 테스트용 CSS */
+      :root {
+        --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --text-primary: #ffffff;
+        --transition-theme: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      [data-theme="dark"] {
+        --bg-primary: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
+        --text-primary: #ffffff;
+      }
+
+      [data-theme="light"] {
+        --bg-primary: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        --text-primary: #2d3436;
+      }
+
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        transition: var(--transition-theme);
+        font-family: Arial, sans-serif;
+        padding: 2rem;
+      }
+
+      .theme-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: var(--text-primary);
+        padding: 10px 20px;
+        margin: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .theme-btn.active {
+        background: rgba(255, 255, 255, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🎨 테마 시스템 테스트</h1>
+
+    <div>
+      <button class="theme-btn" onclick="setTheme('default')">기본 테마</button>
+      <button class="theme-btn" onclick="setTheme('dark')">다크 모드</button>
+      <button class="theme-btn" onclick="setTheme('light')">라이트 모드</button>
+    </div>
+
+    <div>
+      <p>현재 테마: <span id="current-theme">default</span></p>
+      <p>이 페이지에서 테마 변경을 테스트할 수 있습니다.</p>
+    </div>
+
+    <script>
+      function setTheme(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+        document.getElementById("current-theme").textContent = theme;
+
+        // 모든 버튼에서 active 클래스 제거
+        document.querySelectorAll(".theme-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+
+        // 현재 선택된 버튼에 active 클래스 추가
+        event.target.classList.add("active");
+
+        console.log("테마 변경됨:", theme);
+      }
+
+      // 페이지 로드시 기본 테마 활성화
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelector(".theme-btn").classList.add("active");
+      });
+    </script>
+  </body>
+</html>
