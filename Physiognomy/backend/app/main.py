@@ -104,15 +104,21 @@ async def analyze_face_api(db: Session = Depends(database.get_db), file: UploadF
         print(f"Error during analysis: {e}")
         raise HTTPException(status_code=500, detail=f"서버 내부 오류가 발생했습니다.")
 
+from pydantic import BaseModel
+
+class CharmRequest(BaseModel):
+    prompt: str
+    analysis_id: int
+
 @app.post("/generate-charm/",
           summary="행운의 부적 생성",
           description="관상 분석 결과로 생성된 프롬프트를 사용하여 행운의 부적 이미지를 생성합니다.")
-async def generate_charm_api(prompt: str, analysis_id: int, db: Session = Depends(database.get_db)):
+async def generate_charm_api(request: CharmRequest, db: Session = Depends(database.get_db)):
     try:
-        lucky_charm_image_url = generate_lucky_charm_image(prompt)
+        lucky_charm_image_url = generate_lucky_charm_image(request.prompt)
         
         # DB에 부적 이미지 URL 업데이트
-        db_result = db.query(models.AnalysisResult).filter(models.AnalysisResult.id == analysis_id).first()
+        db_result = db.query(models.AnalysisResult).filter(models.AnalysisResult.id == request.analysis_id).first()
         if db_result:
             db_result.lucky_charm_image_url = lucky_charm_image_url
             db.commit()
