@@ -20,6 +20,155 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+# ==================== 헬퍼 함수들 ====================
+
+async def _generate_ai_questions(analysis_dict: Dict[str, Any], birth_info: BirthInfoRequest) -> Dict[str, Any]:
+    """AI를 사용한 질문 생성"""
+    ai_interpreter = get_gemini_interpreter()
+    return await ai_interpreter.generate_suggested_questions(analysis_dict, birth_info.dict())
+
+def _generate_rule_based_questions(analysis_dict: Dict[str, Any], birth_info: BirthInfoRequest) -> Dict[str, Any]:
+    """룰 기반 질문 생성"""
+    from datetime import datetime
+    
+    questions = []
+    
+    # 오행 분석 기반 질문
+    wuxing = analysis_dict.get('wuxing', {})
+    wuxing_dist = wuxing.get('distribution', {})
+    
+    if wuxing_dist.get('wood', 0) > 30:
+        questions.append({
+            "question": "목기가 강한 당신, 올해 창업 적기는?",
+            "category": "직업", 
+            "priority": "high",
+            "icon": "🌱"
+        })
+    elif wuxing_dist.get('fire', 0) > 30:
+        questions.append({
+            "question": "화기가 왕성한 시기, 인맥 확장 방법은?",
+            "category": "인간관계",
+            "priority": "high", 
+            "icon": "🔥"
+        })
+    elif wuxing_dist.get('earth', 0) > 30:
+        questions.append({
+            "question": "토기가 풍부한 당신, 부동산 투자는?",
+            "category": "재물",
+            "priority": "medium",
+            "icon": "🏠"
+        })
+    elif wuxing_dist.get('metal', 0) > 30:
+        questions.append({
+            "question": "금기가 강한 시기, 결단력 발휘할 때는?",
+            "category": "성격",
+            "priority": "medium",
+            "icon": "⚔️"
+        })
+    else:  # water 또는 균형잡힌 경우
+        questions.append({
+            "question": "수기로 지혜로운 당신, 학습 적기는?",
+            "category": "자기계발",
+            "priority": "medium", 
+            "icon": "💧"
+        })
+    
+    # 십성 분석 기반 질문  
+    ten_stars = analysis_dict.get('ten_stars', {})
+    dominant_stars = ten_stars.get('dominant_stars', [])
+    
+    if '정관' in str(dominant_stars):
+        questions.append({
+            "question": "정관운이 나타나는데, 승진 가능성은?",
+            "category": "직업",
+            "priority": "high",
+            "icon": "👑"
+        })
+    elif '편재' in str(dominant_stars):
+        questions.append({
+            "question": "편재가 강한 시기, 부업 시작하면?",
+            "category": "재물", 
+            "priority": "high",
+            "icon": "💰"
+        })
+    elif '식신' in str(dominant_stars):
+        questions.append({
+            "question": "식신으로 창의력이 높은데, 예술 분야는?",
+            "category": "취미",
+            "priority": "medium",
+            "icon": "🎨"
+        })
+    else:
+        questions.append({
+            "question": "현재 운세의 특징과 활용법은?",
+            "category": "운세",
+            "priority": "medium", 
+            "icon": "🔮"
+        })
+    
+    # 성격 분석 기반 질문
+    personality = analysis_dict.get('personality', {})
+    strengths = personality.get('strengths', [])
+    
+    if '리더십' in str(strengths):
+        questions.append({
+            "question": "타고난 리더십, 언제 발휘하면 좋을까?",
+            "category": "인간관계",
+            "priority": "medium",
+            "icon": "👥"
+        })
+    elif '창의성' in str(strengths):
+        questions.append({
+            "question": "창의적 능력을 활용한 부업은?",
+            "category": "직업",
+            "priority": "medium", 
+            "icon": "💡"
+        })
+    else:
+        questions.append({
+            "question": "내 숨겨진 재능을 발견하려면?",
+            "category": "성격",
+            "priority": "low",
+            "icon": "✨"
+        })
+    
+    # 연애/건강 기본 질문 추가
+    if len(questions) < 4:
+        questions.append({
+            "question": f"올해 {birth_info.name}님의 연애운은?",
+            "category": "연애",
+            "priority": "high" if birth_info.gender.lower() in ['male', 'm'] else "medium",
+            "icon": "💕"
+        })
+    
+    if len(questions) < 5:
+        questions.append({
+            "question": "건강 관리에서 주의할 점은?",
+            "category": "건강", 
+            "priority": "medium",
+            "icon": "🏥"
+        })
+    
+    # 5개 제한
+    questions = questions[:5]
+    
+    return {
+        "suggested_questions": questions,
+        "generation_method": "rules",
+        "timestamp": datetime.now().isoformat(),
+        "total_questions": len(questions)
+    }
+
+def _get_fallback_questions() -> list:
+    """최후 폴백용 기본 질문들"""
+    return [
+        {"question": "내 성격의 장단점은 무엇인가요?", "category": "성격", "priority": "high", "icon": "🤔"},
+        {"question": "올해 전체 운세는 어떤가요?", "category": "운세", "priority": "high", "icon": "🔮"},
+        {"question": "직업운에 대해 알려주세요", "category": "직업", "priority": "medium", "icon": "💼"},
+        {"question": "연애운은 어떤가요?", "category": "연애", "priority": "medium", "icon": "💕"},
+        {"question": "건강 관리 포인트는?", "category": "건강", "priority": "low", "icon": "🏥"}
+    ]
+
 def safe_convert_to_dict(obj) -> Dict[str, Any]:
     """객체를 안전하게 dict로 변환"""
     try:
@@ -316,6 +465,57 @@ async def get_ai_usage():
         return {"success": True, "data": usage_status}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/suggested-questions")
+async def generate_suggested_questions(
+    birth_info: BirthInfoRequest,
+    method: str = Query("hybrid", description="질문 생성 방식: ai|rules|hybrid")
+):
+    """사주 분석 결과 기반 개인화된 예상 질문 생성 - 하이브리드 방식"""
+    try:
+        logger.info(f"예상 질문 생성 요청: {birth_info.name}, 방식: {method}")
+        
+        # 1. 사주 분석 (기존 로직 재사용)
+        raw_result = saju_analyzer.analyze_saju(birth_info)
+        analysis_dict = safe_convert_to_dict(raw_result)
+        
+        # 2. 하이브리드 방식으로 질문 생성
+        if method == "ai":
+            # AI 방식만 사용
+            questions_result = await _generate_ai_questions(analysis_dict, birth_info)
+        elif method == "rules":
+            # 룰 기반 방식만 사용
+            questions_result = _generate_rule_based_questions(analysis_dict, birth_info)
+        else:  # hybrid (기본값)
+            # AI 시도 → 실패 시 룰 기반 폴백
+            try:
+                logger.info("AI 질문 생성 시도")
+                questions_result = await _generate_ai_questions(analysis_dict, birth_info)
+                questions_result["generation_method"] = "ai"
+            except Exception as e:
+                logger.warning(f"AI 질문 생성 실패, 룰 기반으로 폴백: {e}")
+                questions_result = _generate_rule_based_questions(analysis_dict, birth_info)
+                questions_result["generation_method"] = "rules_fallback"
+        
+        return JSONResponse({
+            "success": True,
+            "data": questions_result
+        })
+        
+    except Exception as e:
+        logger.error(f"질문 생성 실패: {e}")
+        logger.error(f"상세 에러: {traceback.format_exc()}")
+        
+        # 최후 폴백: 기본 질문들
+        fallback_questions = _get_fallback_questions()
+        return JSONResponse({
+            "success": True,
+            "data": {
+                "suggested_questions": fallback_questions,
+                "generation_method": "fallback",
+                "timestamp": "emergency_fallback"
+            }
+        })
 
 @router.get("/ai-test")
 async def test_ai_connection():
@@ -797,6 +997,7 @@ async def test_endpoint():
             "/family-fortune - 가족운 👨‍👩‍👧‍👦 ✨Phase2✨",
             "/extended-fortune-phase2 - Phase 2 통합 분석 🔮 ✨Phase2✨",
             "/ai-chat - AI 대화형 해석",
+            "/suggested-questions - 개인화된 예상 질문 생성 🤖 ✨NEW✨",
             "/ai-usage - AI 사용량 조회", 
             "/ai-test - AI 연결 테스트",
             "/health - 헬스 체크",

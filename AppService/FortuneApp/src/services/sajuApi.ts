@@ -3,8 +3,11 @@
  * MSProject2 SAJU 백엔드와 AppService 모바일 앱 연동
  */
 
+import { API_BASE_URL, API_CONFIG } from '../config/api';
+import { fetchWithRetry, testNetworkConnection, getNetworkDiagnostics } from '../utils/networkHelper';
+
 // API 기본 설정
-const SAJU_API_BASE = 'http://localhost:8000/api/v1/saju';
+const SAJU_API_BASE = API_BASE_URL;
 
 // API 요청 타입 정의
 export interface SajuAnalysisRequest {
@@ -37,16 +40,18 @@ export class SajuApiService {
    */
   async healthCheck(): Promise<ApiResponse<any>> {
     try {
-      const response = await fetch(`${this.baseUrl.replace('/api/v1/saju', '')}/health`);
+      const healthUrl = `${this.baseUrl.replace('/api/v1/saju', '')}/health`;
+      console.log('🏥 헬스 체크 요청:', healthUrl);
       
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
+      const response = await fetchWithRetry(healthUrl, {
+        method: 'GET'
+      }, 2, 500);
 
       const data = await response.json();
+      console.log('✅ 헬스 체크 성공:', data);
       return { success: true, data };
     } catch (error) {
-      console.error('Health check failed:', error);
+      console.error('❌ Health check failed:', error);
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Unknown error' 
@@ -81,22 +86,26 @@ export class SajuApiService {
    */
   async analyzeSaju(request: SajuAnalysisRequest): Promise<ApiResponse<any>> {
     try {
-      const response = await fetch(`${this.baseUrl}/analyze`, {
+      console.log('🔮 사주 분석 요청:', request);
+      console.log('🌐 API URL:', `${this.baseUrl}/analyze`);
+      console.log('📱 플랫폼 정보:', getNetworkDiagnostics());
+      
+      // 먼저 네트워크 연결 테스트
+      const isConnected = await testNetworkConnection(this.baseUrl);
+      if (!isConnected) {
+        throw new Error('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
+      }
+      
+      const response = await fetchWithRetry(`${this.baseUrl}/analyze`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
+        body: JSON.stringify(request)
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
       const data = await response.json();
+      console.log('✅ 사주 분석 성공');
       return { success: true, data };
     } catch (error) {
-      console.error('Saju analysis failed:', error);
+      console.error('❌ Saju analysis failed:', error);
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Unknown error' 

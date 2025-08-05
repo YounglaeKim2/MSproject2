@@ -29,6 +29,8 @@ app.add_middleware(
         "http://localhost:3000",  # React 개발 서버 (기존)
         "http://localhost:4000",  # Vite 개발 서버
         "http://localhost:4001",  # Vite 개발 서버 (포트 변경)
+        "http://192.168.219.141:8000",  # 모바일 앱 네트워크 접근
+        "*",  # 모바일 개발 중 모든 origins 허용 (임시)
     ],
     allow_credentials=True,
     allow_methods=["*"],

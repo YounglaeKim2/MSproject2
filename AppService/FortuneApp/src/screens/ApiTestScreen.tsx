@@ -27,6 +27,38 @@ const ApiTestScreen: React.FC<Props> = ({ navigation }) => {
     setTestResults([]);
   };
 
+  const testNetworkConnection = async () => {
+    setIsLoading(true);
+    addResult("🌐 네트워크 연결 테스트...");
+    
+    try {
+      // 간단한 네트워크 테스트를 위해 fetch로 HEAD 요청
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        addResult("⏰ 네트워크 연결 시간 초과");
+        controller.abort();
+      }, 5000);
+      
+      const response = await fetch('http://192.168.219.141:8000/health', {
+        method: 'GET',
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        addResult("✅ 네트워크 연결 성공!");
+        addResult(`📡 응답 시간: ${Date.now() - Date.now()}ms`);
+      } else {
+        addResult(`❌ 네트워크 응답 오류: ${response.status}`);
+      }
+    } catch (error) {
+      addResult(`💥 네트워크 연결 실패: ${error}`);
+    }
+    
+    setIsLoading(false);
+  };
+
   const testHealthCheck = async () => {
     setIsLoading(true);
     addResult("🔍 헬스 체크 시작...");
@@ -69,23 +101,26 @@ const ApiTestScreen: React.FC<Props> = ({ navigation }) => {
     setIsLoading(true);
     addResult("🔍 사주 분석 API 테스트...");
     
-    // 테스트용 더미 데이터
+    // 테스트용 더미 데이터 - 실제 API 요청과 동일한 형식
     const testData: SajuBirthInfo = {
-      year: 1990,
+      year: 1993,
       month: 5,
-      day: 15,
-      hour: 14,
+      day: 27,
+      hour: 15,
       gender: 'male',
-      name: '테스트'
+      name: '김영래'
     };
+    
+    addResult(`📋 요청 데이터: ${JSON.stringify(testData, null, 2)}`);
     
     try {
       const result = await analyzeSaju(testData);
       if (result.success) {
         addResult("✅ 사주 분석 성공!");
-        addResult(`📊 분석 결과 일부: ${JSON.stringify({
-          birth_info: result.data?.birth_info,
-          palja: result.data?.palja,
+        addResult(`📊 기본 정보: ${JSON.stringify({
+          name: result.data?.basic_info?.name,
+          birth_date: result.data?.basic_info?.birth_date,
+          palja_count: Object.keys(result.data?.saju_palja || {}).length
         }, null, 2)}`);
       } else {
         addResult(`❌ 사주 분석 실패: ${result.error}`);
@@ -126,6 +161,14 @@ const ApiTestScreen: React.FC<Props> = ({ navigation }) => {
 
       <ScrollView style={styles.content}>
         <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.testButton, styles.networkButton]}
+            onPress={testNetworkConnection}
+            disabled={isLoading}
+          >
+            <Text style={styles.buttonText}>🌐 네트워크 연결</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={[styles.testButton, styles.healthButton]}
             onPress={testHealthCheck}
@@ -233,6 +276,9 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginBottom: 10,
     alignItems: "center",
+  },
+  networkButton: {
+    backgroundColor: "#9C27B0",
   },
   healthButton: {
     backgroundColor: "#4CAF50",

@@ -18,6 +18,13 @@ interface BirthInfo {
   name: string;
 }
 
+interface SuggestedQuestion {
+  question: string;
+  category: string;
+  priority: 'high' | 'medium' | 'low';
+  icon: string;
+}
+
 interface AIChatProps {
   birthInfo: BirthInfo;
   isVisible: boolean;
@@ -25,14 +32,14 @@ interface AIChatProps {
 }
 
 // 스타일 컴포넌트
-const ChatOverlay = styled.div<{ isVisible: boolean }>`
+const ChatOverlay = styled.div<{ $isVisible: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  display: ${props => props.isVisible ? 'flex' : 'none'};
+  display: ${props => props.$isVisible ? 'flex' : 'none'};
   justify-content: center;
   align-items: center;
   z-index: 1000;
@@ -143,25 +150,6 @@ const QuickButtons = styled.div`
   flex-wrap: wrap;
 `;
 
-const QuickButton = styled.button`
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  color: #495057;
-  padding: 8px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.3s;
-
-  &:hover {
-    background: #e9ecef;
-    border-color: #adb5bd;
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-`;
 
 const InputField = styled.input`
   flex: 1;
@@ -221,6 +209,124 @@ const UsageStatus = styled.div`
   color: #1565c0;
 `;
 
+// 새로운 개인화된 질문 UI 컴포넌트들
+const PersonalizedQuickButton = styled.button<{ 
+  $category: string; 
+  $priority: 'high' | 'medium' | 'low' 
+}>`
+  background: ${props => getCategoryColor(props.$category)};
+  border: none;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 200px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  
+  opacity: ${props => props.$priority === 'high' ? 1 : props.$priority === 'medium' ? 0.9 : 0.8};
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    opacity: 1;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
+const QuestionIcon = styled.span`
+  font-size: 1.2rem;
+`;
+
+const QuestionText = styled.span`
+  flex: 1;
+  text-align: left;
+  line-height: 1.3;
+`;
+
+const CategoryBadge = styled.span<{ $category: string }>`
+  background: rgba(255,255,255,0.3);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+`;
+
+const LoadingQuestions = styled.div`
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  animation: pulse 1.5s ease-in-out infinite;
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+`;
+
+const QuestionModeToggle = styled.div`
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+  justify-content: center;
+`;
+
+const ModeButton = styled.button<{ $active: boolean }>`
+  background: ${props => props.$active ? '#667eea' : '#f8f9fa'};
+  color: ${props => props.$active ? 'white' : '#6c757d'};
+  border: 1px solid ${props => props.$active ? '#667eea' : '#dee2e6'};
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  
+  &:hover {
+    background: ${props => props.$active ? '#5a6fd8' : '#e9ecef'};
+  }
+`;
+
+// 카테고리별 색상 매핑 함수
+const getCategoryColor = (category: string) => {
+  const colors: { [key: string]: string } = {
+    '연애': '#ff6b9d',
+    '직업': '#4dabf7', 
+    '건강': '#51cf66',
+    '재물': '#ffd43b',
+    '인간관계': '#9775fa',
+    '성격': '#ff8787',
+    '운세': '#845ef7',
+    '자기계발': '#20c997'
+  };
+  return colors[category] || '#6c757d';
+};
+
+// 기본 질문들 (폴백용)
+const getDefaultQuestions = (): SuggestedQuestion[] => [
+  { question: "내 성격의 장단점을 알려주세요", category: "성격", priority: "high", icon: "🤔" },
+  { question: "올해 운세는 어떤가요?", category: "운세", priority: "high", icon: "🔮" },
+  { question: "직업운에 대해 알려주세요", category: "직업", priority: "medium", icon: "💼" },
+  { question: "건강 관리 포인트는?", category: "건강", priority: "medium", icon: "🏥" },
+  { question: "연애운은 어떤가요?", category: "연애", priority: "low", icon: "💕" }
+];
+
 // 메인 컴포넌트
 const AIChatInterface: React.FC<AIChatProps> = ({ birthInfo, isVisible, onClose }) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -229,15 +335,10 @@ const AIChatInterface: React.FC<AIChatProps> = ({ birthInfo, isVisible, onClose 
   const [usageStatus, setUsageStatus] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 퀵 버튼 질문들
-  const quickQuestions = [
-    "내 성격의 장단점을 알려주세요",
-    "올해 운세는 어떤가요?",
-    "직업운에 대해 알려주세요",
-    "건강 관리 포인트는?",
-    "연애운은 어떤가요?",
-    "재물운에 대해 궁금해요"
-  ];
+  // 새로운 상태들
+  const [suggestedQuestions, setSuggestedQuestions] = useState<SuggestedQuestion[]>([]);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
+  const [questionMode, setQuestionMode] = useState<'hybrid' | 'ai' | 'rules'>('hybrid');
 
   // 메시지 스크롤
   const scrollToBottom = () => {
@@ -248,10 +349,48 @@ const AIChatInterface: React.FC<AIChatProps> = ({ birthInfo, isVisible, onClose 
     scrollToBottom();
   }, [messages]);
 
-  // 사용량 조회
+  // 개인화된 질문 생성
+  const generateSuggestedQuestions = async (mode: 'hybrid' | 'ai' | 'rules' = 'hybrid') => {
+    setIsLoadingQuestions(true);
+    try {
+      const response = await fetch(`http://localhost:8000/api/v1/saju/suggested-questions?method=${mode}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(birthInfo)
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setSuggestedQuestions(data.data.suggested_questions);
+        
+        // 사용량 정보 업데이트 (AI 모드인 경우)
+        if (data.data.usage_status) {
+          setUsageStatus(data.data.usage_status);
+        }
+      } else {
+        console.error('질문 생성 실패:', data);
+        setSuggestedQuestions(getDefaultQuestions());
+      }
+    } catch (error) {
+      console.error('개인화된 질문 생성 실패:', error);
+      setSuggestedQuestions(getDefaultQuestions());
+    } finally {
+      setIsLoadingQuestions(false);
+    }
+  };
+
+  // 모드 변경 핸들러
+  const handleModeChange = (mode: 'hybrid' | 'ai' | 'rules') => {
+    setQuestionMode(mode);
+    generateSuggestedQuestions(mode);
+  };
+
+  // 사용량 조회 및 초기 설정
   useEffect(() => {
     if (isVisible) {
       fetchUsageStatus();
+      generateSuggestedQuestions(questionMode);
+      
       // 환영 메시지 추가
       setMessages([{
         id: Date.now().toString(),
@@ -260,6 +399,7 @@ const AIChatInterface: React.FC<AIChatProps> = ({ birthInfo, isVisible, onClose 
         timestamp: new Date().toLocaleTimeString()
       }]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVisible, birthInfo.name]);
 
   const fetchUsageStatus = async () => {
@@ -351,7 +491,7 @@ const AIChatInterface: React.FC<AIChatProps> = ({ birthInfo, isVisible, onClose 
   if (!isVisible) return null;
 
   return (
-    <ChatOverlay isVisible={isVisible}>
+    <ChatOverlay $isVisible={isVisible}>
       <ChatContainer>
         <ChatHeader>
           <HeaderTitle>🤖 AI 사주 해석</HeaderTitle>
@@ -366,16 +506,51 @@ const AIChatInterface: React.FC<AIChatProps> = ({ birthInfo, isVisible, onClose 
             </UsageStatus>
           )}
 
+          {/* 질문 생성 모드 선택 */}
+          <QuestionModeToggle>
+            <ModeButton 
+              $active={questionMode === 'hybrid'} 
+              onClick={() => handleModeChange('hybrid')}
+            >
+              🔄 하이브리드
+            </ModeButton>
+            <ModeButton 
+              $active={questionMode === 'ai'} 
+              onClick={() => handleModeChange('ai')}
+            >
+              🤖 AI 생성
+            </ModeButton>
+            <ModeButton 
+              $active={questionMode === 'rules'} 
+              onClick={() => handleModeChange('rules')}
+            >
+              ⚡ 빠른 생성
+            </ModeButton>
+          </QuestionModeToggle>
+
+          {/* 개인화된 질문 버튼들 */}
           <QuickButtons>
-            {quickQuestions.map((question, index) => (
-              <QuickButton
-                key={index}
-                onClick={() => handleQuickQuestion(question)}
-                disabled={isLoading}
-              >
-                {question}
-              </QuickButton>
-            ))}
+            {isLoadingQuestions ? (
+              <LoadingQuestions>
+                🤖 {birthInfo.name}님에게 맞는 질문을 생성하는 중...
+              </LoadingQuestions>
+            ) : (
+              suggestedQuestions.map((q, index) => (
+                <PersonalizedQuickButton
+                  key={index}
+                  $category={q.category}
+                  $priority={q.priority}
+                  onClick={() => handleQuickQuestion(q.question)}
+                  disabled={isLoading}
+                >
+                  <QuestionIcon>{q.icon}</QuestionIcon>
+                  <QuestionText>{q.question}</QuestionText>
+                  <CategoryBadge $category={q.category}>
+                    {q.category}
+                  </CategoryBadge>
+                </PersonalizedQuickButton>
+              ))
+            )}
           </QuickButtons>
 
           {messages.map((message) => (

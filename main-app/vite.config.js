@@ -7,7 +7,9 @@ export default defineConfig({
   server: {
     port: 4000,
     open: true,
-    host: true
+    host: true,
+    // SPA 히스토리 모드 지원
+    historyApiFallback: true
   },
   build: {
     outDir: 'build',

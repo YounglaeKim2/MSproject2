@@ -238,6 +238,123 @@ class GeminiAIInterpreter:
         """현재 사용량 상태 조회"""
         return self.usage_tracker.get_usage_status()
     
+    async def generate_suggested_questions(self, saju_result: Dict[str, Any], birth_info: Dict[str, Any]) -> Dict[str, Any]:
+        """사주 분석 결과 기반 개인화된 질문 생성"""
+        try:
+            # 사용량 체크
+            if not self.usage_tracker.check_and_update_usage():
+                paid_enabled = os.getenv("ENABLE_PAID_GEMINI", "false").lower() == "true"
+                if not paid_enabled:
+                    raise Exception("AI 사용량 초과")
+            
+            # 질문 생성 프롬프트
+            prompt = self._create_question_generation_prompt(saju_result, birth_info)
+            
+            # Gemini API 호출
+            response = await self._call_gemini_async(prompt)
+            
+            # JSON 파싱 및 검증
+            questions = self._parse_and_validate_questions(response)
+            
+            return {
+                "suggested_questions": questions,
+                "generation_method": "ai",
+                "usage_status": self.usage_tracker.get_usage_status(),
+                "timestamp": datetime.now().isoformat(),
+                "total_questions": len(questions)
+            }
+            
+        except Exception as e:
+            print(f"AI 질문 생성 실패: {e}")
+            raise e
+    
+    def _create_question_generation_prompt(self, saju_result: Dict[str, Any], birth_info: Dict[str, Any]) -> str:
+        """질문 생성용 프롬프트 작성"""
+        
+        # 주요 분석 결과 추출
+        palja = saju_result.get('palja', {})
+        wuxing = saju_result.get('wuxing', {})
+        personality = saju_result.get('personality', {})
+        ten_stars = saju_result.get('ten_stars', {})
+        
+        return f"""당신은 30년 경력의 전문 명리학자입니다.
+다음 사주 분석 결과를 바탕으로 이 분이 가장 궁금해할 만한 개인화된 질문 5개를 생성해주세요.
+
+<개인 정보>
+- 이름: {birth_info.get('name', '')}
+- 성별: {birth_info.get('gender', '')}
+- 생년: {birth_info.get('year', '')}년
+
+<사주 분석 결과>
+■ 사주팔자:
+- 년주: {palja.get('year_pillar', '')}
+- 월주: {palja.get('month_pillar', '')}
+- 일주: {palja.get('day_pillar', '')}
+- 시주: {palja.get('hour_pillar', '')}
+
+■ 오행 분석:
+- 분포: {wuxing.get('distribution', {})}
+- 균형: {wuxing.get('balance_score', 0)}점
+- 강약: {wuxing.get('strength', '')}
+
+■ 성격 특성:
+- 기본 성격: {personality.get('basic_nature', '')}
+- 주요 강점: {personality.get('strengths', [])}
+
+■ 십성 분석:
+- 주요 십성: {ten_stars.get('dominant_stars', [])}
+
+<질문 생성 가이드라인>
+1. 개인의 사주 특성을 반영한 구체적 질문
+2. 실용적이고 현실적인 관심사
+3. 5개 카테고리 균형: 연애/직업/건강/재물/인간관계
+4. 친근하고 자연스러운 말투
+5. 각 질문은 20-30자 내외
+
+반드시 다음 JSON 형식으로만 응답하세요:
+{{
+  "questions": [
+    {{"question": "올해 하반기 연애운이 어떨까요?", "category": "연애", "priority": "high", "icon": "💕"}},
+    {{"question": "현재 직장에서 승진 가능성은?", "category": "직업", "priority": "high", "icon": "💼"}},
+    {{"question": "건강 관리에서 주의할 점은?", "category": "건강", "priority": "medium", "icon": "🏥"}},
+    {{"question": "투자하기 좋은 시기는 언제?", "category": "재물", "priority": "medium", "icon": "💰"}},
+    {{"question": "인간관계 개선 방법은?", "category": "인간관계", "priority": "low", "icon": "👥"}}
+  ]
+}}"""
+
+    def _parse_and_validate_questions(self, response: str) -> list:
+        """AI 응답에서 질문 파싱 및 검증"""
+        try:
+            import json
+            import re
+            
+            # JSON 부분만 추출 (가능한 경우)
+            json_match = re.search(r'\{.*\}', response, re.DOTALL)
+            if json_match:
+                json_str = json_match.group()
+                data = json.loads(json_str)
+            else:
+                data = json.loads(response)
+                
+            questions = data.get("questions", [])
+            
+            # 검증: 5개 질문, 필수 필드 존재
+            if len(questions) != 5:
+                raise ValueError(f"질문 개수가 {len(questions)}개임 (5개 필요)")
+                
+            for i, q in enumerate(questions):
+                required_fields = ["question", "category", "priority", "icon"]
+                missing_fields = [f for f in required_fields if f not in q]
+                if missing_fields:
+                    raise ValueError(f"질문 {i+1}에서 필드 누락: {missing_fields}")
+                    
+            return questions
+            
+        except Exception as e:
+            print(f"질문 파싱 실패: {e}")
+            print(f"AI 응답 원문: {response[:500]}...")
+            raise ValueError(f"AI 응답 파싱 실패: {e}")
+
     async def test_connection(self) -> Dict[str, Any]:
         """Gemini REST API 연결 테스트"""
         try:
