@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔮 MSProject2 SAJU - 전통 명리학 + 현대 AI 기술 융합 플랫폼</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+          "Helvetica Neue", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: white;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      .header {
+        background: rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 2rem 0;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .logo {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(45deg, #ffd700, #ffed4e);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .main {
+        padding: 3rem 0;
+      }
+
+      .hero {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      .hero h2 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .badges {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+      }
+
+      .badge {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .services {
+        margin-bottom: 3rem;
+      }
+
+      .services h3 {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .service-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .service-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .service-card h4 {
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .service-card p {
+        margin-bottom: 1rem;
+        opacity: 0.9;
+      }
+
+      .btn {
+        display: inline-block;
+        background: linear-gradient(45deg, #ffd700, #ffed4e);
+        color: #333;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: transform 0.3s ease;
+      }
+
+      .btn:hover {
+        transform: scale(1.05);
+      }
+
+      .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      .status-online {
+        background-color: #4caf50;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .api-docs {
+        margin-bottom: 3rem;
+      }
+
+      .api-docs h3 {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .api-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+
+      .api-link {
+        display: block;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        text-decoration: none;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: background 0.3s ease;
+      }
+
+      .api-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .footer {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 1.5rem 0;
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 2rem;
+      }
+
+      @media (max-width: 768px) {
+        .logo {
+          font-size: 2rem;
+        }
+
+        .hero h2 {
+          font-size: 1.5rem;
+        }
+
+        .badges {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .service-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container">
+        <h1 class="logo">🔮 MSProject2 SAJU</h1>
+        <p class="subtitle">전통 명리학 + 현대 AI 기술 융합 플랫폼</p>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="container">
+        <section class="hero">
+          <h2>🏆 대한민국 최고 수준의 5개 마이크로서비스 완전체</h2>
+          <div class="badges">
+            <span class="badge">✅ 서비스 운영중</span>
+            <span class="badge">🔧 마이크로서비스 5개</span>
+            <span class="badge">🎯 완성도 100%</span>
+            <span class="badge">🤖 AI Gemini 2.5-flash</span>
+            <span class="badge">📊 73,442개 만세력 DB</span>
+          </div>
+        </section>
+
+        <section class="services">
+          <h3>🎯 서비스 목록</h3>
+          <div class="service-grid">
+            <div class="service-card">
+              <h4>🔮 SAJU 웹 분석</h4>
+              <p>
+                <span class="status-indicator status-online"></span>37개 분석
+                메서드 + 8개 확장운세<br />Google Gemini 2.5-flash AI 대화
+              </p>
+              <a
+                href="http://localhost:3000"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn"
+              >
+                웹 서비스 접속
+              </a>
+            </div>
+
+            <div class="service-card">
+              <h4>📱 모바일 앱</h4>
+              <p>
+                <span class="status-indicator status-online"></span>React Native
+                + Expo 크로스플랫폼<br />iOS/Android 동시 지원
+              </p>
+              <a
+                href="http://localhost:8082"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn"
+              >
+                모바일 앱 접속
+              </a>
+            </div>
+
+            <div class="service-card">
+              <h4>💕 궁합 분석</h4>
+              <p>
+                <span class="status-indicator status-online"></span>사주 기반
+                궁합 분석 서비스<br />오행 상성 + 십성 매칭
+              </p>
+              <a
+                href="http://localhost:3002"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn"
+              >
+                궁합 서비스 접속
+              </a>
+            </div>
+
+            <div class="service-card">
+              <h4>🎭 관상 분석</h4>
+              <p>
+                <span class="status-indicator status-online"></span>MediaPipe +
+                OpenCV AI 관상<br />468개 얼굴 랜드마크 분석
+              </p>
+              <a
+                href="http://localhost:3001"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn"
+              >
+                관상 서비스 접속
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="api-docs">
+          <h3>📚 API 문서</h3>
+          <div class="api-grid">
+            <a
+              href="http://localhost:8000/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="api-link"
+            >
+              🔮 SAJU API (8000)
+            </a>
+            <a
+              href="http://localhost:8002/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="api-link"
+            >
+              💕 궁합 API (8002)
+            </a>
+            <a
+              href="http://localhost:8001/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="api-link"
+            >
+              🎭 관상 API (8001)
+            </a>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2025 MSProject2 SAJU - 전통과 현대의 만남</p>
+        <p style="margin-top: 0.5rem; opacity: 0.8">
+          🚀 빠른 시작:
+          <code
+            style="
+              background: rgba(255, 255, 255, 0.1);
+              padding: 2px 6px;
+              border-radius: 4px;
+            "
+            >./start_all.sh</code
+          >
+          | 📊 상태 확인:
+          <code
+            style="
+              background: rgba(255, 255, 255, 0.1);
+              padding: 2px 6px;
+              border-radius: 4px;
+            "
+            >./check_services.sh</code
+          >
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      // 간단한 서비스 상태 체크 (선택사항)
+      function checkServiceStatus() {
+        const services = [
+          { name: "SAJU API", url: "http://localhost:8000/health" },
+          { name: "Compatibility API", url: "http://localhost:8002/health" },
+          { name: "Physiognomy API", url: "http://localhost:8001/docs" },
+        ];
+
+        console.log("🔍 서비스 상태 체크 시작...");
+        // 실제 구현시 fetch로 각 서비스 상태 확인 가능
+      }
+
+      // 페이지 로드시 환영 메시지
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🔮 MSProject2 SAJU 플랫폼에 오신 것을 환영합니다!");
+        console.log("📚 전체 문서: docs/ 폴더 참조");
+        console.log("🚀 빠른 시작: ./start_all.sh");
+      });
+    </script>
+  </body>
+</html>
