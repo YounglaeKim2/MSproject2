@@ -1,11 +1,28 @@
-# 🎯 새로운 궁합 분석 서비스
+# 🎯 NewCompatibility 서비스 - 완성! ✅
 
-> **SAJU API 기반 독립적인 궁합 분석 마이크로서비스**
+> **SAJU API 기반 궁합 분석 서비스 - 개발 완료 (2025-08-06)**
 
-## 🚀 서비스 개요
+## 🚀 빠른 시작
 
-기존의 완벽하게 구축된 SAJU API를 활용하여 새로운 궁합 분석 서비스를 구현합니다.
-기존 서비스들을 전혀 수정하지 않고 HTTP API 호출로 연동하는 안전한 방식입니다.
+### 1단계: SAJU API 확인
+```bash
+curl http://localhost:8000/health
+```
+
+### 2단계: 백엔드 시작
+```bash
+cd c:\workspace\MSproject2\NewCompatibility
+start_new_compatibility.bat
+```
+
+### 3단계: 프론트엔드 시작
+```bash
+start_frontend.bat
+```
+
+### 4단계: 웹 접속
+- 브라우저에서 `http://localhost:3003` 접속
+- 궁합 분석 시작!
 
 ## 🏗️ 아키텍처
 
