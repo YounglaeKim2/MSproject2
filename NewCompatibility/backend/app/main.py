@@ -4,7 +4,7 @@
 - 완전히 독립적인 마이크로서비스
 - 포트 8003 사용
 """
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import json
@@ -21,6 +21,7 @@ from app.models.compatibility import (
 )
 from app.services.saju_client import saju_client
 from app.services.compatibility_engine import compatibility_engine
+from app.services.compatibility_ai_interpreter import get_compatibility_ai_interpreter
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -71,7 +72,10 @@ async def root():
             "/health", 
             "/info",
             "/api/v1/compatibility/test",
-            "/api/v1/compatibility/analyze"
+            "/api/v1/compatibility/analyze",
+            "/api/v1/compatibility/ai-chat",
+            "/api/v1/compatibility/suggested-questions",
+            "/api/v1/compatibility/ai-test"
         ]
     }
 
@@ -231,6 +235,153 @@ async def analyze_compatibility(request: CompatibilityRequest):
             error="analysis_failed",
             message=f"궁합 분석 중 예상치 못한 오류가 발생했습니다: {str(e)}"
         )
+
+# AI 채팅 엔드포인트
+@app.post("/api/v1/compatibility/ai-chat")
+async def ai_chat_compatibility(
+    request: CompatibilityRequest,
+    question: str = Query(..., description="사용자 질문")
+):
+    """AI 대화형 궁합 해석"""
+    try:
+        logger.info(f"AI 궁합 채팅 요청: {question}")
+        
+        # 1. 궁합 분석 실행
+        compatibility_result = await analyze_compatibility(request)
+        
+        if not compatibility_result.success:
+            return UnicodeJSONResponse({
+                "success": False,
+                "error": compatibility_result.error,
+                "message": compatibility_result.message
+            }, status_code=500)
+        
+        # 2. AI 해석을 위한 데이터 구성
+        analysis_data = {
+            "score": {
+                "total": compatibility_result.compatibility_score.overall,
+                "wuxing": (compatibility_result.compatibility_score.love + compatibility_result.compatibility_score.marriage) // 2,
+                "ten_gods": (compatibility_result.compatibility_score.communication + compatibility_result.compatibility_score.values) // 2,
+                "grade": "우수" if compatibility_result.compatibility_score.overall >= 70 else "보통" if compatibility_result.compatibility_score.overall >= 50 else "노력필요",
+                "description": compatibility_result.summary
+            },
+            "analysis": {
+                "wuxing_compatibility": f"오행 분석: {compatibility_result.compatibility_score.love}점",
+                "ten_gods_compatibility": f"십성 분석: {compatibility_result.compatibility_score.communication}점",
+                "overall_summary": compatibility_result.summary
+            },
+            "persons": {
+                "person1": {"name": request.person1.name, "birth_date": f"{request.person1.year}년 {request.person1.month}월 {request.person1.day}일"},
+                "person2": {"name": request.person2.name, "birth_date": f"{request.person2.year}년 {request.person2.month}월 {request.person2.day}일"}
+            }
+        }
+        
+        # 3. AI 해석
+        ai_interpreter = get_compatibility_ai_interpreter()
+        ai_result = await ai_interpreter.interpret_compatibility(
+            analysis_data, 
+            question
+        )
+        
+        return UnicodeJSONResponse({
+            "success": True,
+            "data": {
+                "basic_info": {
+                    "person1": f"{request.person1.name} ({request.person1.year}년생)",
+                    "person2": f"{request.person2.name} ({request.person2.year}년생)"
+                },
+                "user_question": question,
+                "ai_interpretation": ai_result
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"AI 궁합 해석 오류: {e}")
+        return UnicodeJSONResponse({
+            "success": False,
+            "error": str(e),
+            "message": "AI 해석 중 오류가 발생했습니다."
+        }, status_code=500)
+
+# AI 질문 생성 엔드포인트
+@app.post("/api/v1/compatibility/suggested-questions")
+async def generate_suggested_questions(
+    request: CompatibilityRequest,
+    method: str = Query("ai", description="질문 생성 방식: ai|fallback")
+):
+    """궁합 분석 결과 기반 개인화된 예상 질문 생성"""
+    try:
+        logger.info(f"AI 질문 생성 요청 (방식: {method})")
+        
+        # 1. 궁합 분석 실행
+        compatibility_result = await analyze_compatibility(request)
+        
+        if not compatibility_result.success:
+            return UnicodeJSONResponse({
+                "success": False,
+                "error": compatibility_result.error,
+                "message": compatibility_result.message
+            }, status_code=500)
+        
+        # 2. AI 해석을 위한 데이터 구성
+        analysis_data = {
+            "score": {
+                "total": compatibility_result.compatibility_score.overall,
+                "grade": "우수" if compatibility_result.compatibility_score.overall >= 70 else "보통" if compatibility_result.compatibility_score.overall >= 50 else "노력필요"
+            },
+            "analysis": {
+                "overall_summary": compatibility_result.summary,
+                "wuxing_compatibility": f"오행 궁합: {compatibility_result.compatibility_score.love}점",
+                "ten_gods_compatibility": f"십성 궁합: {compatibility_result.compatibility_score.communication}점"
+            }
+        }
+        
+        # 3. 개인화된 질문 생성
+        ai_interpreter = get_compatibility_ai_interpreter()
+        
+        if method == "ai":
+            persons_info = {
+                "person1": {"name": request.person1.name, "year": request.person1.year},
+                "person2": {"name": request.person2.name, "year": request.person2.year}
+            }
+            questions_result = await ai_interpreter.generate_suggested_questions(
+                analysis_data,
+                persons_info
+            )
+        else:
+            # 폴백 질문 사용
+            questions_result = {
+                "suggested_questions": ai_interpreter._get_fallback_questions(),
+                "generation_method": "fallback"
+            }
+        
+        return UnicodeJSONResponse({
+            "success": True,
+            "data": questions_result
+        })
+        
+    except Exception as e:
+        logger.error(f"질문 생성 오류: {e}")
+        return UnicodeJSONResponse({
+            "success": False,
+            "error": str(e),
+            "message": "질문 생성 중 오류가 발생했습니다."
+        }, status_code=500)
+
+# AI 연결 테스트 엔드포인트
+@app.get("/api/v1/compatibility/ai-test")
+async def test_ai_connection():
+    """AI 연결 테스트"""
+    try:
+        ai_interpreter = get_compatibility_ai_interpreter()
+        test_result = await ai_interpreter.test_connection()
+        return UnicodeJSONResponse(test_result)
+    except Exception as e:
+        return UnicodeJSONResponse({
+            "success": False,
+            "error": str(e),
+            "message": "AI 연결 테스트 실패"
+        }, status_code=500)
 
 @app.get("/info")
 async def service_info():

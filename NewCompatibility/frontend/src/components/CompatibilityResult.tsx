@@ -57,7 +57,7 @@ const ScoresContainer = styled.div`
   margin-bottom: 30px;
 `;
 
-const ScoreCard = styled.div<{ score: number }>`
+const ScoreCard = styled.div<{ $score: number }>`
   background: white;
   padding: 20px;
   border-radius: 12px;
@@ -65,11 +65,11 @@ const ScoreCard = styled.div<{ score: number }>`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   border-left: 5px solid
     ${(props) =>
-      props.score >= 80
+      props.$score >= 80
         ? "#28a745"
-        : props.score >= 60
+        : props.$score >= 60
         ? "#ffc107"
-        : props.score >= 40
+        : props.$score >= 40
         ? "#fd7e14"
         : "#dc3545"};
 `;
@@ -80,15 +80,15 @@ const ScoreTitle = styled.h4`
   font-size: 0.9rem;
 `;
 
-const ScoreValue = styled.div<{ score: number }>`
+const ScoreValue = styled.div<{ $score: number }>`
   font-size: 2.5rem;
   font-weight: bold;
   color: ${(props) =>
-    props.score >= 80
+    props.$score >= 80
       ? "#28a745"
-      : props.score >= 60
+      : props.$score >= 60
       ? "#ffc107"
-      : props.score >= 40
+      : props.$score >= 40
       ? "#fd7e14"
       : "#dc3545"};
   margin-bottom: 5px;
@@ -201,9 +201,9 @@ const CompatibilityResult: React.FC<Props> = ({ data, onReset }) => {
       <Summary>{data.summary}</Summary>
 
       <ScoresContainer>
-        <ScoreCard score={compatibility_score.overall}>
+        <ScoreCard $score={compatibility_score.overall}>
           <ScoreTitle>전체 궁합</ScoreTitle>
-          <ScoreValue score={compatibility_score.overall}>
+          <ScoreValue $score={compatibility_score.overall}>
             {compatibility_score.overall}
           </ScoreValue>
           <ScoreLabel>
@@ -211,9 +211,9 @@ const CompatibilityResult: React.FC<Props> = ({ data, onReset }) => {
           </ScoreLabel>
         </ScoreCard>
 
-        <ScoreCard score={compatibility_score.love}>
+        <ScoreCard $score={compatibility_score.love}>
           <ScoreTitle>연애 궁합</ScoreTitle>
-          <ScoreValue score={compatibility_score.love}>
+          <ScoreValue $score={compatibility_score.love}>
             {compatibility_score.love}
           </ScoreValue>
           <ScoreLabel>
@@ -221,9 +221,9 @@ const CompatibilityResult: React.FC<Props> = ({ data, onReset }) => {
           </ScoreLabel>
         </ScoreCard>
 
-        <ScoreCard score={compatibility_score.marriage}>
+        <ScoreCard $score={compatibility_score.marriage}>
           <ScoreTitle>결혼 궁합</ScoreTitle>
-          <ScoreValue score={compatibility_score.marriage}>
+          <ScoreValue $score={compatibility_score.marriage}>
             {compatibility_score.marriage}
           </ScoreValue>
           <ScoreLabel>
@@ -231,9 +231,9 @@ const CompatibilityResult: React.FC<Props> = ({ data, onReset }) => {
           </ScoreLabel>
         </ScoreCard>
 
-        <ScoreCard score={compatibility_score.communication}>
+        <ScoreCard $score={compatibility_score.communication}>
           <ScoreTitle>소통 궁합</ScoreTitle>
-          <ScoreValue score={compatibility_score.communication}>
+          <ScoreValue $score={compatibility_score.communication}>
             {compatibility_score.communication}
           </ScoreValue>
           <ScoreLabel>
@@ -241,9 +241,9 @@ const CompatibilityResult: React.FC<Props> = ({ data, onReset }) => {
           </ScoreLabel>
         </ScoreCard>
 
-        <ScoreCard score={compatibility_score.values}>
+        <ScoreCard $score={compatibility_score.values}>
           <ScoreTitle>가치관 궁합</ScoreTitle>
-          <ScoreValue score={compatibility_score.values}>
+          <ScoreValue $score={compatibility_score.values}>
             {compatibility_score.values}
           </ScoreValue>
           <ScoreLabel>

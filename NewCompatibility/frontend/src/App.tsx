@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import CompatibilityForm from "./components/CompatibilityForm";
 import CompatibilityResult from "./components/CompatibilityResult";
+import CompatibilityAIChat from "./components/CompatibilityAIChat";
 import { CompatibilityData } from "./types/compatibility";
 import "./App.css";
 
@@ -43,15 +44,47 @@ const Content = styled.div`
   padding: 40px 20px;
 `;
 
+const AIButton = styled.button`
+  background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 20px auto;
+  display: block;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(240, 147, 251, 0.6);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
 function App() {
   const [compatibilityResult, setCompatibilityResult] =
     React.useState<CompatibilityData | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [showAIChat, setShowAIChat] = React.useState(false);
+  const [compatibilityInfo, setCompatibilityInfo] = React.useState<any>(null);
 
-  const handleAnalysisComplete = (result: CompatibilityData) => {
+  const handleAnalysisComplete = (
+    result: CompatibilityData,
+    formData?: any
+  ) => {
     setCompatibilityResult(result);
     setError(null);
+    if (formData) {
+      setCompatibilityInfo(formData);
+    }
   };
 
   const handleAnalysisStart = () => {
@@ -122,13 +155,30 @@ function App() {
           )}
 
           {compatibilityResult && (
-            <CompatibilityResult
-              data={compatibilityResult}
-              onReset={handleReset}
-            />
+            <>
+              <CompatibilityResult
+                data={compatibilityResult}
+                onReset={handleReset}
+              />
+
+              {compatibilityInfo && (
+                <AIButton onClick={() => setShowAIChat(true)}>
+                  💕 AI와 궁합 상세 해석 나누기
+                </AIButton>
+              )}
+            </>
           )}
         </Content>
       </Container>
+
+      {/* AI 채팅 인터페이스 */}
+      {compatibilityInfo && (
+        <CompatibilityAIChat
+          compatibilityInfo={compatibilityInfo}
+          isVisible={showAIChat}
+          onClose={() => setShowAIChat(false)}
+        />
+      )}
     </AppContainer>
   );
 }

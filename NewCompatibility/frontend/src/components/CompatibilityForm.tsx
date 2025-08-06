@@ -107,7 +107,7 @@ const ButtonContainer = styled.div`
   flex-wrap: wrap;
 `;
 
-const Button = styled.button<{ variant?: "primary" | "secondary" }>`
+const Button = styled.button<{ $variant?: "primary" | "secondary" }>`
   padding: 15px 30px;
   border: none;
   border-radius: 8px;
@@ -118,7 +118,7 @@ const Button = styled.button<{ variant?: "primary" | "secondary" }>`
   min-width: 150px;
 
   ${(props) =>
-    props.variant === "primary"
+    props.$variant === "primary"
       ? `
     background: linear-gradient(45deg, #007bff, #0056b3);
     color: white;
@@ -172,7 +172,7 @@ const ErrorMessage = styled.div`
 `;
 
 interface Props {
-  onAnalysisComplete: (result: CompatibilityData) => void;
+  onAnalysisComplete: (result: CompatibilityData, formData?: any) => void;
   onAnalysisStart: () => void;
   onAnalysisEnd: () => void;
   onError: (error: string) => void;
@@ -231,7 +231,7 @@ const CompatibilityForm: React.FC<Props> = ({
 
     try {
       const result = await CompatibilityAPI.analyzeCompatibility(request);
-      onAnalysisComplete(result);
+      onAnalysisComplete(result, { person1, person2 });
     } catch (error: any) {
       onError(error.message || "궁합 분석 중 오류가 발생했습니다.");
     } finally {
@@ -409,14 +409,14 @@ const CompatibilityForm: React.FC<Props> = ({
         <ButtonContainer>
           <Button
             type="button"
-            variant="secondary"
+            $variant="secondary"
             onClick={handleTestConnection}
             disabled={isLoading}
           >
             연결 테스트
           </Button>
 
-          <Button type="submit" variant="primary" disabled={isLoading}>
+          <Button type="submit" $variant="primary" disabled={isLoading}>
             {isLoading ? (
               <>
                 <LoadingSpinner />

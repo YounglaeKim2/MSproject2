@@ -3,18 +3,21 @@
 ## 📋 제거 대상
 
 ### 1. 디렉토리
+
 - `Compatibility/` 전체 폴더
   - `backend/` - FastAPI 백엔드
-  - `frontend/` - React 프론트엔드  
+  - `frontend/` - React 프론트엔드
   - `README.md` - 서비스 문서
 
 ### 2. 설정 파일 업데이트
+
 - `README.md` - 서비스 목록에서 제거
 - `start_all_servers.bat` - 실행 스크립트에서 제거
 - `stop_all.bat` - 정지 스크립트에서 제거
 - `check_services.bat` - 상태 확인에서 제거
 
 ### 3. 문서 업데이트
+
 - 프로젝트 아키텍처 다이어그램 수정
 - 서비스 카운트 8개로 조정
 - 포트 정보 업데이트
@@ -30,7 +33,7 @@
 ## 🎯 NewCompatibility 장점
 
 - ✅ SAJU API 완전 연동
-- ✅ 73,442개 만세력 활용  
+- ✅ 73,442개 만세력 활용
 - ✅ 고급 궁합 알고리즘
 - ✅ 완전한 테스트 스위트
 - ✅ 최신 React + TypeScript
@@ -46,4 +49,4 @@
 
 ---
 
-*새로운 NewCompatibility 서비스가 모든 면에서 우수하므로 제거를 권장합니다.*
+_새로운 NewCompatibility 서비스가 모든 면에서 우수하므로 제거를 권장합니다._
