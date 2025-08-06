@@ -317,129 +317,118 @@ const FortuneDetailScreen: React.FC<Props> = ({ navigation, route }) => {
 
   // 직업운 전용 렌더링 함수
   const renderCareerFortune = (careerData: any) => {
-    if (!careerData) return null;
+    if (!careerData) {
+      return (
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>💼 직업운</Text>
+          <Text style={styles.subSectionContent}>
+            운세 데이터를 불러오는 중입니다...
+          </Text>
+        </View>
+      );
+    }
+
+    console.log('🎨 직업운 데이터:', careerData);
+
+    // 데이터가 문자열인 경우 단순 표시
+    if (typeof careerData === 'string') {
+      return (
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>💼 직업운</Text>
+          <Text style={styles.sectionContent}>{careerData}</Text>
+        </View>
+      );
+    }
 
     return (
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>💼 직업운</Text>
         
-        {/* 현재 직업 적성 */}
-        {careerData.current_job_compatibility && (
-          <View style={styles.subSection}>
-            <Text style={styles.subSectionTitle}>🎯 현재 직업 적성</Text>
-            <Text style={styles.subSectionContent}>
-              {careerData.current_job_compatibility}
-            </Text>
-          </View>
-        )}
-
-        {/* 이직 타이밍 */}
-        {careerData.career_change_timing && (
-          <View style={styles.subSection}>
-            <Text style={styles.subSectionTitle}>⏰ 이직 타이밍</Text>
-            <Text style={styles.subSectionContent}>
-              {careerData.career_change_timing}
-            </Text>
-          </View>
-        )}
-
-        {/* 승진 가능성 */}
-        {careerData.promotion_potential && (
-          <View style={styles.subSection}>
-            <Text style={styles.subSectionTitle}>📈 승진 가능성</Text>
-            <Text style={styles.subSectionContent}>
-              {careerData.promotion_potential}
-            </Text>
-          </View>
-        )}
-
-        {/* 스킬 개발 */}
-        {careerData.skill_development && (
-          <View style={styles.subSection}>
-            <Text style={styles.subSectionTitle}>💡 스킬 개발</Text>
-            <Text style={styles.subSectionContent}>
-              {careerData.skill_development}
-            </Text>
-          </View>
-        )}
-
-        {/* 업무 환경 */}
-        {careerData.work_environment && (
-          <View style={styles.subSection}>
-            <Text style={styles.subSectionTitle}>🏢 업무 환경</Text>
-            <Text style={styles.subSectionContent}>
-              {careerData.work_environment}
-            </Text>
-          </View>
-        )}
+        {/* 동적으로 모든 필드 렌더링 */}
+        {Object.entries(careerData).map(([key, value]) => {
+          if (!value) return null;
+          
+          return (
+            <View key={key} style={styles.subSection}>
+              <Text style={styles.subSectionTitle}>
+                {getSubSectionTitle(key)}
+              </Text>
+              <Text style={styles.subSectionContent}>
+                {Array.isArray(value) 
+                  ? value.join(', ') 
+                  : String(value)}
+              </Text>
+            </View>
+          );
+        })}
       </View>
     );
   };
 
   // 가족운 전용 렌더링 함수
   const renderFamilyFortune = (familyData: any) => {
-    if (!familyData) return null;
+    if (!familyData) {
+      return (
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>👨‍👩‍👧‍👦 가족운</Text>
+          <Text style={styles.subSectionContent}>
+            운세 데이터를 불러오는 중입니다...
+          </Text>
+        </View>
+      );
+    }
+
+    console.log('🎨 가족운 데이터:', familyData);
+
+    // 데이터가 문자열인 경우 단순 표시
+    if (typeof familyData === 'string') {
+      return (
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>👨‍👩‍👧‍👦 가족운</Text>
+          <Text style={styles.sectionContent}>{familyData}</Text>
+        </View>
+      );
+    }
 
     return (
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>👨‍👩‍👧‍👦 가족운</Text>
         
-        {/* 부모 관계 */}
-        {familyData.parent_relationship && (
-          <View style={styles.subSection}>
-            <Text style={styles.subSectionTitle}>👨‍👩 부모 관계</Text>
-            <Text style={styles.subSectionContent}>
-              {familyData.parent_relationship}
-            </Text>
-          </View>
-        )}
-
-        {/* 형제자매 화합 */}
-        {familyData.sibling_harmony && (
-          <View style={styles.subSection}>
-            <Text style={styles.subSectionTitle}>👫 형제자매 화합</Text>
-            <Text style={styles.subSectionContent}>
-              {familyData.sibling_harmony}
-            </Text>
-          </View>
-        )}
-
-        {/* 자녀 계획 */}
-        {familyData.child_planning && (
-          <View style={styles.subSection}>
-            <Text style={styles.subSectionTitle}>👶 자녀 계획</Text>
-            <Text style={styles.subSectionContent}>
-              {familyData.child_planning}
-            </Text>
-          </View>
-        )}
-
-        {/* 가족 모임 */}
-        {familyData.family_gatherings && (
-          <View style={styles.subSection}>
-            <Text style={styles.subSectionTitle}>🎉 가족 모임</Text>
-            <Text style={styles.subSectionContent}>
-              {familyData.family_gatherings}
-            </Text>
-          </View>
-        )}
-
-        {/* 세대 갈등 */}
-        {familyData.generational_conflict && (
-          <View style={styles.subSection}>
-            <Text style={styles.subSectionTitle}>⚡ 세대 갈등</Text>
-            <Text style={styles.subSectionContent}>
-              {familyData.generational_conflict}
-            </Text>
-          </View>
-        )}
+        {/* 동적으로 모든 필드 렌더링 */}
+        {Object.entries(familyData).map(([key, value]) => {
+          if (!value) return null;
+          
+          return (
+            <View key={key} style={styles.subSection}>
+              <Text style={styles.subSectionTitle}>
+                {getSubSectionTitle(key)}
+              </Text>
+              <Text style={styles.subSectionContent}>
+                {Array.isArray(value) 
+                  ? value.join(', ') 
+                  : String(value)}
+              </Text>
+            </View>
+          );
+        })}
       </View>
     );
   };
 
   // 건강운/학업운 전용 렌더링 함수 (단순 텍스트용)
   const renderSimpleFortune = (title: string, icon: string, fortuneData: any) => {
-    if (!fortuneData) return null;
+    if (!fortuneData) {
+      return (
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>{icon} {title}</Text>
+          <Text style={styles.subSectionContent}>
+            운세 데이터를 불러오는 중입니다...
+          </Text>
+        </View>
+      );
+    }
+
+    console.log(`🎨 ${title} 데이터:`, fortuneData);
 
     return (
       <View style={styles.sectionContainer}>
@@ -450,20 +439,24 @@ const FortuneDetailScreen: React.FC<Props> = ({ navigation, route }) => {
           <Text style={styles.sectionContent}>{fortuneData}</Text>
         ) : (
           /* 객체인 경우 주요 필드들을 순회하며 표시 */
-          Object.entries(fortuneData).map(([key, value]) => (
-            <View key={key} style={styles.subSection}>
-              <Text style={styles.subSectionTitle}>
-                {getSubSectionTitle(key)}
-              </Text>
-              <Text style={styles.subSectionContent}>
-                {Array.isArray(value) 
-                  ? value.join(', ') 
-                  : typeof value === 'object' && value !== null
-                    ? JSON.stringify(value, null, 2)
-                    : String(value)}
-              </Text>
-            </View>
-          ))
+          Object.entries(fortuneData).map(([key, value]) => {
+            if (!value) return null;
+            
+            return (
+              <View key={key} style={styles.subSection}>
+                <Text style={styles.subSectionTitle}>
+                  {getSubSectionTitle(key)}
+                </Text>
+                <Text style={styles.subSectionContent}>
+                  {Array.isArray(value) 
+                    ? value.join(', ') 
+                    : typeof value === 'object' && value !== null
+                      ? JSON.stringify(value, null, 2)
+                      : String(value)}
+                </Text>
+              </View>
+            );
+          })
         )}
       </View>
     );
@@ -497,6 +490,9 @@ const FortuneDetailScreen: React.FC<Props> = ({ navigation, route }) => {
       safe_directions: '🧭 안전 방향',
       driving_tips: '🚦 운전 팁',
       accident_prevention: '⚠️ 사고 예방',
+      transportation_advice: '🚦 교통 조언',
+      vehicle_maintenance: '🔧 차량 관리',
+      travel_timing: '✈️ 여행 타이밍',
       
       // 소셜운
       networking_style: '🤝 네트워킹 스타일',
@@ -504,6 +500,9 @@ const FortuneDetailScreen: React.FC<Props> = ({ navigation, route }) => {
       communication_tips: '💬 소통 팁',
       leadership_potential: '👑 리더십 잠재력',
       relationship_advice: '💝 인간관계 조언',
+      social_media_usage: '📱 SNS 활용',
+      group_dynamics: '👥 집단 역학',
+      public_speaking: '🎤 대중 연설',
       
       // 취미운
       recommended_hobbies: '🎯 추천 취미',
@@ -511,6 +510,9 @@ const FortuneDetailScreen: React.FC<Props> = ({ navigation, route }) => {
       hobby_advice: '💡 취미 조언',
       skill_development: '📚 기술 개발',
       leisure_tips: '🌟 여가 팁',
+      artistic_talents: '🎭 예술적 재능',
+      hobby_timing: '⏰ 취미 시기',
+      creative_inspiration: '✨ 창작 영감',
       
       // 성격운
       core_personality: '핵심 성격',
@@ -534,32 +536,48 @@ const FortuneDetailScreen: React.FC<Props> = ({ navigation, route }) => {
       spending_habits: '소비 습관',
       
       // 직업운
-      current_job_compatibility: '현재 직업 적성',
-      career_change_timing: '이직 타이밍',
-      promotion_potential: '승진 가능성',
-      skill_development: '스킬 개발',
-      work_environment: '업무 환경',
+      current_job_compatibility: '🎯 현재 직업 적성',
+      career_change_timing: '⏰ 이직 타이밍',
+      promotion_potential: '📈 승진 가능성',
+      skill_development: '💡 스킬 개발',
+      work_environment: '🏢 업무 환경',
+      career_advancement: '🚀 경력 발전',
+      workplace_relationships: '🤝 직장 인간관계',
+      salary_prospects: '💰 급여 전망',
+      job_satisfaction: '😊 직업 만족도',
       
       // 건강운
-      physical_health: '신체 건강',
-      mental_health: '정신 건강',
-      disease_prevention: '질병 예방',
-      exercise_recommendations: '운동 권장사항',
-      dietary_advice: '식단 조언',
+      physical_health: '💪 신체 건강',
+      mental_health: '🧠 정신 건강',
+      disease_prevention: '⚕️ 질병 예방',
+      exercise_recommendations: '🏃‍♂️ 운동 권장사항',
+      dietary_advice: '🥗 식단 조언',
+      health_checkup: '🩺 건강검진',
+      stress_management: '😌 스트레스 관리',
+      sleep_quality: '😴 수면 질',
+      immune_system: '🛡️ 면역력',
       
       // 학업운
-      learning_ability: '학습 능력',
-      exam_luck: '시험운',
-      skill_acquisition: '기술 습득',
-      academic_achievement: '학업 성취',
-      knowledge_application: '지식 활용',
+      learning_ability: '📖 학습 능력',
+      exam_luck: '✍️ 시험운',
+      skill_acquisition: '🎯 기술 습득',
+      academic_achievement: '🏆 학업 성취',
+      knowledge_application: '💡 지식 활용',
+      concentration: '🎯 집중력',
+      memory_retention: '🧠 기억력',
+      study_methods: '📚 학습 방법',
+      educational_goals: '🎓 교육 목표',
       
       // 가족운
-      parent_relationship: '부모 관계',
-      sibling_harmony: '형제자매 화합',
-      child_planning: '자녀 계획',
-      family_gatherings: '가족 모임',
-      generational_conflict: '세대 갈등',
+      parent_relationship: '👨‍👩 부모 관계',
+      sibling_harmony: '👫 형제자매 화합',
+      child_planning: '👶 자녀 계획',
+      family_gatherings: '🎉 가족 모임',
+      generational_conflict: '⚡ 세대 갈등',
+      family_communication: '💬 가족 소통',
+      family_traditions: '🏮 가족 전통',
+      extended_family: '👪 친척 관계',
+      family_finances: '💰 가계 경제',
     };
 
     return titleMap[key] || key;
