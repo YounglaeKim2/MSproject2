@@ -65,13 +65,9 @@ const ScoreCard = styled.div<{ $score: number }>`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   border-left: 5px solid
     ${(props) =>
-      props.$score >= 80
-        ? "#28a745"
-        : props.$score >= 60
-        ? "#ffc107"
-        : props.$score >= 40
-        ? "#fd7e14"
-        : "#dc3545"};
+      props.$score >= 70
+        ? "#28a745"  // 좋은 궁합 (70-100) - 녹색
+        : "#dc3545"}; // 나쁜 궁합 (0-30) - 빨간색
 `;
 
 const ScoreTitle = styled.h4`
@@ -84,13 +80,9 @@ const ScoreValue = styled.div<{ $score: number }>`
   font-size: 2.5rem;
   font-weight: bold;
   color: ${(props) =>
-    props.$score >= 80
-      ? "#28a745"
-      : props.$score >= 60
-      ? "#ffc107"
-      : props.$score >= 40
-      ? "#fd7e14"
-      : "#dc3545"};
+    props.$score >= 70
+      ? "#28a745"  // 좋은 궁합 (70-100) - 녹색
+      : "#dc3545"}; // 나쁜 궁합 (0-30) - 빨간색
   margin-bottom: 5px;
 `;
 
@@ -174,10 +166,17 @@ const ResetButton = styled.button`
 `;
 
 const getScoreDescription = (score: number): string => {
-  if (score >= 80) return "매우 좋음";
-  if (score >= 60) return "좋음";
-  if (score >= 40) return "보통";
-  return "개선 필요";
+  if (score >= 70) {
+    // 좋은 궁합 (70-100점)
+    if (score >= 90) return "완벽한 궁합 ✨";
+    if (score >= 80) return "매우 좋은 궁합 💕";
+    return "좋은 궁합 💖";
+  } else {
+    // 나쁜 궁합 (0-30점)
+    if (score <= 10) return "매우 어려운 관계 ⚠️";
+    if (score <= 20) return "어려운 관계 🤔";
+    return "힘든 관계 😔";
+  }
 };
 
 interface Props {

@@ -226,6 +226,46 @@ class CompatibilityEngine:
         else:
             return f"{sibseong1}과 {sibseong2}는 성격적 차이가 클 수 있어 많은 이해와 노력이 필요합니다."
     
+    def polarize_score(self, raw_score: int) -> int:
+        """
+        점수 극단화: 중간 점수를 피하고 명확한 결과 제공
+        50점을 기준으로 좋은 궁합(70-100) 또는 나쁜 궁합(0-30)으로 극단화
+        """
+        try:
+            # 기준점 설정
+            neutral_point = 50
+            good_threshold = 60  # 이 이상이면 좋은 궁합으로 판단
+            bad_threshold = 40   # 이 이하면 나쁜 궁합으로 판단
+            
+            if raw_score >= good_threshold:
+                # 좋은 궁합 구간 (70-100)으로 매핑
+                # 60-90 점수를 70-100으로 스케일링
+                normalized = min((raw_score - good_threshold) / (90 - good_threshold), 1.0)
+                polarized = int(70 + normalized * 30)
+                return max(70, min(100, polarized))
+            
+            elif raw_score <= bad_threshold:
+                # 나쁜 궁합 구간 (0-30)으로 매핑  
+                # 25-40 점수를 0-30으로 스케일링
+                normalized = max((raw_score - 25) / (bad_threshold - 25), 0.0)
+                polarized = int(normalized * 30)
+                return max(0, min(30, polarized))
+            
+            else:
+                # 애매한 중간 구간 (40-60)
+                # 50을 기준으로 좋은 쪽 또는 나쁜 쪽으로 극단화
+                if raw_score >= neutral_point:
+                    # 50 이상이면 좋은 궁합 쪽으로
+                    return 75  # 좋은 궁합의 시작점
+                else:
+                    # 50 미만이면 나쁜 궁합 쪽으로
+                    return 25  # 나쁜 궁합의 끝점
+                    
+        except Exception as e:
+            logger.error(f"점수 극단화 실패: {e}")
+            # 실패 시 원래 점수 반환
+            return raw_score
+    
     def calculate_overall_compatibility(self, person1_data: Dict[str, Any], person2_data: Dict[str, Any]) -> Dict[str, Any]:
         """전체 궁합 계산"""
         try:
@@ -248,37 +288,53 @@ class CompatibilityEngine:
             )
             
             # 전체 점수 계산 (오행 60%, 십성 40%)
-            overall_score = int(wuxing_result["score"] * 0.6 + sibseong_result["score"] * 0.4)
+            raw_overall_score = int(wuxing_result["score"] * 0.6 + sibseong_result["score"] * 0.4)
             
-            # 세부 점수 계산
-            love_score = int(wuxing_result["score"] * 0.7 + sibseong_result["score"] * 0.3)
-            marriage_score = int(wuxing_result["score"] * 0.5 + sibseong_result["score"] * 0.5)
-            communication_score = int(sibseong_result["score"] * 0.8 + wuxing_result["score"] * 0.2)
-            values_score = int(wuxing_result["score"] * 0.4 + sibseong_result["score"] * 0.6)
+            # 점수 극단화 적용 (0-30 또는 70-100)
+            overall_score = self.polarize_score(raw_overall_score)
             
-            # 분석 결과 종합
+            # 세부 점수 계산 및 극단화
+            raw_love_score = int(wuxing_result["score"] * 0.7 + sibseong_result["score"] * 0.3)
+            raw_marriage_score = int(wuxing_result["score"] * 0.5 + sibseong_result["score"] * 0.5)
+            raw_communication_score = int(sibseong_result["score"] * 0.8 + wuxing_result["score"] * 0.2)
+            raw_values_score = int(wuxing_result["score"] * 0.4 + sibseong_result["score"] * 0.6)
+            
+            love_score = self.polarize_score(raw_love_score)
+            marriage_score = self.polarize_score(raw_marriage_score)
+            communication_score = self.polarize_score(raw_communication_score)
+            values_score = self.polarize_score(raw_values_score)
+            
+            # 분석 결과 종합 (극단화된 점수 기준)
             strengths = []
             weaknesses = []
             advice = []
             
             if overall_score >= 70:
+                # 좋은 궁합 (70-100점)
                 strengths.extend([
-                    "서로를 이해하고 지지하는 관계",
-                    "자연스러운 소통이 가능",
-                    "상호 보완적인 성격"
+                    "천생연분의 완벽한 조화",
+                    "서로를 깊이 이해하고 지지하는 관계",
+                    "자연스럽고 편안한 소통",
+                    "상호 보완적인 완벽한 성격 매칭"
                 ])
                 advice.extend([
-                    "현재의 좋은 관계를 유지하세요",
-                    "서로의 장점을 더욱 발휘할 수 있도록 격려하세요"
+                    "이미 훌륭한 궁합을 가지고 있으니 현재 관계를 소중히 여기세요",
+                    "서로의 장점을 더욱 발휘할 수 있도록 적극적으로 격려하세요",
+                    "함께하는 시간을 늘리고 더 깊은 유대감을 형성하세요"
                 ])
             else:
+                # 나쁜 궁합 (0-30점)
                 weaknesses.extend([
-                    "성격적 차이로 인한 갈등 가능성",
-                    "서로 다른 가치관"
+                    "근본적인 성격 차이로 인한 잦은 갈등",
+                    "완전히 다른 가치관과 인생관",
+                    "소통의 어려움과 오해 빈발",
+                    "에너지와 기운의 상극 관계"
                 ])
                 advice.extend([
-                    "서로의 차이점을 인정하고 이해하려 노력하세요",
-                    "열린 마음으로 소통하는 시간을 늘리세요"
+                    "관계 개선을 위해서는 상당한 노력과 시간이 필요합니다",
+                    "서로의 근본적인 차이를 인정하고 존중하는 마음가짐이 중요합니다",
+                    "전문가의 도움을 받아 소통 방법을 개선해보세요",
+                    "무리하지 말고 서로에게 맞는 거리감을 찾아보세요"
                 ])
             
             if wuxing_result["score"] >= 70:
@@ -320,15 +376,23 @@ class CompatibilityEngine:
             }
     
     def generate_summary(self, score: int, name1: str, name2: str) -> str:
-        """궁합 분석 요약 생성"""
-        if score >= 80:
-            return f"{name1}님과 {name2}님은 천생연분의 궁합입니다! 서로를 완벽하게 보완하며 행복한 관계를 만들어 갈 수 있습니다."
-        elif score >= 60:
-            return f"{name1}님과 {name2}님은 좋은 궁합을 가지고 있습니다. 서로를 이해하고 배려한다면 안정적이고 행복한 관계가 가능합니다."
-        elif score >= 40:
-            return f"{name1}님과 {name2}님은 노력이 필요한 관계입니다. 서로의 차이를 인정하고 소통을 늘린다면 좋은 관계로 발전할 수 있습니다."
+        """궁합 분석 요약 생성 (극단화된 점수 기준)"""
+        if score >= 70:
+            # 좋은 궁합 (70-100점)
+            if score >= 90:
+                return f"✨ {name1}님과 {name2}님은 완벽한 천생연분입니다! 서로를 완전히 보완하는 이상적인 관계로, 함께하면 무한한 행복과 성장을 이루어 갈 수 있습니다."
+            elif score >= 80:
+                return f"💕 {name1}님과 {name2}님은 매우 훌륭한 궁합을 가지고 있습니다! 서로 깊이 이해하며 자연스럽게 어우러지는 조화로운 관계입니다."
+            else:
+                return f"💖 {name1}님과 {name2}님은 좋은 궁합입니다! 서로를 지지하고 배려하며 안정적이고 행복한 관계를 만들어 갈 수 있습니다."
         else:
-            return f"{name1}님과 {name2}님은 많은 이해와 인내가 필요한 관계입니다. 하지만 진정한 사랑과 노력이 있다면 어떤 어려움도 극복할 수 있습니다."
+            # 나쁜 궁합 (0-30점)
+            if score <= 10:
+                return f"⚠️ {name1}님과 {name2}님은 매우 어려운 궁합입니다. 근본적인 차이가 커서 관계 유지에 상당한 어려움이 예상됩니다. 신중한 결정이 필요합니다."
+            elif score <= 20:
+                return f"🤔 {name1}님과 {name2}님은 어려운 궁합입니다. 많은 갈등과 오해가 발생할 수 있으며, 관계 개선을 위해서는 전문적인 도움과 지속적인 노력이 필요합니다."
+            else:
+                return f"😔 {name1}님과 {name2}님은 힘든 궁합입니다. 성격과 가치관의 차이로 인한 갈등이 잦을 수 있지만, 서로를 깊이 이해하려는 노력이 있다면 극복할 수 있습니다."
 
 # 글로벌 인스턴스
 compatibility_engine = CompatibilityEngine()

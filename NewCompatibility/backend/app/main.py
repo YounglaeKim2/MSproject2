@@ -280,7 +280,8 @@ async def ai_chat_compatibility(
         ai_interpreter = get_compatibility_ai_interpreter()
         ai_result = await ai_interpreter.interpret_compatibility(
             analysis_data, 
-            question
+            question,
+            None  # context
         )
         
         return UnicodeJSONResponse({

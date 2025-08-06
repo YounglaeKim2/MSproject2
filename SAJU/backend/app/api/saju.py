@@ -438,7 +438,7 @@ async def ai_chat_interpretation(
         
         # 2. AI 해석
         ai_interpreter = get_gemini_interpreter()
-        ai_result = await ai_interpreter.interpret_saju(analysis_dict, question)
+        ai_result = await ai_interpreter.interpret_saju(analysis_dict, question, None)
         
         return {
             "success": True,

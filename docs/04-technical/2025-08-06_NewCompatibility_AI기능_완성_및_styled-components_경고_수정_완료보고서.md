@@ -18,14 +18,16 @@ NewCompatibility 서비스에 SAJU 서비스와 동일한 수준의 AI 기능을
 ### 1. 🤖 AI 채팅 시스템 구현
 
 #### 백엔드 AI 서비스
+
 - **파일**: `NewCompatibility/backend/app/services/compatibility_ai_interpreter.py`
-- **기능**: 
+- **기능**:
   - Google Gemini 2.5-flash API 연동
   - 궁합 전용 AI 프롬프트 시스템
   - 맞춤형 질문 생성 알고리즘
   - 비동기 HTTP 통신 (aiohttp)
 
 #### API 엔드포인트 추가
+
 - **파일**: `NewCompatibility/backend/app/main.py`
 - **신규 엔드포인트**:
   ```python
@@ -35,6 +37,7 @@ NewCompatibility 서비스에 SAJU 서비스와 동일한 수준의 AI 기능을
   ```
 
 #### 프론트엔드 AI 컴포넌트
+
 - **파일**: `NewCompatibility/frontend/src/components/CompatibilityAIChat.tsx`
 - **기능**:
   - 실시간 AI 채팅 인터페이스
@@ -43,6 +46,7 @@ NewCompatibility 서비스에 SAJU 서비스와 동일한 수준의 AI 기능을
   - 메시지 기록 및 타임스탬프
 
 #### 메인 앱 통합
+
 - **파일**: `NewCompatibility/frontend/src/App.tsx`
 - **기능**:
   - AI 채팅 버튼 추가
@@ -52,7 +56,9 @@ NewCompatibility 서비스에 SAJU 서비스와 동일한 수준의 AI 기능을
 ### 2. 🔧 Styled-Components 경고 수정
 
 #### 문제 해결 내용
+
 1. **CompatibilityResult.tsx**:
+
    - `score` prop → `$score` (transient prop)
    - DOM 요소로 전달되지 않는 안전한 props 사용
 
@@ -61,6 +67,7 @@ NewCompatibility 서비스에 SAJU 서비스와 동일한 수준의 AI 기능을
    - React DOM 경고 완전 제거
 
 #### 수정된 컴포넌트들
+
 ```typescript
 // Before (경고 발생)
 const ScoreCard = styled.div<{ score: number }>`...`
@@ -74,6 +81,7 @@ const ScoreCard = styled.div<{ $score: number }>`...`
 ### 3. 📦 의존성 업데이트
 
 #### 새로 추가된 패키지
+
 - **aiohttp==3.9.1**: 비동기 HTTP 클라이언트
 - **python-dotenv==1.0.0**: 환경 변수 관리
 
@@ -82,6 +90,7 @@ const ScoreCard = styled.div<{ $score: number }>`...`
 ## 🏗️ 기술 아키텍처
 
 ### AI 채팅 시스템 구조
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    프론트엔드 (React)                       │
@@ -115,12 +124,14 @@ const ScoreCard = styled.div<{ $score: number }>`...`
 ## 📊 성과 분석
 
 ### ✅ 완성된 기능들
+
 1. **AI 채팅 시스템**: SAJU 서비스와 동등한 수준
 2. **개인화된 질문**: 사용자별 맞춤 질문 생성
 3. **UI/UX 개선**: 경고 없는 깔끔한 인터페이스
 4. **완전한 통합**: 기존 궁합 분석과 완벽 연동
 
 ### 📈 기술적 향상
+
 - **코드 품질**: styled-components 모범 사례 적용
 - **사용자 경험**: 실시간 AI 채팅으로 인터랙션 증대
 - **시스템 안정성**: 경고 메시지 완전 제거
@@ -129,13 +140,15 @@ const ScoreCard = styled.div<{ $score: number }>`...`
 
 ## 🔧 문서 업데이트
 
-### 1. 모든_서비스_실행가이드.md 수정
+### 1. 모든*서비스*실행가이드.md 수정
+
 - 서비스 개수: 5개 → **8개**로 수정
 - NewCompatibility 서비스 실행 방법 추가
 - 포트 정보 및 헬스 체크 URL 업데이트
 - 정지 스크립트에 3003/8003 포트 추가
 
 ### 2. README.md 수정
+
 - NewCompatibility AI 기능 설명 추가
 - API 엔드포인트 3개 추가 문서화
 - 서비스 완성도 정보 업데이트
@@ -145,6 +158,7 @@ const ScoreCard = styled.div<{ $score: number }>`...`
 ## 🚀 배포 및 테스트 결과
 
 ### 성공적인 실행 확인
+
 ```bash
 ✅ NewCompatibility Backend (8003): API 서버 정상 동작
 ✅ NewCompatibility Frontend (3003): React 앱 로딩 완료
@@ -154,6 +168,7 @@ const ScoreCard = styled.div<{ $score: number }>`...`
 ```
 
 ### 테스트된 기능들
+
 1. **궁합 분석**: 정확한 점수 계산 및 해석
 2. **AI 채팅**: 실시간 대화 및 질문 응답
 3. **질문 생성**: 개인화된 맞춤 질문 자동 생성
@@ -164,6 +179,7 @@ const ScoreCard = styled.div<{ $score: number }>`...`
 ## 💡 주요 개발 포인트
 
 ### 1. AI 프롬프트 최적화
+
 ```python
 COMPATIBILITY_SYSTEM_PROMPT = """
 당신은 전문적인 궁합 상담사입니다.
@@ -173,17 +189,19 @@ COMPATIBILITY_SYSTEM_PROMPT = """
 ```
 
 ### 2. Transient Props 패턴
+
 ```typescript
 // styled-components v5+ 권장 패턴
 const StyledComponent = styled.div<{ $propName: Type }>`
-  color: ${props => props.$propName ? 'red' : 'blue'};
+  color: ${(props) => (props.$propName ? "red" : "blue")};
 `;
 
 // $ 접두사로 DOM 전달 방지
-<StyledComponent $propName={value} />
+<StyledComponent $propName={value} />;
 ```
 
 ### 3. 비동기 API 호출 최적화
+
 ```python
 async with aiohttp.ClientSession() as session:
     async with session.post(url, json=payload) as response:
@@ -195,16 +213,19 @@ async with aiohttp.ClientSession() as session:
 ## 🔄 향후 확장 계획
 
 ### 단기 목표 (1주일)
+
 - [ ] AI 질문 데이터베이스 확장
 - [ ] 다국어 지원 (영어/중국어)
 - [ ] 채팅 히스토리 저장 기능
 
 ### 중기 목표 (1개월)
+
 - [ ] 음성 채팅 기능
 - [ ] 궁합 리포트 PDF 생성
 - [ ] 소셜 공유 기능
 
 ### 장기 목표 (3개월)
+
 - [ ] 모바일 앱 AI 채팅 통합
 - [ ] 실시간 알림 시스템
 - [ ] 프리미엄 AI 기능
@@ -214,11 +235,13 @@ async with aiohttp.ClientSession() as session:
 ## 📚 참고 자료
 
 ### 개발 문서
+
 - [React Styled-Components 공식 문서](https://styled-components.com/)
 - [Google Gemini API 문서](https://ai.google.dev/)
 - [FastAPI 공식 문서](https://fastapi.tiangolo.com/)
 
 ### 프로젝트 내 관련 문서
+
 - `NewCompatibility/FINAL_REPORT.md`
 - `docs/03-features/사주_기능_확장_로드맵.md`
 - `docs/04-technical/AI_예상질문_시스템_구현계획서.md`

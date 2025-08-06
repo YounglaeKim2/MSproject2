@@ -528,6 +528,7 @@ const AIChatInterface: React.FC<AIChatProps> = ({ birthInfo, isVisible, onClose 
             </ModeButton>
           </QuestionModeToggle>
 
+
           {/* 개인화된 질문 버튼들 */}
           <QuickButtons>
             {isLoadingQuestions ? (

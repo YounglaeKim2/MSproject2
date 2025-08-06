@@ -546,6 +546,7 @@ const CompatibilityAIChat: React.FC<CompatibilityAIChatProps> = ({
             </ModeButton>
           </QuestionModeToggle>
 
+
           {/* 개인화된 질문 버튼들 */}
           <QuickButtons>
             {isLoadingQuestions ? (

@@ -119,7 +119,7 @@ class GeminiAIInterpreter:
         self.max_tokens = int(os.getenv("AI_MAX_TOKENS", 1000))
         self.top_p = float(os.getenv("AI_TOP_P", 0.9))
     
-    async def interpret_saju(self, analysis_result: Dict[str, Any], question: str, context: Optional[str] = None) -> Dict[str, Any]:
+    async def interpret_saju(self, analysis_result: Dict[str, Any], question: str, context: Optional[str] = None, tone: str = "concise") -> Dict[str, Any]:
         """사주 분석 결과를 AI로 해석"""
         try:
             # 사용량 체크
@@ -192,45 +192,30 @@ class GeminiAIInterpreter:
         personality_info = analysis_result.get('personality', {})
         ten_stars_info = analysis_result.get('ten_stars', {})
         
-        base_prompt = f"""당신은 30년 경력의 전문 명리학자입니다. 
-전통 명리학 이론을 바탕으로 정확하고 이해하기 쉬운 해석을 제공합니다.
+        # 간결하면서 친근한 톤
+        base_prompt = f"""당신은 간결하고 친근한 사주 상담사입니다.
 
-<사주 분석 결과>
-■ 사주팔자:
-- 년주: {palja_info.get('year_pillar', '')}
-- 월주: {palja_info.get('month_pillar', '')}  
-- 일주: {palja_info.get('day_pillar', '')}
-- 시주: {palja_info.get('hour_pillar', '')}
+**사주 정보:**
+• 사주: {palja_info.get('day_pillar', '')} 일간
+• 오행: {wuxing_info.get('strength', '')} ({wuxing_info.get('balance_score', 0)}점)
+• 성격: {personality_info.get('basic_nature', '')}
 
-■ 오행 분석:
-- 오행 분포: {wuxing_info.get('distribution', {})}
-- 균형 점수: {wuxing_info.get('balance_score', 0)}점
-- 강약: {wuxing_info.get('strength', '')}
+**질문:** {question}
 
-■ 성격 분석:
-- 기본 성격: {personality_info.get('basic_nature', '')}
-- 강점: {personality_info.get('strengths', [])}
-- 약점: {personality_info.get('weaknesses', [])}
+**간결하면서 친근하게 답변해주세요:**
+## 핵심 결과 ✨
+- (1줄로 친근하게 요약)
 
-■ 십성 분석:
-- 주요 십성: {ten_stars_info.get('dominant_stars', [])}
-- 특징: {ten_stars_info.get('characteristics', '')}
+## 주요 특징 😊
+- 특징 1 (간결하게)
+- 특징 2 (간결하게)  
+- 특징 3 (간결하게)
 
-<사용자 질문>
-{question}
+## 실천 조언 💪
+- 조언 1 (친근하게)
+- 조언 2 (친근하게)
 
-<분석 영역>
-{context or '전체 사주 분석'}
-
-<응답 가이드라인>
-1. 친근하면서도 전문적인 톤으로 작성
-2. 전통 명리학 이론을 바탕으로 설명
-3. 구체적이고 실용적인 조언 포함
-4. 너무 단정적이지 않게 "~하는 경향이 있습니다" 식으로 표현
-5. 긍정적이고 건설적인 방향으로 해석
-6. 1000자 이내로 간결하게 작성
-
-위의 사주 분석을 바탕으로 사용자의 질문에 대해 전문적이고 친근한 해석을 제공해주세요."""
+**200자 내외로 간결하면서도 따뜻하게 작성하세요. 적절한 이모지와 "~하세요", "~해보시면 좋겠어요" 같은 친근한 말투 사용.**"""
 
         return base_prompt
     

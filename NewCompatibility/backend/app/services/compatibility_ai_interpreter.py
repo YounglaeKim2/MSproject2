@@ -112,43 +112,29 @@ class CompatibilityAIInterpreter:
         analysis = compatibility_result.get('analysis', {})
         persons = compatibility_result.get('persons', {})
         
-        base_prompt = f"""당신은 30년 경력의 전문 명리학자입니다.
-궁합 분석에 특화된 전문가로서 정확하고 이해하기 쉬운 해석을 제공합니다.
+        # 간결하면서 친근한 톤
+        base_prompt = f"""당신은 간결하고 친근한 궁합 상담사입니다.
 
-<궁합 분석 결과>
-■ 두 분의 정보:
-- {persons.get('person1', {}).get('name', '')} ({persons.get('person1', {}).get('birth_date', '')})
-- {persons.get('person2', {}).get('name', '')} ({persons.get('person2', {}).get('birth_date', '')})
+**궁합 정보:**
+• 점수: {score.get('total', 0)}점 
+• 등급: {score.get('grade', '')}
 
-■ 종합 궁합 점수: {score.get('total', 0)}점 (100점 만점)
-- 등급: {score.get('grade', '')}
-- 궁합 수준: {score.get('description', '')}
+**질문:** {question}
 
-■ 세부 궁합 점수:
-- 오행 궁합: {score.get('wuxing', 0)}점
-- 십성 궁합: {score.get('ten_gods', 0)}점
+**간결하면서 친근하게 답변해주세요:**
+## 핵심 결과 💕
+- (1줄로 친근하게 요약)
 
-■ 궁합 분석:
-- 오행 상성: {analysis.get('wuxing_compatibility', '')}
-- 십성 배합: {analysis.get('ten_gods_compatibility', '')}
-- 종합 평가: {analysis.get('overall_summary', '')}
+## 궁합 특징 ✨
+- 특징 1 (간결하게)
+- 특징 2 (간결하게)  
+- 특징 3 (간결하게)
 
-<사용자 질문>
-{question}
+## 관계 조언 😊
+- 조언 1 (친근하게)
+- 조언 2 (친근하게)
 
-<분석 영역>
-{context or '전체 궁합 분석'}
-
-<응답 가이드라인>
-1. 친근하면서도 전문적인 톤으로 작성
-2. 전통 명리학 이론을 바탕으로 설명
-3. 구체적이고 실용적인 조언 포함
-4. 너무 단정적이지 않게 "~하는 경향이 있습니다" 식으로 표현
-5. 긍정적이고 건설적인 방향으로 해석
-6. 두 분의 관계 발전을 위한 구체적 조언
-7. 1000자 이내로 간결하게 작성
-
-위의 궁합 분석을 바탕으로 사용자의 질문에 대해 전문적이고 친근한 해석을 제공해주세요."""
+**200자 내외로 간결하면서도 따뜻하게 작성하세요. "두 분은 ~하시네요", "~해보시면 좋겠어요" 같은 친근한 말투와 적절한 이모지 사용.**"""
 
         return base_prompt
 
