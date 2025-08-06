@@ -1,0 +1,110 @@
+### NewCompatibility API 테스트 파일
+### VS Code REST Client 확장으로 실행
+
+# 1. 헬스 체크
+GET http://localhost:8003/health
+
+###
+
+# 2. 서비스 정보
+GET http://localhost:8003/info
+
+###
+
+# 3. SAJU API 연결 테스트
+POST http://localhost:8003/api/v1/compatibility/test
+Content-Type: application/json
+
+{
+  "person1": {
+    "year": 1990,
+    "month": 5,
+    "day": 15,
+    "hour": 14,
+    "gender": "male",
+    "name": "김민수"
+  },
+  "person2": {
+    "year": 1992,
+    "month": 8,
+    "day": 20,
+    "hour": 10,
+    "gender": "female",
+    "name": "이지은"
+  }
+}
+
+###
+
+# 4. 실제 궁합 분석
+POST http://localhost:8003/api/v1/compatibility/analyze
+Content-Type: application/json
+
+{
+  "person1": {
+    "year": 1990,
+    "month": 5,
+    "day": 15,
+    "hour": 14,
+    "gender": "male",
+    "name": "김민수"
+  },
+  "person2": {
+    "year": 1992,
+    "month": 8,
+    "day": 20,
+    "hour": 10,
+    "gender": "female",
+    "name": "이지은"
+  }
+}
+
+###
+
+# 5. 다른 데이터로 궁합 분석
+POST http://localhost:8003/api/v1/compatibility/analyze
+Content-Type: application/json
+
+{
+  "person1": {
+    "year": 1985,
+    "month": 3,
+    "day": 12,
+    "hour": 15,
+    "gender": "male",
+    "name": "홍길동"
+  },
+  "person2": {
+    "year": 1987,
+    "month": 7,
+    "day": 25,
+    "hour": 11,
+    "gender": "female",
+    "name": "김영희"
+  }
+}
+
+###
+
+# 6. 에러 테스트 (잘못된 데이터)
+POST http://localhost:8003/api/v1/compatibility/analyze
+Content-Type: application/json
+
+{
+  "person1": {
+    "year": 1800,
+    "month": 13,
+    "day": 32,
+    "hour": 25,
+    "gender": "unknown",
+    "name": ""
+  },
+  "person2": {
+    "year": 2050,
+    "month": 0,
+    "day": 0,
+    "hour": -1,
+    "gender": "invalid",
+    "name": ""
+  }
+}

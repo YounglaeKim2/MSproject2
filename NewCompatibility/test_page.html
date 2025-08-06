@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NewCompatibility API 테스트</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #f9f9f9;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .result {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 5px;
+        padding: 15px;
+        margin-top: 10px;
+        white-space: pre-wrap;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .success {
+        border-color: #28a745;
+        background: #d4edda;
+      }
+      .error {
+        border-color: #dc3545;
+        background: #f8d7da;
+      }
+      .form-row {
+        display: flex;
+        gap: 10px;
+        margin: 10px 0;
+        align-items: center;
+      }
+      .form-row label {
+        min-width: 80px;
+        font-weight: bold;
+      }
+      .form-row input,
+      .form-row select {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        flex: 1;
+      }
+      .person-form {
+        border: 2px solid #e9ecef;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+      }
+      .person-form h4 {
+        margin-top: 0;
+        color: #495057;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎯 NewCompatibility API 테스트</h1>
+
+      <!-- 1. 헬스 체크 -->
+      <div class="test-section">
+        <h3>1. 헬스 체크 (SAJU API 연결 상태)</h3>
+        <button onclick="testHealth()">헬스 체크 실행</button>
+        <div id="health-result" class="result" style="display: none"></div>
+      </div>
+
+      <!-- 2. 서비스 정보 -->
+      <div class="test-section">
+        <h3>2. 서비스 정보 조회</h3>
+        <button onclick="testServiceInfo()">서비스 정보 조회</button>
+        <div id="info-result" class="result" style="display: none"></div>
+      </div>
+
+      <!-- 3. SAJU API 연결 테스트 -->
+      <div class="test-section">
+        <h3>3. SAJU API 연결 테스트</h3>
+        <p>기본 테스트 데이터로 SAJU API 연결을 확인합니다.</p>
+        <button onclick="testSajuConnection()">SAJU 연결 테스트</button>
+        <div id="connection-result" class="result" style="display: none"></div>
+      </div>
+
+      <!-- 4. 실제 궁합 분석 (기본 데이터) -->
+      <div class="test-section">
+        <h3>4. 실제 궁합 분석 (기본 데이터)</h3>
+        <p>
+          김민수(1990.5.15 14시)와 이지은(1992.8.20 10시)의 궁합을 분석합니다.
+        </p>
+        <button onclick="testCompatibilityAnalysis()">궁합 분석 실행</button>
+        <div id="analysis-result" class="result" style="display: none"></div>
+      </div>
+
+      <!-- 5. 커스텀 궁합 분석 -->
+      <div class="test-section">
+        <h3>5. 커스텀 궁합 분석</h3>
+        <div class="person-form">
+          <h4>👤 첫 번째 사람</h4>
+          <div class="form-row">
+            <label>이름:</label>
+            <input type="text" id="person1-name" value="홍길동" />
+          </div>
+          <div class="form-row">
+            <label>생년월일:</label>
+            <input
+              type="number"
+              id="person1-year"
+              value="1985"
+              min="1900"
+              max="2030"
+              placeholder="년"
+            />
+            <input
+              type="number"
+              id="person1-month"
+              value="3"
+              min="1"
+              max="12"
+              placeholder="월"
+            />
+            <input
+              type="number"
+              id="person1-day"
+              value="12"
+              min="1"
+              max="31"
+              placeholder="일"
+            />
+            <input
+              type="number"
+              id="person1-hour"
+              value="15"
+              min="0"
+              max="23"
+              placeholder="시"
+            />
+          </div>
+          <div class="form-row">
+            <label>성별:</label>
+            <select id="person1-gender">
+              <option value="male">남성</option>
+              <option value="female">여성</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="person-form">
+          <h4>👤 두 번째 사람</h4>
+          <div class="form-row">
+            <label>이름:</label>
+            <input type="text" id="person2-name" value="김영희" />
+          </div>
+          <div class="form-row">
+            <label>생년월일:</label>
+            <input
+              type="number"
+              id="person2-year"
+              value="1987"
+              min="1900"
+              max="2030"
+              placeholder="년"
+            />
+            <input
+              type="number"
+              id="person2-month"
+              value="7"
+              min="1"
+              max="12"
+              placeholder="월"
+            />
+            <input
+              type="number"
+              id="person2-day"
+              value="25"
+              min="1"
+              max="31"
+              placeholder="일"
+            />
+            <input
+              type="number"
+              id="person2-hour"
+              value="11"
+              min="0"
+              max="23"
+              placeholder="시"
+            />
+          </div>
+          <div class="form-row">
+            <label>성별:</label>
+            <select id="person2-gender">
+              <option value="female">여성</option>
+              <option value="male">남성</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="testCustomCompatibility()">
+          커스텀 궁합 분석 실행
+        </button>
+        <div id="custom-result" class="result" style="display: none"></div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:8003";
+
+      async function makeRequest(url, options = {}) {
+        try {
+          const response = await fetch(url, {
+            headers: {
+              "Content-Type": "application/json",
+              ...options.headers,
+            },
+            ...options,
+          });
+          const data = await response.json();
+          return { success: response.ok, data, status: response.status };
+        } catch (error) {
+          return { success: false, error: error.message };
+        }
+      }
+
+      function showResult(elementId, result) {
+        const element = document.getElementById(elementId);
+        element.style.display = "block";
+        element.className = "result " + (result.success ? "success" : "error");
+        element.textContent = JSON.stringify(result, null, 2);
+      }
+
+      async function testHealth() {
+        console.log("헬스 체크 시작...");
+        const result = await makeRequest(`${API_BASE}/health`);
+        showResult("health-result", result);
+      }
+
+      async function testServiceInfo() {
+        console.log("서비스 정보 조회 시작...");
+        const result = await makeRequest(`${API_BASE}/info`);
+        showResult("info-result", result);
+      }
+
+      async function testSajuConnection() {
+        console.log("SAJU 연결 테스트 시작...");
+        const testData = {
+          person1: {
+            year: 1990,
+            month: 5,
+            day: 15,
+            hour: 14,
+            gender: "male",
+            name: "김민수",
+          },
+          person2: {
+            year: 1992,
+            month: 8,
+            day: 20,
+            hour: 10,
+            gender: "female",
+            name: "이지은",
+          },
+        };
+
+        const result = await makeRequest(
+          `${API_BASE}/api/v1/compatibility/test`,
+          {
+            method: "POST",
+            body: JSON.stringify(testData),
+          }
+        );
+        showResult("connection-result", result);
+      }
+
+      async function testCompatibilityAnalysis() {
+        console.log("궁합 분석 시작...");
+        const testData = {
+          person1: {
+            year: 1990,
+            month: 5,
+            day: 15,
+            hour: 14,
+            gender: "male",
+            name: "김민수",
+          },
+          person2: {
+            year: 1992,
+            month: 8,
+            day: 20,
+            hour: 10,
+            gender: "female",
+            name: "이지은",
+          },
+        };
+
+        const result = await makeRequest(
+          `${API_BASE}/api/v1/compatibility/analyze`,
+          {
+            method: "POST",
+            body: JSON.stringify(testData),
+          }
+        );
+        showResult("analysis-result", result);
+      }
+
+      async function testCustomCompatibility() {
+        console.log("커스텀 궁합 분석 시작...");
+
+        const customData = {
+          person1: {
+            year: parseInt(document.getElementById("person1-year").value),
+            month: parseInt(document.getElementById("person1-month").value),
+            day: parseInt(document.getElementById("person1-day").value),
+            hour: parseInt(document.getElementById("person1-hour").value),
+            gender: document.getElementById("person1-gender").value,
+            name: document.getElementById("person1-name").value,
+          },
+          person2: {
+            year: parseInt(document.getElementById("person2-year").value),
+            month: parseInt(document.getElementById("person2-month").value),
+            day: parseInt(document.getElementById("person2-day").value),
+            hour: parseInt(document.getElementById("person2-hour").value),
+            gender: document.getElementById("person2-gender").value,
+            name: document.getElementById("person2-name").value,
+          },
+        };
+
+        const result = await makeRequest(
+          `${API_BASE}/api/v1/compatibility/analyze`,
+          {
+            method: "POST",
+            body: JSON.stringify(customData),
+          }
+        );
+        showResult("custom-result", result);
+      }
+
+      // 페이지 로드시 자동으로 헬스 체크 실행
+      window.onload = function () {
+        console.log("NewCompatibility API 테스트 페이지 로드됨");
+        setTimeout(testHealth, 1000);
+      };
+    </script>
+  </body>
+</html>
