@@ -239,3 +239,67 @@ export const getElementColor = (element: string): string => {
   
   return colorMap[element] || '#BE5985';
 };
+
+/**
+ * API 응답을 모바일 앱 형식으로 변환
+ * @param apiResponse - SAJU API 응답 데이터
+ * @returns 모바일 앱에서 사용하는 형식으로 변환된 데이터
+ */
+export const transformApiResponse = (apiResponse: any): any => {
+  if (!apiResponse) return null;
+
+  const transformed: any = {};
+
+  // 사주팔자 데이터 변환
+  if (apiResponse.saju_palja) {
+    transformed.palja = {
+      year_heavenly: apiResponse.saju_palja.year_pillar?.stem || '',
+      year_earthly: apiResponse.saju_palja.year_pillar?.branch || '',
+      month_heavenly: apiResponse.saju_palja.month_pillar?.stem || '',
+      month_earthly: apiResponse.saju_palja.month_pillar?.branch || '',
+      day_heavenly: apiResponse.saju_palja.day_pillar?.stem || '',
+      day_earthly: apiResponse.saju_palja.day_pillar?.branch || '',
+      hour_heavenly: apiResponse.saju_palja.hour_pillar?.stem || '',
+      hour_earthly: apiResponse.saju_palja.hour_pillar?.branch || '',
+    };
+  }
+
+  // 오행 분석 데이터 변환
+  if (apiResponse.wuxing_analysis) {
+    const wuxing = apiResponse.wuxing_analysis;
+    const extended = wuxing.extended_analysis?.wuxing_details || {};
+
+    transformed.wuxing = {
+      wood: wuxing.목 || 0,
+      fire: wuxing.화 || 0,
+      earth: wuxing.토 || 0,
+      metal: wuxing.금 || 0,
+      water: wuxing.수 || 0,
+      wood_strength: extended.목?.strength || '보통',
+      fire_strength: extended.화?.strength || '보통',
+      earth_strength: extended.토?.strength || '보통',
+      metal_strength: extended.금?.strength || '보통',
+      water_strength: extended.수?.strength || '보통',
+      strongest_element: wuxing.balance_analysis?.dominant_element || '금',
+      weakest_element: wuxing.balance_analysis?.weakest_element || '목',
+    };
+  }
+
+  // 기본 분석 데이터 변환
+  if (apiResponse.interpretations || apiResponse.wuxing_analysis?.personality_analysis) {
+    const personality = apiResponse.wuxing_analysis?.personality_analysis || {};
+    const interpretations = apiResponse.interpretations || {};
+
+    transformed.basic_analysis = {
+      personality: interpretations.personality || personality.personality_type || '분석 중',
+      health: interpretations.health || '건강 관리에 신경 쓰시기 바랍니다',
+      wealth: interpretations.wealth || '안정적인 재물운을 위해 꾸준히 노력하세요',
+      relationships: interpretations.relationships || '원만한 인간관계를 유지하세요',
+      strengths: personality.strengths || [],
+      weaknesses: personality.weaknesses || [],
+    };
+  }
+
+  console.log('🔄 API 응답 변환 완료:', transformed);
+  return transformed;
+};

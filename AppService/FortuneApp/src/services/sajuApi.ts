@@ -230,6 +230,167 @@ export class SajuApiService {
   }
 
   /**
+   * 연애운 분석
+   */
+  async getLoveFortune(request: SajuAnalysisRequest): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/love-fortune`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return { success: true, data };
+    } catch (error) {
+      console.error('Love fortune analysis failed:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      };
+    }
+  }
+
+  /**
+   * 성격운 분석 (임시 - extended-fortune 사용)
+   */
+  async getPersonalityFortune(request: SajuAnalysisRequest): Promise<ApiResponse<any>> {
+    return this.getExtendedFortune(request);
+  }
+
+  /**
+   * 인간관계운 분석 (임시 - extended-fortune 사용)
+   */
+  async getRelationshipFortune(request: SajuAnalysisRequest): Promise<ApiResponse<any>> {
+    return this.getExtendedFortune(request);
+  }
+
+  /**
+   * 재물운 분석 (임시 - extended-fortune 사용)
+   */
+  async getWealthFortune(request: SajuAnalysisRequest): Promise<ApiResponse<any>> {
+    return this.getExtendedFortune(request);
+  }
+
+  /**
+   * 직업운 분석
+   */
+  async getCareerFortune(request: SajuAnalysisRequest): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/career-fortune`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return { success: true, data };
+    } catch (error) {
+      console.error('Career fortune analysis failed:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      };
+    }
+  }
+
+  /**
+   * 건강운 분석
+   */
+  async getHealthFortune(request: SajuAnalysisRequest): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/health-fortune`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return { success: true, data };
+    } catch (error) {
+      console.error('Health fortune analysis failed:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      };
+    }
+  }
+
+  /**
+   * 학업운 분석
+   */
+  async getStudyFortune(request: SajuAnalysisRequest): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/study-fortune`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return { success: true, data };
+    } catch (error) {
+      console.error('Study fortune analysis failed:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      };
+    }
+  }
+
+  /**
+   * 가족운 분석
+   */
+  async getFamilyFortune(request: SajuAnalysisRequest): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/family-fortune`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return { success: true, data };
+    } catch (error) {
+      console.error('Family fortune analysis failed:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      };
+    }
+  }
+
+  /**
    * 대운 분석
    */
   async getDaeunAnalysis(request: SajuAnalysisRequest): Promise<ApiResponse<any>> {
@@ -299,5 +460,13 @@ export const getPaljaOnly = (request: SajuAnalysisRequest) => sajuApi.getPaljaOn
 export const getWuxingOnly = (request: SajuAnalysisRequest) => sajuApi.getWuxingOnly(request);
 export const getExtendedFortune = (request: SajuAnalysisRequest) => sajuApi.getExtendedFortune(request);
 export const getExtendedFortunePhase2 = (request: SajuAnalysisRequest) => sajuApi.getExtendedFortunePhase2(request);
+export const getLoveFortune = (request: SajuAnalysisRequest) => sajuApi.getLoveFortune(request);
+export const getPersonalityFortune = (request: SajuAnalysisRequest) => sajuApi.getPersonalityFortune(request);
+export const getRelationshipFortune = (request: SajuAnalysisRequest) => sajuApi.getRelationshipFortune(request);
+export const getWealthFortune = (request: SajuAnalysisRequest) => sajuApi.getWealthFortune(request);
+export const getCareerFortune = (request: SajuAnalysisRequest) => sajuApi.getCareerFortune(request);
+export const getHealthFortune = (request: SajuAnalysisRequest) => sajuApi.getHealthFortune(request);
+export const getStudyFortune = (request: SajuAnalysisRequest) => sajuApi.getStudyFortune(request);
+export const getFamilyFortune = (request: SajuAnalysisRequest) => sajuApi.getFamilyFortune(request);
 export const getDaeunAnalysis = (request: SajuAnalysisRequest) => sajuApi.getDaeunAnalysis(request);
 export const getSaeunAnalysis = (request: SajuAnalysisRequest, targetYear?: number) => sajuApi.getSaeunAnalysis(request, targetYear);

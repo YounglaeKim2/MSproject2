@@ -1,5 +1,12 @@
 export type RootStackParamList = {
-  Home: undefined;
+  Home: {
+    birthInfo?: {
+      birthDate: string;
+      birthTime: string;
+      gender: string;
+      name?: string;
+    };
+  } | undefined;
   Profile: undefined;
   Settings: undefined;
   ChatGPT: undefined;

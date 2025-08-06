@@ -13,7 +13,7 @@ import {
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import { analyzeSaju } from "../services/sajuApi";
-import { convertToSajuRequest, validateInput, strengthToPercentage, getElementColor } from "../utils/dataMapper";
+import { convertToSajuRequest, validateInput, strengthToPercentage, getElementColor, transformApiResponse } from "../utils/dataMapper";
 import type { SajuAnalysisResult } from "../types/saju";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Profile">;
@@ -53,7 +53,9 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
       
       if (response.success && response.data) {
         console.log("사주 분석 성공:", response.data);
-        setAnalysisResult(response.data);
+        // API 응답을 모바일 앱 형식으로 변환
+        const transformedData = transformApiResponse(response.data);
+        setAnalysisResult(transformedData);
         setShowResult(true);
       } else {
         throw new Error(response.error || "사주 분석에 실패했습니다.");
@@ -201,9 +203,19 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
           <TouchableOpacity
             style={[styles.button, styles.backButton]}
-            onPress={() => navigation.goBack()}
+            onPress={() => {
+              // HomeScreen으로 생년월일 정보와 함께 돌아가기
+              navigation.navigate('Home', {
+                birthInfo: {
+                  birthDate,
+                  birthTime,
+                  gender,
+                  name
+                }
+              });
+            }}
           >
-            <Text style={styles.buttonText}>돌아가기</Text>
+            <Text style={styles.buttonText}>확장운세 보러가기</Text>
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>

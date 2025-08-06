@@ -14,7 +14,7 @@ import FortuneCard from "../components/FortuneCard";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
-const HomeScreen: React.FC<Props> = ({ navigation }) => {
+const HomeScreen: React.FC<Props> = ({ navigation, route }) => {
   // 사주 정보 저장 (ProfileScreen에서 분석 후 저장됨)
   const [birthInfo, setBirthInfo] = useState<{
     birthDate: string;
@@ -22,6 +22,14 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     gender: string;
     name?: string;
   } | null>(null);
+
+  // ProfileScreen에서 전달받은 birthInfo 처리
+  React.useEffect(() => {
+    if (route.params?.birthInfo) {
+      setBirthInfo(route.params.birthInfo);
+      console.log('🔮 HomeScreen: birthInfo 업데이트됨', route.params.birthInfo);
+    }
+  }, [route.params?.birthInfo]);
 
   // 확장운세 데이터 정의
   const fortuneCards = [
@@ -35,27 +43,35 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
       phase: 1 as const,
     },
     {
-      id: 'personality',
-      title: '성격운',
-      description: '숨겨진 성격과 잠재력을\n깊이 분석합니다',
-      icon: '🎭',
+      id: 'residence',
+      title: '주거운',
+      description: '이사 방향과 주택 유형\n인테리어 색상 추천',
+      icon: '🏠',
       color: '#9C27B0',
       phase: 1 as const,
     },
     {
-      id: 'relationship',
-      title: '인간관계운',
-      description: '사람들과의 관계에서\n성공하는 비법',
-      icon: '👥',
+      id: 'transportation',
+      title: '교통운',
+      description: '차량 선택과 안전 운행\n행운 색상 추천',
+      icon: '🚗',
       color: '#673AB7',
       phase: 1 as const,
     },
     {
-      id: 'wealth',
-      title: '재물운',
-      description: '돈과 재물의 흐름을\n파악해보세요',
-      icon: '💰',
+      id: 'social',
+      title: '소셜운',
+      description: '인맥 관리와 소통 방법\n네트워킹 전략',
+      icon: '👥',
       color: '#3F51B5',
+      phase: 1 as const,
+    },
+    {
+      id: 'hobby',
+      title: '취미운',
+      description: '맞춤 취미 활동과\n창작 활동 추천',
+      icon: '🎨',
+      color: '#FF5722',
       phase: 1 as const,
     },
     // Phase 2 확장운세

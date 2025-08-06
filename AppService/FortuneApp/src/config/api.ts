@@ -16,7 +16,7 @@ const getApiHost = () => {
   
   // 개발 환경에서는 모든 플랫폼에서 네트워크 IP 사용
   // iOS 시뮬레이터에서도 localhost 접근이 실패하므로 네트워크 IP 사용
-  return 'http://192.168.219.141:8000';
+  return 'http://192.168.219.123:8000';
 };
 
 // 네트워크 환경별 API 베이스 URL
@@ -25,7 +25,7 @@ const API_ENDPOINTS = {
   LOCAL_WEB: 'http://localhost:8000/api/v1/saju',
   
   // 네트워크 개발 (모바일 기기에서 접근)
-  NETWORK_DEV: 'http://192.168.219.141:8000/api/v1/saju',
+  NETWORK_DEV: 'http://192.168.219.123:8000/api/v1/saju',
   
   // Android 에뮬레이터용
   ANDROID_EMU: 'http://10.0.2.2:8000/api/v1/saju',
