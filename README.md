@@ -4,7 +4,16 @@
 
 <div align="center">
 
-![서비스 상태](https://img.shields.io/badge/서비스-운영중-brightgreen)
+![서비스 상태](h### 💕 NewCompatibility Service
+
+**포트**: 3003/8003  
+**역할**: 궁합 분석  
+**기능**: SAJU API 연동 궁합  
+**기술**: React + TypeScript + FastAPI  
+**알고리즘**: 오행 상생상극 + 십성 배합  
+**상태**: ✅ 운영중 (2025-08-06 완성)
+
+### 🎭 Physiognomy Service.io/badge/서비스-운영중-brightgreen)
 ![마이크로서비스](https://img.shields.io/badge/마이크로서비스-8개-blue)
 ![완성도](https://img.shields.io/badge/완성도-99%25-success)
 ![AI 모델](https://img.shields.io/badge/AI-Gemini%202.5--flash-orange)
@@ -20,15 +29,15 @@
 
 ## 📊 프로젝트 개요
 
-| 항목             | 내용                                                            |
-| ---------------- | --------------------------------------------------------------- |
-| **서비스 수**    | 8개 (Landing, SAJU Web/API, Mobile, Compatibility, Physiognomy) |
-| **데이터베이스** | 73,442개 만세력 레코드 (1900-2100년)                            |
-| **분석 메서드**  | 37개 (사주팔자, 오행, 십성, 대운, 세운) + 8개 확장운세          |
-| **AI 기술**      | Google Gemini 2.5-flash, MediaPipe, OpenCV                      |
-| **아키텍처**     | 마이크로서비스 + 크로스플랫폼 (웹/모바일)                       |
-| **프론트엔드**   | React 18 + React Native (Expo) + TypeScript                     |
-| **백엔드**       | FastAPI + Pydantic                                              |
+| 항목             | 내용                                                                              |
+| ---------------- | --------------------------------------------------------------------------------- |
+| **서비스 수**    | 8개 (Landing, SAJU Web/API, Mobile, NewCompatibility, Physiognomy) |
+| **데이터베이스** | 73,442개 만세력 레코드 (1900-2100년)                                              |
+| **분석 메서드**  | 37개 (사주팔자, 오행, 십성, 대운, 세운) + 8개 확장운세                            |
+| **AI 기술**      | Google Gemini 2.5-flash, MediaPipe, OpenCV                                        |
+| **아키텍처**     | 마이크로서비스 + 크로스플랫폼 (웹/모바일)                                         |
+| **프론트엔드**   | React 18 + React Native (Expo) + TypeScript                                       |
+| **백엔드**       | FastAPI + Pydantic                                                                |
 
 ## 🏗️ 서비스 아키텍처
 
@@ -39,12 +48,12 @@ graph TB
     A[사용자] --> B[Landing Page :4000]
     A --> M[📱 Mobile App :8082]
     B --> C[SAJU Web :3000]
-    B --> D[Compatibility Service :3002]
+    B --> D2[NewCompatibility :3003]
     B --> E[Physiognomy Service :3001]
 
     C --> F[SAJU API :8000]
     M --> F
-    D --> G[Compatibility API :8002]
+    D2 --> F
     E --> H[Physiognomy API :8001]
 
     F --> I[(만세력 DB<br/>73,442 records)]
@@ -97,7 +106,16 @@ graph TB
 **알고리즘**: 오행상성 + 십성매칭  
 **상태**: ✅ 운영중
 
-### 🎭 Physiognomy Service
+### � NewCompatibility Service
+
+**포트**: 3003/8003  
+**역할**: 새로운 궁합 분석  
+**기능**: SAJU API 연동 궁합  
+**기술**: React + TypeScript + FastAPI  
+**알고리즘**: 오행 상생상극 + 십성 배합  
+**상태**: ✅ 운영중 (2025-08-06 완성)
+
+### �🎭 Physiognomy Service
 
 **포트**: 3001/8001  
 **역할**: AI 관상 분석  
@@ -121,9 +139,10 @@ MSProject2/
 │   └── 사주해석로직.txt # 전통 명리학 문서
 ├── AppService/        # 모바일 앱 (:8082)
 │   └── FortuneApp/    # React Native + Expo
-├── Compatibility/     # 궁합 분석 (:8002/:3002)
-│   ├── backend/       # FastAPI + 궁합 알고리즘
-│   └── frontend/      # React 18 + TypeScript
+├── NewCompatibility/  # 궁합 분석 (:8003/:3003) - 2025-08-06 완성
+│   ├── backend/       # FastAPI + SAJU API 연동 + 궁합 엔진
+│   ├── frontend/      # React 18 + TypeScript + styled-components
+│   └── FINAL_REPORT.md # 완성 보고서
 ├── Physiognomy/       # 관상 분석 (:8001/:3001)
 │   ├── backend/       # FastAPI + AI 모델
 │   ├── frontend/      # React 18 + TypeScript
@@ -190,14 +209,10 @@ cd SAJU/frontend && npm install && npm start
 cd AppService/FortuneApp && npm install
 npx expo start --port 8082 --tunnel
 
-# 터미널 5: 궁합 백엔드
-cd Compatibility/backend && pip install -r requirements.txt
-python start_compatibility.py
+# 터미널 5: 새 궁합 서비스
+cd NewCompatibility && start_new_compatibility.bat && start_frontend.bat
 
-# 터미널 6: 궁합 프론트엔드
-cd Compatibility/frontend && npm install && npm start
-
-# 터미널 7: 관상학 서비스 (Docker 권장)
+# 터미널 6: 관상학 서비스 (Docker 권장)
 cd Physiognomy && docker-compose up --build
 ```
 
@@ -211,13 +226,13 @@ cd Physiognomy && docker-compose up --build
 
 [![Landing Page](https://img.shields.io/badge/🏠_Landing_Page-4000-blue?style=for-the-badge)](http://localhost:4000)
 [![SAJU 분석](https://img.shields.io/badge/🔮_SAJU_분석-3000-purple?style=for-the-badge)](http://localhost:3000)
-[![궁합 분석](https://img.shields.io/badge/💕_궁합_분석-3002-pink?style=for-the-badge)](http://localhost:3002)
+[![새 궁합 분석](https://img.shields.io/badge/💕_새_궁합_분석-3003-pink?style=for-the-badge)](http://localhost:3003)
 [![관상 분석](https://img.shields.io/badge/🎭_관상_분석-3001-orange?style=for-the-badge)](http://localhost:3001)
 
 #### 📚 API 문서
 
 [![SAJU API](https://img.shields.io/badge/SAJU_API-8000-green?style=flat-square)](http://localhost:8000/docs)
-[![궁합 API](https://img.shields.io/badge/궁합_API-8002-green?style=flat-square)](http://localhost:8002/docs)
+[![새 궁합 API](https://img.shields.io/badge/새_궁합_API-8003-green?style=flat-square)](http://localhost:8003/docs)
 [![관상 API](https://img.shields.io/badge/관상_API-8001-green?style=flat-square)](http://localhost:8001/docs)
 
 #### 📱 모바일 앱
@@ -231,7 +246,7 @@ cd Physiognomy && docker-compose up --build
 ### 🏠 Landing Page - 통합 허브
 
 - **4가지 테마**: 기본/다크/라이트/고대비 모드
-- **실시간 모니터링**: 8개 서비스 상태 실시간 확인
+- **실시간 모니터링**: 7개 서비스 상태 실시간 확인
 - **통합 네비게이션**: 모든 서비스 원클릭 접근
 - **반응형 디자인**: 모바일/태블릿/데스크톱 최적화
 
@@ -253,12 +268,12 @@ cd Physiognomy && docker-compose up --build
 - **실시간 API**: SAJU 백엔드와 완전 연동
 - **직관적 UI**: 모바일 최적화된 사용자 경험
 
-### 💕 2. Compatibility Service - 궁합 분석
+### 💕 NewCompatibility Service - 궁합 분석
 
-- **사주 기반 궁합**: 두 사람의 사주팔자 비교 분석
-- **오행 상성**: 상생/상극 관계 분석
-- **성격 매칭**: 십성 기반 성격 궁합
-- **종합 점수**: 0-100점 궁합 지수
+- **SAJU API 연동**: 기존 SAJU 시스템의 73,442개 만세력 활용
+- **고급 알고리즘**: 25개 오행 상생상극 + 100개 십성 배합
+- **정확한 분석**: 기존 SAJU API 데이터 품질 보장
+- **종합 점수**: 0-100점 궁합 지수 + 상세 해석
 
 ### 🎭 3. Physiognomy Service - AI 관상 분석
 
@@ -284,11 +299,12 @@ GET  /api/v1/saju/wuxing-only # 오행 분석만
 GET  /api/v1/saju/health     # 헬스 체크
 ```
 
-### Compatibility API (포트 8002)
+### NewCompatibility API (포트 8003)
 
 ```bash
 POST /api/v1/compatibility/analyze  # 궁합 분석
-GET  /api/v1/compatibility/health   # 헬스 체크
+POST /api/v1/compatibility/test     # 연결 테스트
+GET  /health                         # 헬스 체크
 ```
 
 ### Physiognomy API (포트 8001)
@@ -369,7 +385,7 @@ GET  /docs           # API 문서
 
 ### ✅ 완성도: 99%
 
-- **8개 서비스** 완전 구현 (랜딩 + 웹 6개 + 모바일 1개)
+- **7개 서비스** 완전 구현 (랜딩 + 웹 5개 + 모바일 1개)
 - **73,442개 만세력 데이터** 구축
 - **37개 사주 분석 메서드 + 8개 확장운세** 완성
 - **크로스플랫폼 앱** 구축 (웹 + iOS/Android)

@@ -5,22 +5,26 @@
 ## 🚀 빠른 시작
 
 ### 1단계: SAJU API 확인
+
 ```bash
 curl http://localhost:8000/health
 ```
 
 ### 2단계: 백엔드 시작
+
 ```bash
 cd c:\workspace\MSproject2\NewCompatibility
 start_new_compatibility.bat
 ```
 
 ### 3단계: 프론트엔드 시작
+
 ```bash
 start_frontend.bat
 ```
 
 ### 4단계: 웹 접속
+
 - 브라우저에서 `http://localhost:3003` 접속
 - 궁합 분석 시작!
 
