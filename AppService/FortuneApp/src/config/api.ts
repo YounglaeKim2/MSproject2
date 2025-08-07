@@ -14,9 +14,14 @@ const getApiHost = () => {
     return 'https://your-domain.com';
   }
   
-  // 개발 환경에서는 모든 플랫폼에서 네트워크 IP 사용
-  // iOS 시뮬레이터에서도 localhost 접근이 실패하므로 네트워크 IP 사용
-  return 'http://192.168.219.123:8000';
+  // 웹 개발 환경에서는 localhost 사용
+  if (Platform.OS === 'web') {
+    return 'http://localhost:8000';
+  }
+  
+  // 모바일 플랫폼에서는 네트워크 IP 필요 시 사용 
+  // (현재는 웹에서만 실행하므로 localhost 사용)
+  return 'http://localhost:8000';
 };
 
 // 네트워크 환경별 API 베이스 URL
