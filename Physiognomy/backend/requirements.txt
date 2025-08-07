@@ -1,0 +1,15 @@
+opencv-python
+mediapipe
+numpy
+fastapi
+uvicorn
+python-multipart
+SQLAlchemy
+google-generativeai
+psycopg2-binary
+langchain
+langchain-community
+langchain-google-genai
+faiss-cpu
+sentence-transformers
+openai>=1.0.0

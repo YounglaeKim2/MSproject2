@@ -100,9 +100,6 @@ Desktop.ini
 Physiognomy/backend/uploads/
 Physiognomy/backend/app/static/amulets/
 
-# Physiognomy service (exclude entire directory)
-Physiognomy/
-
 # Cache
 .cache/
 
@@ -122,4 +119,4 @@ C*.json
 싸이월드*.png
 
 # AI usage tracking
-gemini_usage.json.env
+gemini_usage.json

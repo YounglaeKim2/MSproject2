@@ -156,6 +156,8 @@ npm install
 
 # Expo 개발 서버 시작
 npx expo start --port 8082 --tunnel
+npx expo start --web
+
 
 # ✅ 성공: Expo DevTools가 열리고 QR코드로 모바일 접속
 ```
