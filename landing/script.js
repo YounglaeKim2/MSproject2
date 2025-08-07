@@ -13,13 +13,13 @@
     { name: "Mobile App", url: "http://localhost:8082", port: "8082" },
     {
       name: "Compatibility API",
-      url: "http://localhost:8002/health",
-      port: "8002",
+      url: "http://localhost:8003/health",
+      port: "8003",
     },
     {
       name: "Compatibility Frontend",
-      url: "http://localhost:3002",
-      port: "3002",
+      url: "http://localhost:3003",
+      port: "3003",
     },
     {
       name: "Physiognomy API",
