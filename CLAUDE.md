@@ -186,10 +186,11 @@ NewCompatibility/
 - 개발환경: 모든 origins 허용
 - SAJU: `http://localhost:3000` 허용
 
-## 🎊 현재 프로젝트 상태 (2025.08.07 Azure OpenAI 통합 완성)
+## 🎊 현재 프로젝트 상태 (2025.08.07 Azure OpenAI 보안 강화 완성)
 
 **SAJU 서비스: 100% 완성 + Azure OpenAI 통합** ✅  
 **NewCompatibility 서비스: 100% 완성 + Azure OpenAI 통합** ✅
+**Azure OpenAI 보안: 환경변수 기반 안전한 API 키 관리** ✅
 
 ### 완성된 모든 기능들
 
@@ -211,14 +212,29 @@ NewCompatibility/
 
 ### 🤖 AI 통합 현황
 
-#### Azure OpenAI GPT-4.1 통합
+#### Azure OpenAI GPT-4.1 통합 (보안 강화)
 - **SAJU**: `/api/v1/azure/` - 개인 사주 분석 특화
 - **NewCompatibility**: `/api/v1/azure-compatibility/` - 궁합 분석 특화
 - **공통 기능**: 대화형 해석, 개인화된 질문 생성, 연결 테스트
+- **보안 강화**: 환경변수(.env) 기반 API 키 관리, GitHub 안전 푸시
 - **안전한 통합**: try-catch로 Gemini와 독립 운영
 
 #### Google Gemini 2.5-flash (기존)
 - **SAJU**: `/api/v1/saju/` - 기존 서비스 유지
 - **NewCompatibility**: `/api/v1/compatibility/` - 기존 서비스 유지
 
-**🏆 이중 AI 지원으로 세계 최고 수준의 온라인 사주/궁합 분석 플랫폼 완성!** 🚀
+### 🔐 보안 강화 완료 (2025.08.07)
+
+#### Azure OpenAI API 키 보안
+- **환경변수 적용**: `.env` 파일로 API 키 분리
+- **GitHub 보안**: `.gitignore`에 `.env` 제외 설정
+- **개발자 설정**: 각 개발자는 개별 `.env` 파일 생성 필요
+- **필수 환경변수**:
+  ```
+  AZURE_OPENAI_API_KEY=your-api-key
+  AZURE_OPENAI_ENDPOINT=https://1team-openai.openai.azure.com
+  AZURE_OPENAI_DEPLOYMENT=saju-gpt-4.1
+  AZURE_OPENAI_VERSION=2025-01-01-preview
+  ```
+
+**🏆 이중 AI 지원 + 보안 강화로 세계 최고 수준의 온라인 사주/궁합 분석 플랫폼 완성!** 🚀

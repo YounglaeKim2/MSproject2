@@ -8,6 +8,10 @@ import json
 import aiohttp
 from typing import Dict, Any, Optional
 from datetime import datetime
+from dotenv import load_dotenv
+
+# .env 파일 로드
+load_dotenv()
 
 # Windows UTF-8 설정 (주석 처리하여 인코딩 문제 방지)
 # if sys.platform.startswith('win'):
@@ -20,11 +24,14 @@ class AzureOpenAIService:
     """Azure OpenAI 완전 독립 서비스"""
     
     def __init__(self):
-        # Azure OpenAI 설정 (환경변수 사용)
-        self.api_key = os.getenv("AZURE_OPENAI_API_KEY", "your-azure-openai-api-key-here")
+        # Azure OpenAI 설정 (환경변수 필수)
+        self.api_key = os.getenv("AZURE_OPENAI_API_KEY")
         self.endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "https://1team-openai.openai.azure.com")
         self.deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT", "saju-gpt-4.1")
         self.api_version = os.getenv("AZURE_OPENAI_VERSION", "2025-01-01-preview")
+        
+        if not self.api_key:
+            raise ValueError("AZURE_OPENAI_API_KEY 환경변수가 설정되지 않았습니다.")
         
         # API URL 구성
         self.api_url = f"{self.endpoint}/openai/deployments/{self.deployment_name}/chat/completions?api-version={self.api_version}"
