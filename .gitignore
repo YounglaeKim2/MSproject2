@@ -122,4 +122,4 @@ C*.json
 싸이월드*.png
 
 # AI usage tracking
-gemini_usage.json
+gemini_usage.json.env

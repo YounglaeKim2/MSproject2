@@ -53,6 +53,17 @@ async def global_exception_handler(request: Request, exc: Exception):
 # API 라우터 등록
 app.include_router(saju.router, prefix="/api/v1/saju", tags=["saju"])
 
+# Azure OpenAI API 라우터 등록 (안전한 try-catch)
+try:
+    from app.api.azure_api import azure_router
+    app.include_router(azure_router, prefix="/api/v1/azure", tags=["azure"])
+    print("Azure OpenAI API router registered successfully")
+except ImportError as e:
+    print(f"Azure OpenAI API router load failed: {e}")
+    print("Only Gemini AI is available")
+except Exception as e:
+    print(f"Azure OpenAI API router registration failed: {e}")
+
 @app.get("/")
 async def root():
     return {"message": "사주 웹 서비스 API에 오신 것을 환영합니다!"}

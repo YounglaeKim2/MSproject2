@@ -384,6 +384,17 @@ async def test_ai_connection():
             "message": "AI 연결 테스트 실패"
         }, status_code=500)
 
+# Azure OpenAI API 라우터 등록 (안전한 try-catch)
+try:
+    from app.routers.azure_compatibility_api import azure_compatibility_router
+    app.include_router(azure_compatibility_router, prefix="/api/v1/azure-compatibility", tags=["azure-compatibility"])
+    logger.info("Azure OpenAI 궁합 API 라우터 등록 성공")
+except ImportError as e:
+    logger.error(f"Azure OpenAI 궁합 API 라우터 로드 실패: {e}")
+    logger.info("Gemini AI만 사용 가능합니다")
+except Exception as e:
+    logger.error(f"Azure OpenAI 궁합 API 라우터 등록 실패: {e}")
+
 @app.get("/info")
 async def service_info():
     return {

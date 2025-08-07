@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import AIChatInterface from "./components/AIChatInterface";
+import AzureAIChatInterface from "./components/AzureAIChatInterface";
 
 const Container = styled.div`
   max-width: 800px;
@@ -96,8 +97,8 @@ const AIButton = styled.button`
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  margin: 20px auto;
-  display: block;
+  margin: 10px;
+  display: inline-block;
   transition: all 0.3s;
   box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
 
@@ -109,6 +110,35 @@ const AIButton = styled.button`
   &:active {
     transform: translateY(0);
   }
+`;
+
+const AzureButton = styled.button`
+  background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 10px;
+  display: inline-block;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(0, 120, 212, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 120, 212, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+const AIButtonContainer = styled.div`
+  text-align: center;
+  margin: 20px 0;
 `;
 
 const ResultContainer = styled.div`
@@ -474,6 +504,7 @@ function App() {
   );
   const [error, setError] = useState("");
   const [showAIChat, setShowAIChat] = useState(false);
+  const [showAzureChat, setShowAzureChat] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -2865,27 +2896,46 @@ function App() {
             </div>
           )}
 
-          {/* AI 채팅 버튼 */}
-          <AIButton onClick={() => setShowAIChat(true)}>
-            🤖 AI와 상세 해석 나누기
-          </AIButton>
+          {/* AI 채팅 버튼들 */}
+          <AIButtonContainer>
+            <AIButton onClick={() => setShowAIChat(true)}>
+              🤖 Gemini AI 해석
+            </AIButton>
+            <AzureButton onClick={() => setShowAzureChat(true)}>
+              ⚡ Azure GPT-4.1 해석
+            </AzureButton>
+          </AIButtonContainer>
         </ResultContainer>
       )}
 
-      {/* AI 채팅 인터페이스 */}
+      {/* AI 채팅 인터페이스들 */}
       {result && (
-        <AIChatInterface
-          birthInfo={{
-            year: parseInt(formData.year),
-            month: parseInt(formData.month),
-            day: parseInt(formData.day),
-            hour: parseInt(formData.hour),
-            gender: formData.gender,
-            name: formData.name
-          }}
-          isVisible={showAIChat}
-          onClose={() => setShowAIChat(false)}
-        />
+        <>
+          <AIChatInterface
+            birthInfo={{
+              year: parseInt(formData.year),
+              month: parseInt(formData.month),
+              day: parseInt(formData.day),
+              hour: parseInt(formData.hour),
+              gender: formData.gender,
+              name: formData.name
+            }}
+            isVisible={showAIChat}
+            onClose={() => setShowAIChat(false)}
+          />
+          <AzureAIChatInterface
+            birthInfo={{
+              year: parseInt(formData.year),
+              month: parseInt(formData.month),
+              day: parseInt(formData.day),
+              hour: parseInt(formData.hour),
+              gender: formData.gender,
+              name: formData.name
+            }}
+            isVisible={showAzureChat}
+            onClose={() => setShowAzureChat(false)}
+          />
+        </>
       )}
     </Container>
   );

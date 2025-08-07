@@ -6,13 +6,13 @@
 
 ### ✅ 필수 요구사항
 
-| 요구사항 | 버전 | 설치 확인 | 필수 여부 |
-|----------|------|-----------|----------|
-| **Python** | 3.8+ | `python --version` | ✅ 필수 |
-| **Node.js** | 14+ | `node --version` | ✅ 필수 |
-| **npm** | 6+ | `npm --version` | ✅ 필수 |
-| **Git** | latest | `git --version` | ✅ 필수 |
-| **Docker Desktop** | latest | `docker --version` | 🔶 권장 |
+| 요구사항           | 버전   | 설치 확인          | 필수 여부 |
+| ------------------ | ------ | ------------------ | --------- |
+| **Python**         | 3.8+   | `python --version` | ✅ 필수   |
+| **Node.js**        | 14+    | `node --version`   | ✅ 필수   |
+| **npm**            | 6+     | `npm --version`    | ✅ 필수   |
+| **Git**            | latest | `git --version`    | ✅ 필수   |
+| **Docker Desktop** | latest | `docker --version` | 🔶 권장   |
 
 ### 💻 지원 운영체제
 
@@ -53,12 +53,12 @@ ls   # macOS/Linux
 
 **🎉 성공!** 아래 링크들이 모두 열리면 설치 완료입니다:
 
-| 서비스 | URL | 설명 |
-|--------|-----|------|
+| 서비스           | URL                                     | 설명                    |
+| ---------------- | --------------------------------------- | ----------------------- |
 | 🏠 **메인 허브** | [localhost:4000](http://localhost:4000) | 모든 서비스 통합 접근점 |
-| 🔮 **사주 분석** | [localhost:3000](http://localhost:3000) | 핵심 사주 서비스 |
-| 💕 **궁합 분석** | [localhost:3003](http://localhost:3003) | 궁합 및 AI 채팅 |
-| 🎭 **관상 분석** | [localhost:3001](http://localhost:3001) | AI 관상 서비스 |
+| 🔮 **사주 분석** | [localhost:3000](http://localhost:3000) | 핵심 사주 서비스        |
+| 💕 **궁합 분석** | [localhost:3003](http://localhost:3003) | 궁합 및 AI 채팅         |
+| 🎭 **관상 분석** | [localhost:3001](http://localhost:3001) | AI 관상 서비스          |
 
 ## 🛑 정지 및 재시작
 
@@ -91,6 +91,7 @@ python server.py
 ### 🔮 **2. SAJU 서비스 실행**
 
 **백엔드 시작:**
+
 ```bash
 # 터미널 2
 cd SAJU/backend
@@ -99,12 +100,13 @@ cd SAJU/backend
 pip install -r requirements.txt
 
 # 서버 실행
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --port 8000 --host 0.0.0.0
 
 # ✅ 성공: http://localhost:8000/docs 에서 API 문서 확인
 ```
 
 **프론트엔드 시작:**
+
 ```bash
 # 터미널 3
 cd SAJU/frontend
@@ -125,7 +127,7 @@ npm start
 cd NewCompatibility
 ./start_new_compatibility.bat
 
-# 터미널 5: 프론트엔드  
+# 터미널 5: 프론트엔드
 ./start_frontend.bat
 
 # ✅ 성공: http://localhost:3003 접속 가능
@@ -173,6 +175,7 @@ npx expo start --port 8082 --tunnel
 ### 📝 **2단계: 첫 사주 분석**
 
 1. **[localhost:3000](http://localhost:3000)** 에서 정보 입력
+
    - 생년월일시 (양력)
    - 성별
    - 이름 (선택)
@@ -199,7 +202,7 @@ npx expo start --port 8082 --tunnel
 
 ### 🎭 **5단계: 관상 분석 체험**
 
-1. **[localhost:3001](http://localhost:3001)** 접속  
+1. **[localhost:3001](http://localhost:3001)** 접속
 2. 얼굴 사진 업로드
 3. AI 관상 분석 및 행운의 부적 다운로드
 
@@ -215,6 +218,7 @@ npx expo start --port 8082 --tunnel
 **문제:** `ModuleNotFoundError` 또는 `pip: command not found`
 
 **해결방법:**
+
 ```bash
 # Python 설치 확인
 python --version
@@ -240,6 +244,7 @@ pip install -r requirements.txt
 **문제:** `npm: command not found` 또는 패키지 설치 실패
 
 **해결방법:**
+
 ```bash
 # Node.js 설치 확인
 node --version
@@ -262,6 +267,7 @@ npm install
 **문제:** `Port already in use` 오류
 
 **해결방법:**
+
 ```bash
 # Windows에서 포트 사용 프로세스 확인 및 종료
 netstat -ano | findstr :3000
@@ -280,6 +286,7 @@ kill -9 <PID번호>
 **문제:** Docker 컨테이너 실행 실패
 
 **해결방법:**
+
 ```bash
 # Docker 상태 확인
 docker --version
@@ -300,6 +307,7 @@ docker-compose up --build --force-recreate
 
 1. **[Issues 페이지](https://github.com/YounglaeKim2/MSproject2/issues)**에서 기존 문제 검색
 2. **새로운 이슈 생성** 시 다음 정보 포함:
+
    - 운영체제 및 버전
    - Python, Node.js 버전
    - 에러 메시지 전문
@@ -314,10 +322,12 @@ docker-compose up --build --force-recreate
 ### 📲 **iOS/Android 설치**
 
 1. **Expo Go** 앱 설치
+
    - iOS: [App Store에서 다운로드](https://apps.apple.com/app/expo-go/id982107779)
    - Android: [Google Play에서 다운로드](https://play.google.com/store/apps/details?id=host.exp.exponent)
 
 2. **QR 코드 스캔**
+
    - 모바일 앱 서버 실행 후 나타나는 QR 코드 스캔
    - 또는 `exp://localhost:8082` 직접 입력
 
@@ -336,7 +346,7 @@ docker-compose up --build --force-recreate
 - **[04-api](../04-api/)**: API 연동 및 개발자 가이드
 - **[05-development](../05-development/)**: 코드 수정 및 개발 가이드
 
-**🎉 축하합니다! MSProject2 SAJU 플랫폼을 성공적으로 실행했습니다!** 
+**🎉 축하합니다! MSProject2 SAJU 플랫폼을 성공적으로 실행했습니다!**
 
 ---
 

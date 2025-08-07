@@ -9,7 +9,8 @@
 ### 서비스 구조
 
 - **Main App** (`main-app/`) - 랜딩 페이지 (:4000)
-- **SAJU Service** (`SAJU/`) - 사주팔자 분석 (:8000/:3000) ✅ **완성**
+- **SAJU Service** (`SAJU/`) - 사주팔자 분석 (:8000/:3000) ✅ **완성 + Azure AI**
+- **NewCompatibility Service** (`NewCompatibility/`) - 궁합 분석 (:8003/:3003) ✅ **완성 + Azure AI**
 - **Physiognomy Service** (`Physiognomy/`) - 관상 분석 (:8001/:3001) 📋 개발중
 
 ## 🏆 현재 완성 상태 (2025-07-28)
@@ -64,15 +65,22 @@ GET  /health      # 헬스 체크 ✅
 # 메인 앱
 cd main-app && npm start
 
-# SAJU 백엔드
+# SAJU 백엔드 (포트 8000)
 cd SAJU/backend && uvicorn app.main:app --reload --port 8000
 
-# SAJU 프론트엔드
+# SAJU 프론트엔드 (포트 3000)
 cd SAJU/frontend && npm start
+
+# NewCompatibility 백엔드 (포트 8003)
+cd NewCompatibility/backend && uvicorn app.main:app --reload --port 8003
+
+# NewCompatibility 프론트엔드 (포트 3003)
+cd NewCompatibility/frontend && npm start
 ```
 
 ### API 테스트
 
+#### SAJU API
 ```bash
 # 헬스 체크
 curl http://localhost:8000/health
@@ -82,11 +90,25 @@ curl -X POST http://localhost:8000/api/v1/saju/analyze \
 -H "Content-Type: application/json" \
 -d '{"year":1990,"month":5,"day":15,"hour":14,"gender":"male","name":"홍길동"}'
 
-# 대운 분석
-curl -X POST http://localhost:8000/api/v1/saju/daeun
+# Azure AI 해석
+curl -X POST http://localhost:8000/api/v1/azure/chat \
+-H "Content-Type: application/json" \
+-d '{"year":1990,"month":5,"day":15,"hour":14,"gender":"male","name":"홍길동"}' \
+--data-urlencode "question=올해 운세는 어떤가요?"
+```
 
-# 세운 분석 (2025년)
-curl -X POST "http://localhost:8000/api/v1/saju/saeun?target_year=2025"
+#### NewCompatibility API  
+```bash
+# 궁합 분석
+curl -X POST http://localhost:8003/api/v1/compatibility/analyze \
+-H "Content-Type: application/json" \
+-d '{"person1":{"name":"홍길동","year":1990,"month":5,"day":15,"hour":14,"gender":"male"},"person2":{"name":"김영희","year":1992,"month":8,"day":20,"hour":10,"gender":"female"}}'
+
+# Azure AI 궁합 해석
+curl -X POST http://localhost:8003/api/v1/azure-compatibility/chat \
+-H "Content-Type: application/json" \
+-d '{"person1":{"name":"홍길동","year":1990,"month":5,"day":15,"hour":14,"gender":"male"},"person2":{"name":"김영희","year":1992,"month":8,"day":20,"hour":10,"gender":"female"}}' \
+--data-urlencode "question=우리 둘의 궁합은 어떤가요?"
 ```
 
 ## 📁 핵심 파일 구조
@@ -94,28 +116,51 @@ curl -X POST "http://localhost:8000/api/v1/saju/saeun?target_year=2025"
 ```
 SAJU/
 ├── backend/app/
-│   ├── main.py                    # FastAPI 앱
-│   ├── api/saju.py               # API 엔드포인트
-│   ├── services/saju_analyzer.py # 37개 분석 메서드
-│   ├── models/saju.py            # Pydantic 모델
-│   └── database/connection.py    # DB 연결
+│   ├── main.py                           # FastAPI 앱
+│   ├── api/saju.py                       # 사주 API 엔드포인트
+│   ├── api/azure_api.py                  # Azure OpenAI API 엔드포인트
+│   ├── services/saju_analyzer.py         # 37개 분석 메서드
+│   ├── services/azure_openai_service.py  # Azure OpenAI 서비스
+│   ├── services/gemini_ai_interpreter.py # Gemini AI 서비스
+│   ├── models/saju.py                    # Pydantic 모델
+│   └── database/connection.py            # DB 연결
 ├── frontend/src/
-│   ├── App.tsx                   # 메인 UI (완성)
-│   └── index.tsx                 # React 엔트리
+│   ├── App.tsx                           # 메인 UI (Gemini + Azure 버튼)
+│   ├── components/AzureAIChatInterface.tsx # Azure AI 채팅 컴포넌트
+│   └── index.tsx                         # React 엔트리
 ├── manseryukDB/
-│   ├── DB/manseryuk.db          # 만세력 DB
-│   └── mdbconn.py               # DB 클래스
-└── 사주해석로직.txt               # 명리학 문서
+│   ├── DB/manseryuk.db                  # 만세력 DB
+│   └── mdbconn.py                       # DB 클래스
+└── 사주해석로직.txt                       # 명리학 문서
+
+NewCompatibility/
+├── backend/app/
+│   ├── main.py                                    # FastAPI 앱
+│   ├── routers/azure_compatibility_api.py         # Azure 궁합 API 엔드포인트
+│   ├── services/compatibility_engine.py           # 궁합 계산 엔진
+│   ├── services/azure_compatibility_ai_service.py # Azure 궁합 AI 서비스
+│   ├── services/compatibility_ai_interpreter.py   # Gemini 궁합 AI 서비스
+│   ├── services/saju_client.py                    # SAJU API 클라이언트
+│   └── models/compatibility.py                    # Pydantic 모델
+├── frontend/src/
+│   ├── App.tsx                              # 메인 UI (Gemini + Azure 버튼)
+│   ├── components/AzureCompatibilityAIChat.tsx # Azure 궁합 채팅 컴포넌트
+│   ├── components/CompatibilityForm.tsx     # 궁합 입력 폼
+│   └── components/CompatibilityResult.tsx   # 궁합 결과 표시
+└── test_data.json                          # 테스트 데이터
 ```
 
 ## 🌐 서비스 접속
 
-| 서비스   | URL                        | 상태 |
-| -------- | -------------------------- | ---- |
-| 메인     | http://localhost:4000      | ✅   |
-| 사주 UI  | http://localhost:3000      | ✅   |
-| 사주 API | http://localhost:8000      | ✅   |
-| API 문서 | http://localhost:8000/docs | ✅   |
+| 서비스            | URL                        | 상태 |
+| ----------------- | -------------------------- | ---- |
+| 메인              | http://localhost:4000      | ✅   |
+| SAJU UI           | http://localhost:3000      | ✅   |
+| SAJU API          | http://localhost:8000      | ✅   |
+| SAJU API 문서     | http://localhost:8000/docs | ✅   |
+| NewCompatibility UI | http://localhost:3003    | ✅   |
+| NewCompatibility API| http://localhost:8003    | ✅   |
+| 궁합 API 문서     | http://localhost:8003/docs | ✅   |
 
 ## 🔨 기술 스택
 
@@ -134,23 +179,46 @@ SAJU/
 
 ### 포트 관리
 
-- Main: 4000 | SAJU: 8000/3000 | Physiognomy: 8001/3001
+- Main: 4000 | SAJU: 8000/3000 | NewCompatibility: 8003/3003 | Physiognomy: 8001/3001
 
 ### CORS 설정
 
 - 개발환경: 모든 origins 허용
 - SAJU: `http://localhost:3000` 허용
 
-## 🎊 현재 프로젝트 상태 (2025.07.29 최종 완성)
+## 🎊 현재 프로젝트 상태 (2025.08.07 Azure OpenAI 통합 완성)
 
-**SAJU 서비스: 100% 완성** ✅
+**SAJU 서비스: 100% 완성 + Azure OpenAI 통합** ✅  
+**NewCompatibility 서비스: 100% 완성 + Azure OpenAI 통합** ✅
 
 ### 완성된 모든 기능들
+
+#### SAJU 서비스 (이중 AI 지원)
 - ✅ **기본 사주 분석**: 37개 메서드, 73,442개 만세력 DB
 - ✅ **대운 분석**: 2세~81세 10년 주기 완벽 계산  
 - ✅ **세운 분석**: 연간/월별 운세 분석
-- ✅ **AI 대화형 해석**: Google Gemini 2.5-flash 완벽 연동
-- ✅ **현대적 UI/UX**: 3초 빠른 시작, 직관적 인터페이스
-- ✅ **안정적 백엔드**: 글로벌 에러 핸들링, UTF-8 완벽 지원
+- ✅ **듀얼 AI 해석**: Google Gemini 2.5-flash + Azure GPT-4.1 
+- ✅ **개인화된 질문 생성**: AI가 사주 기반 맞춤 질문 생성
+- ✅ **현대적 UI/UX**: Gemini/Azure 선택 버튼, 직관적 인터페이스
 
-**🏆 대한민국 최고 수준의 온라인 사주 분석 서비스 완성!** 🚀
+#### NewCompatibility 서비스 (이중 AI 지원)
+- ✅ **SAJU API 기반 궁합 분석**: 완전 독립 마이크로서비스
+- ✅ **오행 상생상극 분석**: 정밀한 궁합 계산
+- ✅ **십성 배합 분석**: 성격 궁합 점수화
+- ✅ **듀얼 AI 해석**: Google Gemini + Azure GPT-4.1 (궁합 특화)
+- ✅ **궁합 전용 질문 생성**: 결혼/갈등/소통/미래 등 맞춤 질문
+- ✅ **실시간 AI 상담**: 관계 개선 조언 제공
+
+### 🤖 AI 통합 현황
+
+#### Azure OpenAI GPT-4.1 통합
+- **SAJU**: `/api/v1/azure/` - 개인 사주 분석 특화
+- **NewCompatibility**: `/api/v1/azure-compatibility/` - 궁합 분석 특화
+- **공통 기능**: 대화형 해석, 개인화된 질문 생성, 연결 테스트
+- **안전한 통합**: try-catch로 Gemini와 독립 운영
+
+#### Google Gemini 2.5-flash (기존)
+- **SAJU**: `/api/v1/saju/` - 기존 서비스 유지
+- **NewCompatibility**: `/api/v1/compatibility/` - 기존 서비스 유지
+
+**🏆 이중 AI 지원으로 세계 최고 수준의 온라인 사주/궁합 분석 플랫폼 완성!** 🚀
